@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
      Navbar scroll effect
   ----------------------------*/
   const navbar = byId("navbar");
-  const mobileQuery = window.matchMedia("(max-width: 767px)");
+  const mobileQuery = window.matchMedia("(max-width: 768px)");
   let lastScrollY = window.scrollY;
   let ticking = false;
   let navIntent = "show";
@@ -264,47 +264,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const prod = products.find(p => p.id === id);
       if (prod) addToCart(prod);
     }
-  });
-
-  /* ---------------------------
-     Profile menu
-  ----------------------------*/
-  const profileBtn = byId("profileBtn");
-  const profileMenu = byId("profileMenu");
-
-  function closeProfileMenu() {
-    profileMenu?.classList.remove("open");
-    profileMenu?.setAttribute("aria-hidden", "true");
-    profileBtn?.setAttribute("aria-expanded", "false");
-  }
-
-  profileBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (!profileMenu) return;
-    const willOpen = !profileMenu.classList.contains("open");
-    profileMenu.classList.toggle("open", willOpen);
-    profileMenu.setAttribute("aria-hidden", String(!willOpen));
-    profileBtn.setAttribute("aria-expanded", String(willOpen));
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!profileMenu || !profileBtn) return;
-    if (!profileMenu.contains(e.target) && !profileBtn.contains(e.target)) {
-      closeProfileMenu();
-    }
-  });
-
-  profileMenu?.addEventListener("click", (e) => {
-    if ((e.target instanceof HTMLElement) && e.target.matches(".profile-action, .logout")) {
-      closeProfileMenu();
-    }
-  });
-
-  byId("logoutBtn")?.addEventListener("click", () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("cart");
-    syncAuthUi();
-    window.location.href = "index.html";
   });
 
   /* ---------------------------
