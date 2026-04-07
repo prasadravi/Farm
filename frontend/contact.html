@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact - Natural Milk</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .contact-page-shell {
+      min-height: 100vh;
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(249,248,243,0.95));
+    }
+
+    .contact-glass-wrap {
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.85);
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(11,16,18,0.08);
+      padding: 24px;
+      margin-top: -56px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .contact-standalone {
+      padding: 60px 0 100px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .form-actions .send-btn {
+      width: 300px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    @media (max-width: 980px) {
+      .contact-glass-wrap {
+        margin-top: -34px;
+        padding: 16px;
+      }
+      .contact-standalone {
+        padding: 42px 0 80px;
+      }
+      .form-actions .send-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="contact-page-shell">
+    <header class="navbar scrolled" id="navbar">
+      <div class="container nav-inner">
+        <nav class="nav-left">
+          <a href="index.html#home">Home</a>
+          <a href="index.html#store">Store</a>
+          <a href="index.html#gallery">Gallery</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+
+        <h1 class="logo">NATURAL MILK</h1>
+
+        <div class="nav-right">
+          <button class="outline-btn" id="loginBtn">Login</button>
+          <button class="outline-btn" id="signUpBtn">Sign Up</button>
+        </div>
+      </div>
+    </header>
+
+    <header class="about-hero" style="background-image: url('images/contact-hero.jpg'); margin-top: 78px;">
+      <div class="about-hero-overlay"></div>
+      <div class="about-hero-content container">
+        <h2 class="about-title">Contacts</h2>
+        <div class="breadcrumb"><a href="index.html#home">Home</a> <span>//</span> <span class="current">Contact</span></div>
+      </div>
+    </header>
+
+    <main class="contact-standalone container">
+      <section class="contact-glass-wrap">
+        <section class="contact-section" style="padding: 0; background: transparent;">
+          <div class="contact-grid">
+            <div class="contact-info">
+              <div class="small-label">CONTACT FORM</div>
+              <h3 class="about-headline">Have Questions? Get In Touch!</h3>
+              <p class="about-paragraph">We are happy to help with fresh milk orders and delivery support.</p>
+              <p class="about-paragraph">Phone: +91 90000 55555</p>
+              <p class="about-paragraph">Address: 705 Pike Street, Convention Center</p>
+              <p class="about-paragraph">Email: support@naturalmilk.com</p>
+            </div>
+
+            <form class="contact-form" id="contactFormPage">
+              <div class="form-row">
+                <input type="text" placeholder="First Name" required>
+                <input type="text" placeholder="Last Name" required>
+              </div>
+              <div class="form-row">
+                <input type="email" placeholder="Email Address" required>
+                <input type="text" placeholder="Subject" required>
+              </div>
+              <textarea rows="5" placeholder="Your Message" required></textarea>
+              <div class="form-actions">
+                <button class="btn send-btn" type="submit">SUBMIT FORM</button>
+                <button class="btn send-btn" type="button" id="backHomeBtn">BACK TO HOME</button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      window.location.href = 'login.html';
+    });
+
+    document.getElementById('signUpBtn').addEventListener('click', () => {
+      window.location.href = 'signup.html';
+    });
+
+    document.getElementById('backHomeBtn').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    document.getElementById('contactFormPage').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Message sent successfully!');
+      e.target.reset();
+    });
+  </script>
+</body>
+</html>

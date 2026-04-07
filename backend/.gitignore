@@ -1,0 +1,4 @@
+target/
+
+# Firebase service account credentials
+src/main/resources/firebase-service-account.json

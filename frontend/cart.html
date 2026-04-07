@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Cart - Natural Milk</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background: linear-gradient(180deg, #fbfaf6 0%, #ffffff 100%);
+      color: #111;
+    }
+    .cart-page {
+      padding: 120px 0 70px;
+    }
+    .cart-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.9fr);
+      gap: 28px;
+      align-items: start;
+    }
+    .panel {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(17, 17, 17, 0.08);
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: 28px 28px 0;
+    }
+    .eyebrow {
+      font-size: 0.78rem;
+      letter-spacing: 6px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      margin-bottom: 8px;
+      color: #1b2430;
+    }
+    .page-copy {
+      color: var(--muted);
+      max-width: 60ch;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+    .cart-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .cart-table th,
+    .cart-table td {
+      text-align: left;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+      vertical-align: middle;
+    }
+    .cart-table th {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: rgba(232, 196, 107, 0.12);
+    }
+    .item-title {
+      font-weight: 600;
+      color: #1b2430;
+    }
+    .item-subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+    .qty-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+    .qty-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 1.1rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      color: #1b2430;
+    }
+    .qty-btn:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .remove-btn {
+      border: none;
+      background: transparent;
+      color: #b45309;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+    .summary-card {
+      background: linear-gradient(180deg, #1b2430 0%, #111827 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.12);
+      position: sticky;
+      top: 100px;
+    }
+    .summary-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .summary-row strong {
+      font-size: 1.15rem;
+    }
+    .summary-actions {
+      display: grid;
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .action-btn {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .action-btn.primary {
+      background: var(--gold);
+      color: #111;
+    }
+    .action-btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .empty-state,
+    .orders-empty {
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .order-list {
+      display: grid;
+      gap: 16px;
+      padding: 0 28px 28px;
+    }
+    .order-card {
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .order-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .order-items {
+      display: grid;
+      gap: 8px;
+    }
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.95rem;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      text-decoration: none;
+      color: #1b2430;
+      font-weight: 600;
+    }
+    .section-block {
+      margin-top: 24px;
+    }
+    .section-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      margin: 0 28px 12px;
+      color: #1b2430;
+    }
+    @media (max-width: 980px) {
+      .cart-shell {
+        grid-template-columns: 1fr;
+      }
+      .summary-card {
+        position: static;
+      }
+    }
+    @media (max-width: 720px) {
+      .panel-head,
+      .section-heading,
+      .order-list {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+      .cart-table thead {
+        display: none;
+      }
+      .cart-table,
+      .cart-table tbody,
+      .cart-table tr,
+      .cart-table td {
+        display: block;
+        width: 100%;
+      }
+      .cart-table tr {
+        padding: 16px 18px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+      }
+      .cart-table td {
+        border: none;
+        padding: 6px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar scrolled" id="navbar">
+    <div class="container nav-inner">
+      <nav class="nav-left">
+        <a href="index.html">Home</a>
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Login</a>
+      </nav>
+
+      <h1 class="logo">NATURAL MILK</h1>
+
+      <div class="nav-right">
+        <a class="outline-btn" href="index.html">Back to Store</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="cart-page">
+    <div class="container">
+      <a class="back-link" href="index.html">← Back to store</a>
+
+      <div class="cart-shell">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="eyebrow">CURRENT CART</div>
+            <h2 class="page-title">Review your order items</h2>
+            <p class="page-copy">Your selected dairy products are stored in your browser and can be updated here before checkout.</p>
+          </div>
+          <div id="cartItemsWrap"></div>
+          <div class="section-block">
+            <h3 class="section-heading">Recent orders</h3>
+            <div id="ordersWrap"></div>
+          </div>
+        </section>
+
+        <aside class="summary-card">
+          <div class="eyebrow" style="color: rgba(255,255,255,0.65);">ORDER SUMMARY</div>
+          <h3 class="summary-title">Checkout details</h3>
+          <div class="summary-row"><span>Items</span><strong id="summaryItems">0</strong></div>
+          <div class="summary-row"><span>Total</span><strong id="summaryTotal">₹0</strong></div>
+          <div class="summary-actions">
+            <button class="action-btn primary" id="checkoutBtn">Place Order</button>
+            <button class="action-btn secondary" id="clearCartBtn">Clear Cart</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script>
+    const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE)
+      ? window.APP_CONFIG.API_BASE
+      : "http://localhost:4000/api";
+
+    const CART_KEY = "cart";
+    const cartItemsWrap = document.getElementById("cartItemsWrap");
+    const ordersWrap = document.getElementById("ordersWrap");
+    const cartCount = document.getElementById("cartCount");
+    const summaryItems = document.getElementById("summaryItems");
+    const summaryTotal = document.getElementById("summaryTotal");
+
+    if (!localStorage.getItem("token")) {
+      window.location.href = "login.html";
+    }
+
+    function getCart() {
+      return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+    }
+
+    function setCart(cart) {
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    }
+
+    function calcTotal(items) {
+      return items.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
+    }
+
+    function updateSummary(cart) {
+      const itemCount = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+      if (cartCount) cartCount.textContent = itemCount;
+      summaryItems.textContent = itemCount;
+      summaryTotal.textContent = `₹${calcTotal(cart)}`;
+    }
+
+    function renderCart() {
+      const cart = getCart();
+      updateSummary(cart);
+
+      if (!cart.length) {
+        cartItemsWrap.innerHTML = '<div class="empty-state">Your cart is empty. Add products from the store to build an order.</div>';
+        return;
+      }
+
+      const rows = cart.map((item, index) => `
+        <tr>
+          <td>
+            <div class="item-title">${item.title}</div>
+            <div class="item-subtitle">Product ID: ${item.id}</div>
+          </td>
+          <td>
+            <div class="qty-controls">
+              <button class="qty-btn" data-action="decrease" data-index="${index}">−</button>
+              <span>${item.qty}</span>
+              <button class="qty-btn" data-action="increase" data-index="${index}">+</button>
+            </div>
+          </td>
+          <td>₹${item.price}</td>
+          <td>₹${Number(item.price) * Number(item.qty)}</td>
+          <td><button class="remove-btn" data-action="remove" data-index="${index}">Remove</button></td>
+        </tr>
+      `).join("");
+
+      cartItemsWrap.innerHTML = `
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Subtotal</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    cartItemsWrap.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+
+      const action = button.dataset.action;
+      const index = Number(button.dataset.index);
+      const cart = getCart();
+      const item = cart[index];
+      if (!item) return;
+
+      if (action === "increase") {
+        cart[index].qty += 1;
+      } else if (action === "decrease") {
+        cart[index].qty -= 1;
+        if (cart[index].qty <= 0) cart.splice(index, 1);
+      } else if (action === "remove") {
+        cart.splice(index, 1);
+      }
+
+      setCart(cart);
+      renderCart();
+    });
+
+    document.getElementById("clearCartBtn").addEventListener("click", () => {
+      localStorage.removeItem(CART_KEY);
+      renderCart();
+    });
+
+    document.getElementById("checkoutBtn").addEventListener("click", async () => {
+      const cart = getCart();
+      if (!cart.length) {
+        alert("Your cart is empty.");
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login before placing an order.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/orders`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            items: cart.map(item => ({
+              id: item.id,
+              title: item.title,
+              qty: Number(item.qty),
+              price: Number(item.price)
+            })),
+            total: calcTotal(cart)
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert("Order placed successfully!");
+          localStorage.removeItem(CART_KEY);
+          renderCart();
+          loadOrders();
+        } else {
+          alert(data.message || "Failed to place order.");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Server error while placing the order.");
+      }
+    });
+
+    async function loadOrders() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        ordersWrap.innerHTML = '<div class="orders-empty">Login to view your saved orders.</div>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/orders/myorders`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        const orders = await res.json();
+        if (!res.ok || !Array.isArray(orders) || orders.length === 0) {
+          ordersWrap.innerHTML = '<div class="orders-empty">No saved orders yet.</div>';
+          return;
+        }
+
+        ordersWrap.innerHTML = orders.map(order => `
+          <article class="order-card">
+            <div class="order-meta">
+              <span>Order ${order.id || "-"}</span>
+              <span>${order.status || "pending"}</span>
+            </div>
+            <div class="order-meta">
+              <span>Total ₹${order.total || 0}</span>
+              <span>${order.items ? order.items.length : 0} items</span>
+            </div>
+            <div class="order-items">
+              ${(order.items || []).map(item => `
+                <div class="order-item">
+                  <span>${item.title} × ${item.qty}</span>
+                  <span>₹${Number(item.price) * Number(item.qty)}</span>
+                </div>
+              `).join("")}
+            </div>
+          </article>
+        `).join("");
+      } catch (error) {
+        console.error(error);
+        ordersWrap.innerHTML = '<div class="orders-empty">Unable to load orders right now.</div>';
+      }
+    }
+
+    renderCart();
+    loadOrders();
+  </script>
+</body>
+</html>

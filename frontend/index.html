@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NATURAL MILK — Fresh Dairy</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <nav class="nav-left">
+        <a href="#home">Home</a>
+        <a href="#" id="openAboutBtn">About</a>
+        <a href="#store" id="navStore">Store</a>
+        <a href="contact.html" id="openContactBtn">Contact</a>
+      </nav>
+
+      <h1 class="logo">NATURAL MILK</h1>
+
+      <div class="nav-right">
+        <button class="outline-btn cart-page-btn" id="cartPageBtn">Cart <span class="cart-pill" id="cartCount">0</span></button>
+        <button class="outline-btn" id="loginBtn">Login</button>
+        <button class="outline-btn" id="signUpBtn">Sign Up</button>
+        <button class="outline-btn" id="logoutBtn" style="display:none;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section id="home" class="hero">
+    <div class="hero-slide" id="slideA" aria-hidden="true"></div>
+    <div class="hero-slide" id="slideB" aria-hidden="true"></div>
+    <div class="overlay"></div>
+
+    <div class="hero-content container">
+      <p class="subtitle">BORN OF NATURE</p>
+      <h1 class="hero-title">DAIRY TRADITIONS<br>YOU CAN TRUST</h1>
+      <p class="hero-desc">We follow natural traditions to deliver pure, fresh milk and curd every day.</p>
+      <a href="#store" class="btn">READ MORE</a>
+    </div>
+  </section>
+
+  <!-- STORE -->
+  <section id="store" class="store-section">
+    <div class="container store-head">
+      <h2 class="store-title">Natural Dairy Products</h2>
+      <div class="small-label">OUR PRODUCTS</div>
+      
+    </div>
+
+    <div class="container store-grid" id="productGrid">
+      <!-- JS will render product cards here -->
+    </div>
+
+    <button id="goTop" class="go-top" title="Go top">GO TOP</button>
+  </section>
+
+  <!-- ✅ THIRD PANEL (Corrected & Final) -->
+  <section id="gallery" class="gallery-section">
+    <div class="container gallery-top">
+      <!-- Text on Top -->
+      <div class="gallery-matter">
+        <h2 class="gallery-title">Our farm is not just a production facility but also an open space for visitors.</h2>
+        <p class="gallery-lead">We invite everyone to see how our products are made — from the fields to handcrafted cheeses and fresh milk on your table.</p>
+      </div>
+    </div>
+
+    <div class="container gallery-wrap">
+      <!-- Main Slideshow -->
+      <div class="gallery-strip-viewport" id="galleryViewport">
+        <div class="gallery-strip" id="galleryStrip">
+          <div class="gallery-item"><img src="images/store1.jpg" alt="Fresh milk pouring"></div>
+          <div class="gallery-item wide"><img src="images/store2.jpg" alt="Cow in field"></div>
+          <div class="gallery-item"><img src="images/about-person.jpg" alt="Farmer smiling"></div>
+          <div class="gallery-item wide"><img src="images/cheese.jpg" alt="Assorted cheeses"></div>
+          <div class="gallery-item"><img src="images/store3.jpg" alt="Farm curd"></div>
+        </div>
+
+        <!-- arrows overlayed above images -->
+        <div class="gallery-controls">
+          <button id="gPrev" class="gallery-btn" aria-label="Previous">‹</button>
+          <button id="gNext" class="gallery-btn" aria-label="Next">›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT OVERLAY -->
+  <div id="aboutOverlay" class="about-overlay" aria-hidden="true">
+    <div class="about-inner" role="dialog" aria-modal="true">
+      <button id="closeAboutBtn" class="about-close" aria-label="Close about">✖</button>
+      <header class="about-hero" style="background-image: url('images/about-hero.jpg')">
+        <div class="about-hero-overlay"></div>
+        <div class="about-hero-content container">
+          <h2 class="about-title">About Us</h2>
+          <div class="breadcrumb"><a href="#home">Home</a> <span>//</span> <span class="current">About Us</span></div>
+        </div>
+        <svg class="torn-edge" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,20 C120,60 360,10 720,40 C1080,70 1320,15 1440,30 L1440,80 L0,80 Z" fill="#ffffff"></path>
+        </svg>
+      </header>
+
+      <main class="about-content container">
+        <div class="about-grid">
+          <div class="about-text">
+            <h3 class="about-headline">Dairy Production Traditions, Proven by Time</h3>
+            <p class="about-paragraph">Our artisans follow traditions passed down through generations.</p>
+          </div>
+          <div class="about-media">
+            <img src="images/about-person.jpg" alt="Farmer" />
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- CONTACT OVERLAY -->
+  <div id="contactOverlay" class="about-overlay" aria-hidden="true">
+    <div class="about-inner" role="dialog" aria-modal="true">
+      <button id="closeContactBtn" class="about-close" aria-label="Close contact">✖</button>
+      <header class="about-hero" style="background-image: url('images/contact-hero.jpg')">
+        <div class="about-hero-overlay"></div>
+        <div class="about-hero-content container">
+          <h2 class="about-title">Contacts</h2>
+          <div class="breadcrumb"><a href="#home">Home</a> <span>//</span> <span class="current">Contact</span></div>
+        </div>
+        <svg class="torn-edge" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,20 C120,60 360,10 720,40 C1080,70 1320,15 1440,30 L1440,80 L0,80 Z" fill="#ffffff"></path>
+        </svg>
+      </header>
+
+      <main class="contact-section container">
+        <div class="contact-grid">
+          <div class="contact-info">
+            <div class="small-label">CONTACT FORM</div>
+            <h3 class="about-headline">Have a question? Contact us now</h3>
+            <p class="about-paragraph">Reach us anytime for orders or product inquiries.</p>
+            <p class="about-paragraph">📞 +9-500-025-200</p>
+            <p class="about-paragraph">📍 256th North Neusvill Avenue, 19302, USA</p>
+            <p class="about-paragraph">✉️ support@emailaddress.com</p>
+          </div>
+
+          <form class="contact-form" id="contactForm">
+            <div class="form-row">
+              <input type="text" placeholder="Your name" required>
+              <input type="text" placeholder="Phone number" required>
+            </div>
+            <div class="form-row">
+              <input type="email" placeholder="Your email" required>
+              <input type="text" placeholder="Subject" required>
+            </div>
+            <textarea rows="5" placeholder="Message" required></textarea>
+            <button class="btn send-btn" type="submit">SEND MESSAGE</button>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    const cartBtn = document.getElementById('cartPageBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const signUpBtn = document.getElementById('signUpBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    if (token) {
+      cartBtn.style.display = 'inline-flex';
+      logoutBtn.style.display = 'inline-flex';
+      loginBtn.style.display = 'none';
+      signUpBtn.style.display = 'none';
+    } else {
+      cartBtn.style.display = 'none';
+      logoutBtn.style.display = 'none';
+      loginBtn.style.display = 'inline-flex';
+      signUpBtn.style.display = 'inline-flex';
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      window.location.href = 'login.html';
+    });
+    document.getElementById('signUpBtn').addEventListener('click', () => {
+      window.location.href = 'signup.html';
+    });
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('cart');
+      window.location.href = 'index.html';
+    });
+    document.getElementById('cartPageBtn').addEventListener('click', () => {
+      if (!localStorage.getItem('token')) {
+        window.location.href = 'login.html';
+        return;
+      }
+      window.location.href = 'cart.html';
+    });
+  </script>
+</body>
+</html>
