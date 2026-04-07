@@ -721,11 +721,13 @@
         if (res.ok) {
           const etaMinutes = (Math.random() < 0.5) ? 5 : 10;
           localStorage.setItem("last_delivery_eta", String(etaMinutes));
+          localStorage.setItem(
+            "post_order_toast",
+            `Order placed! Delivery in ${etaMinutes} mins. You got 10% OFF on your next order.`
+          );
           updateDeliveryEtaBanner(etaMinutes);
-          alert(`Order placed successfully! Delivery in ${etaMinutes} mins.`);
           localStorage.removeItem(CART_KEY);
-          renderCart();
-          loadOrders();
+          window.location.href = "index.html#store";
         } else {
           alert(data.message || "Failed to place order.");
         }

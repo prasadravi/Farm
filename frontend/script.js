@@ -35,6 +35,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1300);
   }
 
+  const postOrderToast = localStorage.getItem("post_order_toast");
+  if (postOrderToast) {
+    showToast(postOrderToast);
+    localStorage.removeItem("post_order_toast");
+  }
+
   /* ---------------------------
      Auth helpers
   ----------------------------*/
