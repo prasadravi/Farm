@@ -45,6 +45,30 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
+  let serverSessionValid = null;
+
+  async function validateSessionWithServer(force = false) {
+    if (!isLoggedIn()) return false;
+    if (!force && serverSessionValid === true) return true;
+
+    const token = getToken();
+    if (!token) return false;
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/me`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("Unauthorized");
+      serverSessionValid = true;
+      return true;
+    } catch (_err) {
+      serverSessionValid = false;
+      localStorage.removeItem("token");
+      localStorage.removeItem(CART_KEY);
+      return false;
+    }
+  }
+
   function enforceAuthState() {
     if (!isLoggedIn()) {
       localStorage.removeItem("token");
@@ -302,8 +326,9 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   updateCartCount();
 
-  function addToCart(item) {
-    if (!isLoggedIn()) {
+  async function addToCart(item) {
+    const canUseCart = await validateSessionWithServer();
+    if (!canUseCart) {
       alert("Please login first to add items to cart.");
       window.location.href = "login.html?next=index.html";
       return;
@@ -324,7 +349,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (t.matches(".add-btn")) {
       const id = t.dataset.id;
       const prod = products.find(p => p.id === id);
-      if (prod) addToCart(prod);
+      if (prod) {
+        addToCart(prod);
+      }
     }
   });
 
@@ -378,9 +405,10 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCartCount();
   };
 
-  openCartBtn?.addEventListener("click", e => {
+  openCartBtn?.addEventListener("click", async e => {
     e.preventDefault();
-    if (!isLoggedIn()) {
+    const canUseCart = await validateSessionWithServer();
+    if (!canUseCart) {
       window.location.href = "login.html?next=cart.html";
       return;
     }
@@ -427,7 +455,8 @@ document.addEventListener("DOMContentLoaded", () => {
   drawerCheckout?.addEventListener("click", async () => {
     try {
       const token = getToken();
-      if (!token || !isLoggedIn()) {
+      const canUseCart = await validateSessionWithServer(true);
+      if (!token || !canUseCart) {
         enforceAuthState();
         alert("Please login first.");
         window.location.href = "login.html?next=cart.html";

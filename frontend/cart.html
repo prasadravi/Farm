@@ -322,6 +322,32 @@
       return true;
     }
 
+    let serverSessionValid = null;
+
+    async function validateSessionWithServer(force = false) {
+      if (!isLoggedIn()) return false;
+      if (!force && serverSessionValid === true) return true;
+
+      const token = localStorage.getItem("token");
+      if (!token) return false;
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        if (!res.ok) throw new Error("Unauthorized");
+        serverSessionValid = true;
+        return true;
+      } catch (_err) {
+        serverSessionValid = false;
+        localStorage.removeItem("token");
+        localStorage.removeItem(CART_KEY);
+        return false;
+      }
+    }
+
     function enforceAuthState() {
       if (!isLoggedIn()) {
         localStorage.removeItem("token");
@@ -329,9 +355,14 @@
       }
     }
 
-    enforceAuthState();
-    if (!isLoggedIn()) {
-      window.location.href = "login.html?next=cart.html";
+    async function guardAuthOrRedirect() {
+      enforceAuthState();
+      const valid = await validateSessionWithServer();
+      if (!valid) {
+        window.location.href = "login.html?next=cart.html";
+        return false;
+      }
+      return true;
     }
 
     function getCart() {
@@ -433,7 +464,8 @@
       }
 
       const token = localStorage.getItem("token");
-      if (!token || !isLoggedIn()) {
+      const valid = await validateSessionWithServer(true);
+      if (!token || !valid) {
         enforceAuthState();
         alert("Please login before placing an order.");
         window.location.href = "login.html?next=cart.html";
@@ -475,7 +507,8 @@
 
     async function loadOrders() {
       const token = localStorage.getItem("token");
-      if (!token || !isLoggedIn()) {
+      const valid = await validateSessionWithServer();
+      if (!token || !valid) {
         enforceAuthState();
         ordersWrap.innerHTML = '<div class="orders-empty">Login to view your saved orders.</div>';
         return;
@@ -520,8 +553,12 @@
       }
     }
 
-    renderCart();
-    loadOrders();
+    (async function initCartPage() {
+      const ok = await guardAuthOrRedirect();
+      if (!ok) return;
+      renderCart();
+      loadOrders();
+    })();
   </script>
 </body>
 </html>
