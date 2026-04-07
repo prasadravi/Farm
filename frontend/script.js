@@ -78,12 +78,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function syncAuthUi() {
     const cartPageBtn = byId("cartPageBtn");
+    const loginLink = document.querySelector(".nav-login-link");
+    const signupLink = document.querySelector(".nav-signup-link");
+    const logoutBtn = byId("logoutBtn");
+
+    const loggedIn = isLoggedIn();
+
+    if (loginLink) loginLink.style.display = loggedIn ? "none" : "inline-flex";
+    if (signupLink) signupLink.style.display = loggedIn ? "none" : "inline-flex";
+    if (logoutBtn) logoutBtn.style.display = loggedIn ? "inline-flex" : "none";
 
     if (!cartPageBtn) return;
 
     enforceAuthState();
 
-    cartPageBtn.classList.toggle("logged-in", isLoggedIn());
+    cartPageBtn.classList.toggle("logged-in", loggedIn);
     cartPageBtn.style.display = "inline-flex";
   }
 
@@ -314,6 +323,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const CART_KEY = "cart";
   const getCart = () => JSON.parse(localStorage.getItem(CART_KEY) || "[]");
   const setCart = c => localStorage.setItem(CART_KEY, JSON.stringify(c));
+  const logoutBtn = byId("logoutBtn");
+
+  logoutBtn?.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem(CART_KEY);
+    serverSessionValid = false;
+    updateCartCount();
+    syncAuthUi();
+    alert("Logged out successfully.");
+    window.location.href = "index.html";
+  });
+
   const updateCartCount = () => {
     const el = byId("cartCount");
     if (!el) return;
