@@ -533,8 +533,7 @@
 
     function updateCheckoutState() {
       if (!checkoutBtn) return;
-      checkoutBtn.disabled = !addressReady;
-      checkoutBtn.textContent = addressReady ? "Place Order" : "Add Address to proceed";
+      checkoutBtn.textContent = addressReady ? "Place Order" : "Add Address";
     }
 
     function initAddressState() {
@@ -650,14 +649,16 @@
     });
 
     checkoutBtn?.addEventListener("click", async () => {
-      const cart = getCart();
-      if (!cart.length) {
-        alert("Your cart is empty.");
+      if (!addressReady) {
+        if (addressStatus) addressStatus.textContent = "Complete address first";
+        addressInput?.focus();
+        addressInput?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
 
-      if (!addressReady) {
-        alert("Please add address first.");
+      const cart = getCart();
+      if (!cart.length) {
+        alert("Your cart is empty.");
         return;
       }
 
