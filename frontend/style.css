@@ -231,15 +231,16 @@ body {
 }
 .store-grid { 
   display: grid; 
-  grid-template-columns: repeat(3, 1fr); 
-  gap: 36px; 
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+  gap: clamp(18px, 3vw, 36px); 
   align-items: stretch; 
 }
 .store-card { 
   position: relative; 
   display: block; 
-  height: 520px; 
-  border-radius: 4px; 
+  aspect-ratio: 4 / 5; 
+  min-height: 320px; 
+  border-radius: 18px; 
   overflow: hidden; 
   text-decoration: none; 
   color: var(--white); 
@@ -261,12 +262,12 @@ body {
   display: flex; 
   flex-direction: column; 
   justify-content: flex-end; 
-  padding: 18px; 
+  padding: clamp(16px, 2.2vw, 24px); 
   z-index: 2; 
 }
 .store-card .card-caption { 
   font-family: 'Playfair Display', serif; 
-  font-size: 20px; 
+  font-size: clamp(1.05rem, 2vw, 1.35rem); 
   font-weight: 500; 
   color: var(--white); 
   text-align: center; 
@@ -1064,28 +1065,29 @@ body {
   position: relative; 
   width: 100%; 
   overflow: hidden; 
-  border-radius: 8px; 
+  border-radius: 18px; 
 }
 .gallery-strip { 
   display: flex; 
-  gap: 20px; 
+  gap: clamp(14px, 2vw, 24px); 
   align-items: stretch; 
   will-change: transform; 
   transform: translateX(0); 
   transition: transform 520ms cubic-bezier(.22,.9,.2,1); 
-  padding: 8px 12px; 
+  padding: clamp(8px, 1.5vw, 14px); 
 }
 .gallery-item { 
-  flex: 0 0 300px; 
-  height: 420px; 
-  border-radius: 6px; 
+  flex: 0 0 clamp(240px, 28vw, 340px); 
+  aspect-ratio: 3 / 4; 
+  min-height: 300px; 
+  border-radius: 18px; 
   overflow: hidden; 
   background: #eaeaea; 
-  box-shadow: 0 12px 40px rgba(6,16,28,0.06); 
+  box-shadow: 0 12px 40px rgba(6,16,28,0.08); 
 }
 .gallery-item.wide { 
-  flex: 0 0 420px; 
-  height: 520px; 
+  flex-basis: clamp(280px, 34vw, 440px); 
+  aspect-ratio: 4 / 5; 
 }
 .gallery-item img { 
   width: 100%; 
@@ -1300,4 +1302,426 @@ body {
   height: 36px;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+
+/* Product cards and gallery fluid cleanup */
+.store-card .card-controls {
+  flex-wrap: wrap;
+}
+
+.store-card .card-controls .add-btn,
+.store-card .card-controls .cart-page-btn {
+  min-height: 40px;
+}
+
+.gallery-title,
+.store-title {
+  text-wrap: balance;
+}
+
+.gallery-lead,
+.hero-desc {
+  text-wrap: pretty;
+}
+
+@media (max-width: 980px) {
+  .store-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .store-card {
+    aspect-ratio: 16 / 11;
+    min-height: 280px;
+  }
+
+  .gallery-item,
+  .gallery-item.wide {
+    flex-basis: min(86vw, 640px);
+    min-height: 240px;
+  }
+
+  .gallery-controls {
+    right: 10px;
+    top: 10px;
+  }
+}
+
+@media (max-width: 720px) {
+  .store-section {
+    padding: 72px 0;
+  }
+
+  .store-head {
+    margin-bottom: 28px;
+  }
+
+  .store-card {
+    aspect-ratio: 4 / 5;
+    min-height: 260px;
+    border-radius: 16px;
+  }
+
+  .store-card .card-inner {
+    padding: 16px;
+  }
+
+  .store-card .card-controls {
+    gap: 8px;
+  }
+
+  .gallery-section {
+    padding: 72px 0 88px;
+  }
+
+  .gallery-wrap {
+    margin-top: 18px;
+  }
+
+  .gallery-strip {
+    gap: 12px;
+  }
+
+  .gallery-item,
+  .gallery-item.wide {
+    flex-basis: 82vw;
+    min-height: 220px;
+    border-radius: 16px;
+  }
+
+  .gallery-controls {
+    right: 8px;
+    top: 8px;
+    gap: 8px;
+  }
+
+  .gallery-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .store-card {
+    min-height: 240px;
+  }
+
+  .store-card .card-caption {
+    font-size: 1rem;
+  }
+
+  .gallery-item,
+  .gallery-item.wide {
+    flex-basis: 88vw;
+    min-height: 200px;
+  }
+}
+
+/* Responsive cleanup overrides */
+body {
+  overflow-x: hidden;
+}
+
+@media (max-width: 1200px) {
+  .container {
+    width: min(92%, 1200px);
+  }
+
+  .store-card {
+    height: 460px;
+  }
+}
+
+@media (max-width: 980px) {
+  .navbar {
+    padding: 12px 0;
+  }
+
+  .nav-inner {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .nav-left,
+  .nav-right {
+    position: static;
+    left: auto;
+    right: auto;
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .logo {
+    order: -1;
+    width: 100%;
+    text-align: center;
+    font-size: 1.45rem;
+    line-height: 1.1;
+  }
+
+  .hero {
+    min-height: 100svh;
+    height: auto;
+    padding: 180px 0 80px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.2rem, 7vw, 3.2rem);
+  }
+
+  .hero-desc {
+    font-size: 0.98rem;
+    padding-inline: 6px;
+  }
+
+  .store-section {
+    padding: 84px 0;
+    min-height: auto;
+  }
+
+  .store-head {
+    margin-bottom: 28px;
+  }
+
+  .store-title {
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+
+  .store-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .store-card {
+    height: 380px;
+  }
+
+  .contact-grid,
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .about-hero {
+    height: 34vh;
+    min-height: 260px;
+  }
+
+  .about-title {
+    font-size: clamp(2rem, 7vw, 3rem);
+  }
+
+  .about-content {
+    padding: 56px 0 88px;
+  }
+
+  .gallery-section {
+    min-height: auto;
+    padding: 84px 0;
+  }
+
+  .gallery-title {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+  }
+
+  .gallery-lead {
+    font-size: 1rem;
+  }
+
+  .gallery-item {
+    flex: 0 0 82%;
+    height: 280px;
+  }
+
+  .gallery-item.wide {
+    flex: 0 0 92%;
+    height: 320px;
+  }
+
+  .gallery-controls {
+    right: 8px;
+    bottom: 8px;
+    top: auto;
+  }
+
+  .gallery-btn {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 720px) {
+  .nav-inner {
+    gap: 8px;
+  }
+
+  .nav-left,
+  .nav-right {
+    gap: 8px;
+  }
+
+  .nav-left a,
+  .nav-right .outline-btn {
+    font-size: 0.92rem;
+  }
+
+  .nav-right {
+    gap: 10px;
+  }
+
+  .hero-content {
+    padding: 12px;
+  }
+
+  .subtitle {
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+  }
+
+  .btn,
+  .send-btn,
+  .outline-btn,
+  .auth-form .btn,
+  .auth-container .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .store-card {
+    height: 340px;
+  }
+
+  .store-card .card-inner {
+    padding: 16px;
+  }
+
+  .store-card .card-caption {
+    font-size: 18px;
+  }
+
+  .contact-form .form-row {
+    flex-direction: column;
+  }
+
+  .send-btn {
+    align-self: stretch;
+  }
+
+  .contact-form input,
+  .contact-form textarea,
+  .auth-form input,
+  .auth-container input {
+    border-radius: 16px;
+  }
+
+  .gallery-item,
+  .gallery-item.wide {
+    flex-basis: 88%;
+    height: 240px;
+  }
+
+  .gallery-wrap {
+    width: 100%;
+  }
+
+  .gallery-strip-viewport {
+    border-radius: 18px;
+  }
+
+  .auth-body {
+    height: auto;
+    min-height: 100svh;
+    padding: 24px 14px;
+  }
+
+  .auth-container {
+    padding: 28px 18px;
+    border-radius: 18px;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    width: min(94%, 1200px);
+  }
+
+  .navbar {
+    padding: 10px 0;
+  }
+
+  .nav-inner {
+    gap: 6px;
+  }
+
+  .nav-left,
+  .nav-right {
+    gap: 6px;
+  }
+
+  .logo {
+    font-size: 1.08rem;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-left {
+    gap: 10px;
+  }
+
+  .nav-left a,
+  .outline-btn {
+    padding: 7px 12px;
+  }
+
+  .hero {
+    padding: 170px 0 72px;
+  }
+
+  .hero-title {
+    font-size: clamp(1.9rem, 9vw, 2.6rem);
+  }
+
+  .hero-desc {
+    line-height: 1.55;
+  }
+
+  .store-title,
+  .about-headline,
+  .contact-info .about-headline {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+  }
+
+  .store-card {
+    height: 300px;
+  }
+
+  .about-hero {
+    height: 30vh;
+    min-height: 220px;
+  }
+
+  .gallery-title {
+    font-size: 1.35rem;
+  }
+
+  .gallery-item,
+  .gallery-item.wide {
+    flex-basis: 92%;
+    height: 210px;
+  }
+
+  .cart-pill {
+    min-width: 22px;
+    height: 22px;
+    font-size: 0.72rem;
+  }
 }

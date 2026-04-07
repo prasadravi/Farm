@@ -18,3 +18,6 @@ backend/src/main/resources/firebase-service-account.json
 
 # Runtime logs
 *.log
+
+# Local deployment values
+render-env-values.txt
