@@ -12,6 +12,25 @@ document.addEventListener("DOMContentLoaded", () => {
   function byId(id) { return document.getElementById(id); }
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
+  let toastTimer = null;
+
+  function showToast(message) {
+    let toast = byId("appToast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "appToast";
+      toast.className = "app-toast";
+      document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    if (toastTimer) window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toast.classList.remove("show");
+    }, 1800);
+  }
 
   /* ---------------------------
      Auth helpers
@@ -331,6 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
     serverSessionValid = false;
     updateCartCount();
     syncAuthUi();
+    showToast("Logged out successfully");
     window.location.href = "index.html";
   });
 
@@ -361,6 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setCart(cart);
     updateCartCount();
     renderDrawer();
+    showToast(`${item.title} added to cart`);
   }
 
   productGrid?.addEventListener("click", e => {
