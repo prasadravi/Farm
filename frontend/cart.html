@@ -93,6 +93,32 @@
       margin-bottom: 8px;
       font-weight: 600;
     }
+    .address-input {
+      width: 100%;
+      border: 1px solid #d7c9a7;
+      background: #fffdf7;
+      color: #1f2937;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.86rem;
+      margin-bottom: 8px;
+      outline: none;
+    }
+    .address-input:focus {
+      border-color: #c9ac67;
+      box-shadow: 0 0 0 3px rgba(201, 172, 103, 0.16);
+    }
+    .address-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .address-status {
+      font-size: 0.76rem;
+      color: #6f4f16;
+      margin-top: 2px;
+      min-height: 18px;
+    }
     .item-list {
       display: grid;
       gap: 8px;
@@ -254,6 +280,11 @@
       font-weight: 700;
       cursor: pointer;
     }
+    .checkout-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      filter: grayscale(0.2);
+    }
     .checkout-btn:hover {
       filter: brightness(0.97);
     }
@@ -357,6 +388,15 @@
         </section>
 
         <section class="card">
+          <div class="section-title">Delivery address</div>
+          <input id="addressInput" class="address-input" type="text" placeholder="Enter your full address" />
+          <div class="address-row">
+            <button class="mini-btn" type="button" id="saveAddressBtn">Add Address</button>
+            <div class="address-status" id="addressStatus"></div>
+          </div>
+        </section>
+
+        <section class="card">
           <div class="section-title">Bill summary</div>
           <div class="bill-row"><span>Item total</span><strong id="originalTotal">₹0</strong></div>
           <div class="bill-row"><span>Delivery fee</span><strong>FREE</strong></div>
@@ -409,9 +449,15 @@
     const summarySavings = document.getElementById("summarySavings");
     const savingsAmount = document.getElementById("savingsAmount");
     const payableTotal = document.getElementById("payableTotal");
+    const addressInput = document.getElementById("addressInput");
+    const saveAddressBtn = document.getElementById("saveAddressBtn");
+    const addressStatus = document.getElementById("addressStatus");
+    const checkoutBtn = document.getElementById("checkoutBtn");
     const cartContent = document.getElementById("cartContent");
     const guestLoginView = document.getElementById("guestLoginView");
     const checkoutWrap = document.querySelector(".checkout-wrap");
+    const ADDRESS_KEY = "delivery_address";
+    let addressReady = false;
 
     function parseJwtPayload(token) {
       try {
@@ -483,6 +529,24 @@
       if (cartContent) cartContent.style.display = "grid";
       if (guestLoginView) guestLoginView.style.display = "none";
       if (checkoutWrap) checkoutWrap.style.display = "block";
+    }
+
+    function updateCheckoutState() {
+      if (!checkoutBtn) return;
+      checkoutBtn.disabled = !addressReady;
+      checkoutBtn.textContent = addressReady ? "Place Order" : "Add Address to proceed";
+    }
+
+    function initAddressState() {
+      const savedAddress = (localStorage.getItem(ADDRESS_KEY) || "").trim();
+      if (addressInput) {
+        addressInput.value = savedAddress;
+      }
+      addressReady = savedAddress.length >= 6;
+      if (addressStatus) {
+        addressStatus.textContent = addressReady ? "Address added" : "";
+      }
+      updateCheckoutState();
     }
 
     function getCart() {
@@ -571,10 +635,29 @@
       renderCart();
     });
 
-    document.getElementById("checkoutBtn").addEventListener("click", async () => {
+    saveAddressBtn?.addEventListener("click", () => {
+      const value = (addressInput?.value || "").trim();
+      if (value.length < 6) {
+        addressReady = false;
+        if (addressStatus) addressStatus.textContent = "Please enter a valid address.";
+        updateCheckoutState();
+        return;
+      }
+      localStorage.setItem(ADDRESS_KEY, value);
+      addressReady = true;
+      if (addressStatus) addressStatus.textContent = "Address added";
+      updateCheckoutState();
+    });
+
+    checkoutBtn?.addEventListener("click", async () => {
       const cart = getCart();
       if (!cart.length) {
         alert("Your cart is empty.");
+        return;
+      }
+
+      if (!addressReady) {
+        alert("Please add address first.");
         return;
       }
 
@@ -675,6 +758,7 @@
         return;
       }
       showCartContent();
+      initAddressState();
       renderCart();
       loadOrders();
     })();
