@@ -239,6 +239,20 @@
       margin-bottom: 6px;
       color: #6b7280;
     }
+    .order-delete-btn {
+      border: 1px solid rgba(180, 83, 9, 0.28);
+      background: #fff8e7;
+      color: #92400e;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      line-height: 1.2;
+    }
+    .order-delete-btn:hover {
+      background: #fef3c7;
+    }
     .order-items {
       display: grid;
       gap: 4px;
@@ -458,6 +472,7 @@
     const guestLoginView = document.getElementById("guestLoginView");
     const checkoutWrap = document.querySelector(".checkout-wrap");
     const ADDRESS_KEY = "delivery_address";
+    const HIDDEN_ORDERS_KEY = "hidden_recent_orders";
     let addressReady = false;
 
     function parseJwtPayload(token) {
@@ -737,19 +752,27 @@
         });
 
         const orders = await res.json();
-        if (!res.ok || !Array.isArray(orders) || orders.length === 0) {
+        const hiddenIds = JSON.parse(localStorage.getItem(HIDDEN_ORDERS_KEY) || "[]");
+        const visibleOrders = Array.isArray(orders)
+          ? orders.filter(order => !hiddenIds.includes(String(order.id || "")))
+          : [];
+
+        if (!res.ok || visibleOrders.length === 0) {
           ordersWrap.innerHTML = '<div class="orders-empty">No saved orders yet.</div>';
           return;
         }
 
-        const latestEta = getDeliveryEtaForOrder(orders[0]);
+        const latestEta = getDeliveryEtaForOrder(visibleOrders[0]);
         updateDeliveryEtaBanner(latestEta);
 
-        ordersWrap.innerHTML = orders.map(order => `
+        ordersWrap.innerHTML = visibleOrders.map(order => `
           <article class="order-card">
             <div class="order-meta">
               <span>Order ${order.id || "-"}</span>
-              <span>${order.status || "pending"}</span>
+              <span>
+                <span style="margin-right:8px;">${order.status || "pending"}</span>
+                ${order.id ? `<button class="order-delete-btn" data-order-id="${order.id}">Delete</button>` : ""}
+              </span>
             </div>
             <div class="order-meta">
               <span>Total ₹${order.total || 0}</span>
@@ -774,6 +797,22 @@
         ordersWrap.innerHTML = '<div class="orders-empty">Unable to load orders right now.</div>';
       }
     }
+
+    ordersWrap.addEventListener("click", (event) => {
+      const deleteBtn = event.target.closest(".order-delete-btn");
+      if (!deleteBtn) return;
+
+      const orderId = deleteBtn.dataset.orderId;
+      if (!orderId) return;
+
+      const hiddenIds = JSON.parse(localStorage.getItem(HIDDEN_ORDERS_KEY) || "[]");
+      if (!hiddenIds.includes(orderId)) {
+        hiddenIds.push(orderId);
+        localStorage.setItem(HIDDEN_ORDERS_KEY, JSON.stringify(hiddenIds));
+      }
+
+      loadOrders();
+    });
 
     (async function initCartPage() {
       const ok = await hasValidSession();
