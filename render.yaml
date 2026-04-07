@@ -2,10 +2,9 @@ services:
   - type: web
     name: natural-milk-backend
     rootDir: backend
-    env: java
+    env: docker
     plan: free
-    buildCommand: mvn clean package -DskipTests
-    startCommand: java -jar target/*.jar
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: JAVA_VERSION
         value: 17
