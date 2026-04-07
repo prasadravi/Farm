@@ -232,7 +232,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let active = slideA, passive = slideB;
     let idx = 0;
     const setSlide = (el, src) => el.style.backgroundImage = `url('${src}')`;
-    heroImages.forEach(src => { const img = new Image(); img.src = src; });
     setSlide(active, heroImages[0]);
     active.classList.add("visible");
     setSlide(passive, heroImages[1] || heroImages[0]);
@@ -447,20 +446,9 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCartCount();
   };
 
-  openCartBtn?.addEventListener("click", async e => {
+  openCartBtn?.addEventListener("click", e => {
     e.preventDefault();
-    const canUseCart = await validateSessionWithServer();
-    if (!canUseCart) {
-      window.location.href = "cart.html";
-      return;
-    }
-    if (!drawer || !drawerBackdrop) {
-      window.location.href = "cart.html";
-      return;
-    }
-    drawer.classList.add("open");
-    drawerBackdrop.classList.add("show");
-    renderDrawer();
+    window.location.href = "cart.html";
   });
 
   /* ---------------------------
