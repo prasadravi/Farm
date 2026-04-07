@@ -42,10 +42,33 @@ document.addEventListener("DOMContentLoaded", () => {
   ----------------------------*/
   const navbar = byId("navbar");
   const mobileQuery = window.matchMedia("(max-width: 768px)");
+  const navToggle = byId("navToggle");
+  const navLinks = $$(".nav-left a, .nav-right a, .nav-right button");
   let lastScrollY = window.scrollY;
   let ticking = false;
   let navIntent = "show";
   let applyTimer = null;
+
+  function setMenuState(open) {
+    if (!navbar || !navToggle) return;
+    navbar.classList.toggle("menu-open", open);
+    navToggle.setAttribute("aria-expanded", String(open));
+    if (open) {
+      navbar.classList.add("mobile-navbar-visible");
+      navbar.classList.remove("mobile-navbar-hidden");
+    }
+  }
+
+  navToggle?.addEventListener("click", () => {
+    if (!mobileQuery.matches) return;
+    setMenuState(!navbar.classList.contains("menu-open"));
+  });
+
+  navLinks.forEach((el) => {
+    el.addEventListener("click", () => {
+      if (mobileQuery.matches) setMenuState(false);
+    });
+  });
 
   function applyNavState(intent) {
     if (!navbar) return;
@@ -65,11 +88,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!navbar) return;
     const currentY = window.scrollY;
     const isMobile = mobileQuery.matches;
+    const menuOpen = navbar.classList.contains("menu-open");
 
     if (!isMobile) {
+      setMenuState(false);
       navbar.classList.remove("mobile-navbar-hidden", "mobile-navbar-visible");
       if (currentY > 40) navbar.classList.add("scrolled");
       else navbar.classList.remove("scrolled");
+      lastScrollY = currentY;
+      return;
+    }
+
+    if (menuOpen) {
+      navbar.classList.add("scrolled", "mobile-navbar-visible");
+      navbar.classList.remove("mobile-navbar-hidden");
       lastScrollY = currentY;
       return;
     }
