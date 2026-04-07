@@ -46,26 +46,71 @@ document.addEventListener("DOMContentLoaded", () => {
      Navbar scroll effect
   ----------------------------*/
   const navbar = byId("navbar");
+  const mobileQuery = window.matchMedia("(max-width: 767px)");
   let lastScrollY = window.scrollY;
+  let ticking = false;
+  let navIntent = "show";
+  let applyTimer = null;
+
+  function applyNavState(intent) {
+    if (!navbar) return;
+    if (applyTimer) window.clearTimeout(applyTimer);
+    applyTimer = window.setTimeout(() => {
+      if (intent === "hide") {
+        navbar.classList.add("mobile-navbar-hidden");
+        navbar.classList.remove("mobile-navbar-visible");
+      } else {
+        navbar.classList.add("mobile-navbar-visible");
+        navbar.classList.remove("mobile-navbar-hidden");
+      }
+    }, 70);
+  }
 
   function updateNavbar() {
     if (!navbar) return;
     const currentY = window.scrollY;
-    const scrollingDown = currentY > lastScrollY;
+    const isMobile = mobileQuery.matches;
 
-    if (currentY <= 24) {
-      navbar.classList.remove("scrolled", "is-visible");
-    } else if (scrollingDown) {
-      navbar.classList.add("scrolled", "is-visible");
-    } else {
-      navbar.classList.remove("is-visible");
-      navbar.classList.add("scrolled");
+    if (!isMobile) {
+      navbar.classList.remove("mobile-navbar-hidden", "mobile-navbar-visible");
+      if (currentY > 40) navbar.classList.add("scrolled");
+      else navbar.classList.remove("scrolled");
+      lastScrollY = currentY;
+      return;
+    }
+
+    const delta = currentY - lastScrollY;
+    const absDelta = Math.abs(delta);
+
+    navbar.classList.add("scrolled");
+
+    if (currentY <= 8) {
+      navIntent = "show";
+      applyNavState("show");
+    } else if (absDelta >= 8) {
+      if (delta > 0 && currentY > 72 && navIntent !== "hide") {
+        navIntent = "hide";
+        applyNavState("hide");
+      } else if (delta < 0 && navIntent !== "show") {
+        navIntent = "show";
+        applyNavState("show");
+      }
     }
 
     lastScrollY = currentY;
   }
 
-  window.addEventListener("scroll", updateNavbar, { passive: true });
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(() => {
+      updateNavbar();
+      ticking = false;
+    });
+  }
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  mobileQuery.addEventListener("change", updateNavbar);
   updateNavbar();
 
   /* ---------------------------
