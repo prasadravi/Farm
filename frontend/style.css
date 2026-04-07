@@ -21,30 +21,6 @@ body {
   color: var(--text); 
   background: #fff; 
 }
-
-.app-toast {
-  position: fixed;
-  left: 50%;
-  bottom: 28px;
-  transform: translateX(-50%) translateY(16px);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 9999;
-  background: rgba(17, 24, 39, 0.94);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  padding: 10px 16px;
-  font-size: 0.86rem;
-  font-weight: 600;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-  transition: opacity 0.18s ease, transform 0.18s ease;
-}
-
-.app-toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
 .container { 
   width: 90%; 
   max-width: 1200px; 
@@ -59,6 +35,29 @@ body {
 }
 .space-between { 
   justify-content: space-between; 
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%) translateY(16px);
+  background: rgba(17, 24, 39, 0.95);
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.28);
+  z-index: 1200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* NAVBAR */

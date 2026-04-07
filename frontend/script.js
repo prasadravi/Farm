@@ -19,17 +19,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!toast) {
       toast = document.createElement("div");
       toast.id = "appToast";
-      toast.className = "app-toast";
+      toast.className = "toast";
       document.body.appendChild(toast);
     }
 
     toast.textContent = message;
     toast.classList.add("show");
 
-    if (toastTimer) window.clearTimeout(toastTimer);
+    if (toastTimer) {
+      window.clearTimeout(toastTimer);
+    }
+
     toastTimer = window.setTimeout(() => {
       toast.classList.remove("show");
-    }, 1800);
+    }, 1300);
   }
 
   /* ---------------------------
@@ -351,7 +354,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCartCount();
     syncAuthUi();
     showToast("Logged out successfully");
-    window.location.href = "index.html";
   });
 
   const updateCartCount = () => {
