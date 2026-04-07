@@ -254,6 +254,47 @@
       font-weight: 700;
       cursor: pointer;
     }
+    .guest-login-view {
+      width: min(100%, 430px);
+      margin: 0 auto;
+      min-height: calc(100vh - 230px);
+      display: none;
+      place-items: center;
+    }
+    .guest-login-card {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 28px 18px;
+      text-align: center;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+    }
+    .guest-login-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #111827;
+    }
+    .guest-login-copy {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+    }
+    .guest-login-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      background: #ef4778;
+      color: #fff;
+      padding: 12px 16px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
     @media (min-width: 981px) {
       .cart-stack,
       .checkout-bar {
@@ -284,7 +325,7 @@
 
   <main class="cart-page">
     <div class="container">
-      <div class="cart-stack">
+      <div class="cart-stack" id="cartContent">
         <a class="back-link" href="index.html">← Back to store</a>
         <h2 class="cart-title">Cart</h2>
 
@@ -329,6 +370,14 @@
           <div id="ordersWrap"></div>
         </section>
       </div>
+
+      <div class="guest-login-view" id="guestLoginView">
+        <div class="guest-login-card">
+          <h3 class="guest-login-title">Please Login</h3>
+          <p class="guest-login-copy">Please login to access the cart.</p>
+          <a class="guest-login-btn" href="login.html?next=cart.html">Login</a>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -357,6 +406,9 @@
     const summarySavings = document.getElementById("summarySavings");
     const savingsAmount = document.getElementById("savingsAmount");
     const payableTotal = document.getElementById("payableTotal");
+    const cartContent = document.getElementById("cartContent");
+    const guestLoginView = document.getElementById("guestLoginView");
+    const checkoutWrap = document.querySelector(".checkout-wrap");
 
     function parseJwtPayload(token) {
       try {
@@ -412,14 +464,22 @@
       }
     }
 
-    async function guardAuthOrRedirect() {
+    async function hasValidSession() {
       enforceAuthState();
       const valid = await validateSessionWithServer();
-      if (!valid) {
-        window.location.href = "login.html?next=cart.html";
-        return false;
-      }
-      return true;
+      return valid;
+    }
+
+    function showGuestCartPrompt() {
+      if (cartContent) cartContent.style.display = "none";
+      if (guestLoginView) guestLoginView.style.display = "grid";
+      if (checkoutWrap) checkoutWrap.style.display = "none";
+    }
+
+    function showCartContent() {
+      if (cartContent) cartContent.style.display = "grid";
+      if (guestLoginView) guestLoginView.style.display = "none";
+      if (checkoutWrap) checkoutWrap.style.display = "block";
     }
 
     function getCart() {
@@ -606,8 +666,12 @@
     }
 
     (async function initCartPage() {
-      const ok = await guardAuthOrRedirect();
-      if (!ok) return;
+      const ok = await hasValidSession();
+      if (!ok) {
+        showGuestCartPrompt();
+        return;
+      }
+      showCartContent();
       renderCart();
       loadOrders();
     })();

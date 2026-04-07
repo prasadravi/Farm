@@ -451,7 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const canUseCart = await validateSessionWithServer();
     if (!canUseCart) {
-      window.location.href = "login.html?next=cart.html";
+      window.location.href = "cart.html";
       return;
     }
     if (!drawer || !drawerBackdrop) {
