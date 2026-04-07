@@ -351,7 +351,11 @@ document.addEventListener("DOMContentLoaded", () => {
   openCartBtn?.addEventListener("click", e => {
     e.preventDefault();
     if (!isLoggedIn()) {
-      window.location.href = "login.html";
+      window.location.href = "login.html?next=cart.html";
+      return;
+    }
+    if (!drawer || !drawerBackdrop) {
+      window.location.href = "cart.html";
       return;
     }
     drawer.classList.add("open");
@@ -377,10 +381,12 @@ document.addEventListener("DOMContentLoaded", () => {
   gNext?.addEventListener("click", () => scrollGallery((galleryViewport?.clientWidth || 320) * 0.85));
 
   closeCartDrawer?.addEventListener("click", () => {
+    if (!drawer || !drawerBackdrop) return;
     drawer.classList.remove("open");
     drawerBackdrop.classList.remove("show");
   });
   drawerBackdrop?.addEventListener("click", () => {
+    if (!drawer || !drawerBackdrop) return;
     drawer.classList.remove("open");
     drawerBackdrop.classList.remove("show");
   });

@@ -302,7 +302,7 @@
     const summaryTotal = document.getElementById("summaryTotal");
 
     if (!localStorage.getItem("token")) {
-      window.location.href = "login.html";
+      window.location.href = "login.html?next=cart.html";
     }
 
     function getCart() {
@@ -406,7 +406,7 @@
       const token = localStorage.getItem("token");
       if (!token) {
         alert("Please login before placing an order.");
-        window.location.href = "login.html";
+        window.location.href = "login.html?next=cart.html";
         return;
       }
 
