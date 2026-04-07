@@ -20,18 +20,44 @@ document.addEventListener("DOMContentLoaded", () => {
     return localStorage.getItem('token') || null;
   }
 
+  function parseJwtPayload(token) {
+    try {
+      const parts = token.split(".");
+      if (parts.length !== 3) return null;
+      const normalized = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+      const json = atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "="));
+      return JSON.parse(json);
+    } catch (_err) {
+      return null;
+    }
+  }
+
   const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE)
     ? window.APP_CONFIG.API_BASE
     : "http://localhost:4000/api";
 
   function isLoggedIn() {
-    return !!getToken();
+    const token = getToken();
+    if (!token) return false;
+    const payload = parseJwtPayload(token);
+    if (!payload) return false;
+    if (payload.exp && (payload.exp * 1000) <= Date.now()) return false;
+    return true;
+  }
+
+  function enforceAuthState() {
+    if (!isLoggedIn()) {
+      localStorage.removeItem("token");
+      localStorage.removeItem(CART_KEY);
+    }
   }
 
   function syncAuthUi() {
     const cartPageBtn = byId("cartPageBtn");
 
     if (!cartPageBtn) return;
+
+    enforceAuthState();
 
     cartPageBtn.classList.toggle("logged-in", isLoggedIn());
     cartPageBtn.style.display = "inline-flex";
@@ -267,6 +293,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const updateCartCount = () => {
     const el = byId("cartCount");
     if (!el) return;
+    if (!isLoggedIn()) {
+      el.textContent = "0";
+      return;
+    }
     const items = getCart();
     el.textContent = items.reduce((sum, i) => sum + (i.qty || 0), 0);
   };
@@ -275,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function addToCart(item) {
     if (!isLoggedIn()) {
       alert("Please login first to add items to cart.");
-      window.location.href = "login.html";
+      window.location.href = "login.html?next=index.html";
       return;
     }
 
