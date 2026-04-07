@@ -83,6 +83,26 @@ body {
   align-items: center; 
   gap: var(--nav-right-gap); 
 }
+.nav-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.08);
+  color: var(--white);
+  transition: transform .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
+}
+.nav-action:hover { 
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.16);
+}
 .cart-page-btn {
   display: inline-flex;
   align-items: center;
@@ -133,6 +153,15 @@ body {
 .navbar.scrolled .outline-btn:hover { 
   background: #222; 
   color: #fff; 
+}
+.navbar.scrolled .nav-action { 
+  color: #1f2937; 
+  background: #fff; 
+  border-color: rgba(17,24,39,0.12); 
+  box-shadow: 0 4px 14px rgba(15,23,32,0.04);
+}
+.navbar.scrolled .nav-action:hover {
+  background: #f8f4ea;
 }
 
 /* HERO & SLIDES */
@@ -2057,10 +2086,6 @@ body {
   pointer-events: auto;
 }
 
-.nav-login-link {
-  display: none;
-}
-
 .nav-inner {
   flex-direction: row;
   align-items: center;
@@ -2178,21 +2203,29 @@ body {
   }
 
   .nav-inner {
-    justify-content: center;
+    justify-content: space-between;
   }
 
-  .logo,
-  .nav-right {
+  .logo {
     display: none;
   }
 
   .nav-left {
     position: static;
-    width: 100%;
-    justify-content: space-between;
+    width: auto;
+    justify-content: flex-start;
     align-items: center;
     gap: 8px;
     padding: 4px 0;
+  }
+
+  .nav-right {
+    position: static;
+    right: auto;
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+    margin-left: 12px;
   }
 
   .nav-left a {
@@ -2201,6 +2234,7 @@ body {
     font-weight: 600;
     padding: 8px 6px;
     border-radius: 10px;
+    white-space: nowrap;
   }
 
   .nav-left a:hover {
@@ -2208,8 +2242,15 @@ body {
     background: #f7f4ec;
   }
 
-  .nav-login-link {
-    display: inline-flex;
+  .nav-action {
+    min-height: 36px;
+    padding: 7px 12px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  .cart-page-btn {
+    gap: 6px;
   }
 }
 

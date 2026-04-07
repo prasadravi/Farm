@@ -29,17 +29,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function syncAuthUi() {
-    const logoutBtn = byId("logoutBtn");
-    const profileMenu = byId("profileMenu");
     const cartPageBtn = byId("cartPageBtn");
 
-    if (!logoutBtn || !profileMenu || !cartPageBtn) return;
+    if (!cartPageBtn) return;
 
-    const loggedIn = isLoggedIn();
-    logoutBtn.style.display = loggedIn ? "flex" : "none";
-    profileMenu.dataset.loggedIn = loggedIn ? "true" : "false";
-    cartPageBtn.classList.toggle("logged-in", loggedIn);
-    cartPageBtn.style.display = loggedIn ? "inline-flex" : "none";
+    cartPageBtn.classList.toggle("logged-in", isLoggedIn());
+    cartPageBtn.style.display = "inline-flex";
   }
 
   /* ---------------------------
