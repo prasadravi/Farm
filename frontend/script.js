@@ -331,7 +331,6 @@ document.addEventListener("DOMContentLoaded", () => {
     serverSessionValid = false;
     updateCartCount();
     syncAuthUi();
-    alert("Logged out successfully.");
     window.location.href = "index.html";
   });
 
@@ -362,7 +361,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setCart(cart);
     updateCartCount();
     renderDrawer();
-    alert(`${item.title} added to cart`);
   }
 
   productGrid?.addEventListener("click", e => {

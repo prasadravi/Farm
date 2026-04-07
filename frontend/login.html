@@ -51,7 +51,6 @@
 
         const data = await res.json();
         if (res.ok) {
-          alert("Login successful!");
           localStorage.setItem("token", data.token);
           window.location.href = (nextPage && !nextPage.startsWith("http")) ? nextPage : "index.html";
         } else {
