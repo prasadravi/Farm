@@ -4,11 +4,11 @@ import com.naturalmilk.model.Order;
 import com.naturalmilk.security.JwtTokenProvider;
 import com.naturalmilk.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/orders")
@@ -20,10 +20,28 @@ public class OrderController {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
+    private String extractUserId(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return null;
+        }
+
+        String token = authorizationHeader.substring(7).trim();
+        if (token.isEmpty() || !jwtTokenProvider.validateToken(token)) {
+            return null;
+        }
+
+        return jwtTokenProvider.getUserIdFromToken(token);
+    }
+
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestHeader("Authorization") String token, @RequestBody Order order) {
+    public ResponseEntity<?> createOrder(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                         @RequestBody Order order) {
         try {
-            String userId = jwtTokenProvider.getUserIdFromToken(token.replace("Bearer ", ""));
+            String userId = extractUserId(authorizationHeader);
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login to place an order.");
+            }
+
             order.setUserId(userId);
 
             Order createdOrder = orderService.createOrder(order);
@@ -50,9 +68,13 @@ public class OrderController {
     }
 
     @GetMapping("/myorders")
-    public ResponseEntity<?> getUserOrders(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getUserOrders(@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         try {
-            String userId = jwtTokenProvider.getUserIdFromToken(token.replace("Bearer ", ""));
+            String userId = extractUserId(authorizationHeader);
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login to view your orders.");
+            }
+
             List<Order> orders = orderService.getUserOrders(userId);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {

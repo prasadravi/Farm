@@ -427,9 +427,10 @@ document.addEventListener("DOMContentLoaded", () => {
   drawerCheckout?.addEventListener("click", async () => {
     try {
       const token = getToken();
-      if (!token) {
+      if (!token || !isLoggedIn()) {
+        enforceAuthState();
         alert("Please login first.");
-        window.location.href = "login.html";
+        window.location.href = "login.html?next=cart.html";
         return;
       }
 
