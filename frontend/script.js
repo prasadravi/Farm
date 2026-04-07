@@ -29,17 +29,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function syncAuthUi() {
-    const loginBtn = byId("loginBtn");
-    const signUpBtn = byId("signUpBtn");
     const logoutBtn = byId("logoutBtn");
+    const profileMenu = byId("profileMenu");
     const cartPageBtn = byId("cartPageBtn");
 
-    if (!loginBtn || !signUpBtn || !logoutBtn || !cartPageBtn) return;
+    if (!logoutBtn || !profileMenu || !cartPageBtn) return;
 
     const loggedIn = isLoggedIn();
-    loginBtn.style.display = loggedIn ? "none" : "inline-flex";
-    signUpBtn.style.display = loggedIn ? "none" : "inline-flex";
-    logoutBtn.style.display = loggedIn ? "inline-flex" : "none";
+    logoutBtn.style.display = loggedIn ? "flex" : "none";
+    profileMenu.dataset.loggedIn = loggedIn ? "true" : "false";
+    cartPageBtn.classList.toggle("logged-in", loggedIn);
     cartPageBtn.style.display = loggedIn ? "inline-flex" : "none";
   }
 
@@ -47,11 +46,27 @@ document.addEventListener("DOMContentLoaded", () => {
      Navbar scroll effect
   ----------------------------*/
   const navbar = byId("navbar");
-  window.addEventListener("scroll", () => {
+  let lastScrollY = window.scrollY;
+
+  function updateNavbar() {
     if (!navbar) return;
-    if (window.scrollY > 60) navbar.classList.add("scrolled");
-    else navbar.classList.remove("scrolled");
-  });
+    const currentY = window.scrollY;
+    const scrollingDown = currentY > lastScrollY;
+
+    if (currentY <= 24) {
+      navbar.classList.remove("scrolled", "is-visible");
+    } else if (scrollingDown) {
+      navbar.classList.add("scrolled", "is-visible");
+    } else {
+      navbar.classList.remove("is-visible");
+      navbar.classList.add("scrolled");
+    }
+
+    lastScrollY = currentY;
+  }
+
+  window.addEventListener("scroll", updateNavbar, { passive: true });
+  updateNavbar();
 
   /* ---------------------------
      Hero slideshow (3s)
@@ -87,21 +102,89 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   const productGrid = byId("productGrid");
+  const productDots = byId("productDots");
+  const storePrev = byId("storePrev");
+  const storeNext = byId("storeNext");
+
+  let productCards = [];
+  let productDotButtons = [];
+
   function renderProducts() {
     if (!productGrid) return;
-    productGrid.innerHTML = products.map(p => `
-      <div class="store-card" style="background-image:url('${p.img}')">
+    productGrid.innerHTML = products.map((p, index) => `
+      <article class="store-card" data-index="${index}" style="background-image:url('${p.img}')">
         <div class="card-inner">
           <div class="card-caption">${p.title}</div>
+          <div class="card-subtitle">${p.unit}</div>
           <div class="card-controls">
             <div class="price">₹${p.price}</div>
             <button class="add-btn" data-id="${p.id}">Add to Cart</button>
           </div>
         </div>
-      </div>
+      </article>
     `).join("");
+
+    productCards = $$("#productGrid .store-card");
+    renderProductDots();
   }
   renderProducts();
+
+  function renderProductDots() {
+    if (!productDots) return;
+    productDots.innerHTML = products.map((p, index) => `
+      <button class="store-dot${index === 0 ? ' active' : ''}" type="button" aria-label="Show ${p.title}" data-index="${index}"></button>
+    `).join("");
+    productDotButtons = Array.from(productDots.querySelectorAll(".store-dot"));
+  }
+
+  function updateProductDots(activeIndex = 0) {
+    productDotButtons.forEach((dot, index) => {
+      dot.classList.toggle("active", index === activeIndex);
+    });
+  }
+
+  function scrollProductTo(index) {
+    if (!productGrid || !productCards.length) return;
+    const target = Math.max(0, Math.min(index, productCards.length - 1));
+    productCards[target].scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+    updateProductDots(target);
+  }
+
+  function activeProductIndex() {
+    if (!productGrid || !productCards.length) return 0;
+    const gridRect = productGrid.getBoundingClientRect();
+    let closest = 0;
+    let minDistance = Infinity;
+
+    productCards.forEach((card, index) => {
+      const rect = card.getBoundingClientRect();
+      const distance = Math.abs(rect.left - gridRect.left);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closest = index;
+      }
+    });
+
+    return closest;
+  }
+
+  productGrid?.addEventListener("scroll", () => {
+    updateProductDots(activeProductIndex());
+  }, { passive: true });
+
+  productDots?.addEventListener("click", e => {
+    const target = e.target.closest(".store-dot");
+    if (!target) return;
+    scrollProductTo(Number(target.dataset.index || 0));
+  });
+
+  storePrev?.addEventListener("click", () => {
+    scrollProductTo(Math.max(0, activeProductIndex() - 1));
+  });
+
+  storeNext?.addEventListener("click", () => {
+    scrollProductTo(Math.min(products.length - 1, activeProductIndex() + 1));
+  });
 
   /* ---------------------------
      CART + LocalStorage
@@ -144,11 +227,52 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ---------------------------
+     Profile menu
+  ----------------------------*/
+  const profileBtn = byId("profileBtn");
+  const profileMenu = byId("profileMenu");
+
+  function closeProfileMenu() {
+    profileMenu?.classList.remove("open");
+    profileMenu?.setAttribute("aria-hidden", "true");
+    profileBtn?.setAttribute("aria-expanded", "false");
+  }
+
+  profileBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!profileMenu) return;
+    const willOpen = !profileMenu.classList.contains("open");
+    profileMenu.classList.toggle("open", willOpen);
+    profileMenu.setAttribute("aria-hidden", String(!willOpen));
+    profileBtn.setAttribute("aria-expanded", String(willOpen));
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!profileMenu || !profileBtn) return;
+    if (!profileMenu.contains(e.target) && !profileBtn.contains(e.target)) {
+      closeProfileMenu();
+    }
+  });
+
+  profileMenu?.addEventListener("click", (e) => {
+    if ((e.target instanceof HTMLElement) && e.target.matches(".profile-action, .logout")) {
+      closeProfileMenu();
+    }
+  });
+
+  byId("logoutBtn")?.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("cart");
+    syncAuthUi();
+    window.location.href = "index.html";
+  });
+
+  /* ---------------------------
      Drawer / Cart display
   ----------------------------*/
   const drawer = byId("cartDrawer");
   const drawerBackdrop = byId("drawerBackdrop");
-  const openCartBtn = byId("openCart");
+  const openCartBtn = byId("openCart") || byId("cartPageBtn");
   const closeCartDrawer = byId("closeCartDrawer");
   const drawerItems = byId("drawerItems");
   const drawerEmpty = byId("drawerEmpty");
@@ -204,12 +328,23 @@ document.addEventListener("DOMContentLoaded", () => {
     renderDrawer();
   });
 
-  const logoutBtn = byId("logoutBtn");
-  logoutBtn?.addEventListener("click", () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("cart");
-    window.location.href = "index.html";
-  });
+  /* ---------------------------
+     Gallery arrows
+  ----------------------------*/
+  const galleryViewport = byId("galleryViewport");
+  const galleryStrip = byId("galleryStrip");
+  const gPrev = byId("gPrev");
+  const gNext = byId("gNext");
+
+  function scrollGallery(delta) {
+    const viewport = galleryViewport || galleryStrip;
+    if (!viewport) return;
+    viewport.scrollBy({ left: delta, behavior: "smooth" });
+  }
+
+  gPrev?.addEventListener("click", () => scrollGallery(-(galleryViewport?.clientWidth || 320) * 0.85));
+  gNext?.addEventListener("click", () => scrollGallery((galleryViewport?.clientWidth || 320) * 0.85));
+
   closeCartDrawer?.addEventListener("click", () => {
     drawer.classList.remove("open");
     drawerBackdrop.classList.remove("show");
@@ -283,4 +418,5 @@ document.addEventListener("DOMContentLoaded", () => {
   renderDrawer();
   updateCartCount();
   syncAuthUi();
+  updateProductDots(0);
 });

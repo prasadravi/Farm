@@ -23,11 +23,20 @@
       <h1 class="logo">NATURAL MILK</h1>
 
       <div class="nav-right">
-        <button class="outline-btn cart-page-btn" id="cartPageBtn">Cart <span class="cart-pill" id="cartCount">0</span></button>
-        <button class="outline-btn" id="loginBtn">Login</button>
-        <button class="outline-btn" id="signUpBtn">Sign Up</button>
-        <button class="outline-btn" id="logoutBtn" style="display:none;">Logout</button>
+        <button class="icon-btn cart-page-btn" id="cartPageBtn" aria-label="Cart">
+          <span class="cart-icon-emoji">🛒</span>
+          <span class="cart-pill" id="cartCount">0</span>
+        </button>
+        <button class="icon-btn profile-btn" id="profileBtn" aria-label="Account">
+          <span class="profile-icon-emoji">☺</span>
+        </button>
       </div>
+    </div>
+
+    <div class="profile-menu" id="profileMenu" aria-hidden="true">
+      <a href="login.html" class="profile-action">Login</a>
+      <a href="signup.html" class="profile-action primary">Sign Up</a>
+      <button class="profile-action logout" id="logoutBtn" type="button">Logout</button>
     </div>
   </header>
 
@@ -48,13 +57,19 @@
   <!-- STORE -->
   <section id="store" class="store-section">
     <div class="container store-head">
-      <h2 class="store-title">Natural Dairy Products</h2>
-      <div class="small-label">OUR PRODUCTS</div>
-      
+      <div class="store-heading-copy">
+        <div class="small-label">OUR PRODUCTS</div>
+        <h2 class="store-title">Natural Dairy Products</h2>
+      </div>
+      <div class="store-controls">
+        <button class="gallery-btn store-nav-btn" id="storePrev" aria-label="Previous product">‹</button>
+        <button class="gallery-btn store-nav-btn" id="storeNext" aria-label="Next product">›</button>
+      </div>
     </div>
 
-    <div class="container store-grid" id="productGrid">
-      <!-- JS will render product cards here -->
+    <div class="container store-carousel-shell">
+      <div class="store-grid" id="productGrid"></div>
+      <div class="store-dots" id="productDots" aria-label="Product carousel indicators"></div>
     </div>
 
     <button id="goTop" class="go-top" title="Go top">GO TOP</button>
@@ -165,42 +180,6 @@
   <script src="config.js"></script>
   <script src="script.js"></script>
   <script>
-    const token = localStorage.getItem('token');
-    const cartBtn = document.getElementById('cartPageBtn');
-    const loginBtn = document.getElementById('loginBtn');
-    const signUpBtn = document.getElementById('signUpBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    if (token) {
-      cartBtn.style.display = 'inline-flex';
-      logoutBtn.style.display = 'inline-flex';
-      loginBtn.style.display = 'none';
-      signUpBtn.style.display = 'none';
-    } else {
-      cartBtn.style.display = 'none';
-      logoutBtn.style.display = 'none';
-      loginBtn.style.display = 'inline-flex';
-      signUpBtn.style.display = 'inline-flex';
-    }
-
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      window.location.href = 'login.html';
-    });
-    document.getElementById('signUpBtn').addEventListener('click', () => {
-      window.location.href = 'signup.html';
-    });
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.removeItem('token');
-      localStorage.removeItem('cart');
-      window.location.href = 'index.html';
-    });
-    document.getElementById('cartPageBtn').addEventListener('click', () => {
-      if (!localStorage.getItem('token')) {
-        window.location.href = 'login.html';
-        return;
-      }
-      window.location.href = 'cart.html';
-    });
   </script>
 </body>
 </html>
