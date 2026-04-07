@@ -377,7 +377,7 @@
 
         <section class="card">
           <div class="delivery-row">
-            <span>Delivery in 5 mins</span>
+            <span id="deliveryEtaText">Delivery in 5 mins</span>
             <span>Fast</span>
           </div>
         </section>
@@ -449,6 +449,7 @@
     const summarySavings = document.getElementById("summarySavings");
     const savingsAmount = document.getElementById("savingsAmount");
     const payableTotal = document.getElementById("payableTotal");
+    const deliveryEtaText = document.getElementById("deliveryEtaText");
     const addressInput = document.getElementById("addressInput");
     const saveAddressBtn = document.getElementById("saveAddressBtn");
     const addressStatus = document.getElementById("addressStatus");
@@ -558,6 +559,18 @@
 
     function calcTotal(items) {
       return items.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
+    }
+
+    function getDeliveryEtaForOrder(order) {
+      const seed = String(order?.id || order?.createdAt || Date.now());
+      let score = 0;
+      for (let i = 0; i < seed.length; i += 1) score += seed.charCodeAt(i);
+      return score % 2 === 0 ? 5 : 10;
+    }
+
+    function updateDeliveryEtaBanner(minutes) {
+      if (!deliveryEtaText) return;
+      deliveryEtaText.textContent = `Delivery in ${minutes} mins`;
     }
 
     function updateSummary(cart) {
@@ -691,7 +704,10 @@
 
         const data = await res.json();
         if (res.ok) {
-          alert("Order placed successfully!");
+          const etaMinutes = (Math.random() < 0.5) ? 5 : 10;
+          localStorage.setItem("last_delivery_eta", String(etaMinutes));
+          updateDeliveryEtaBanner(etaMinutes);
+          alert(`Order placed successfully! Delivery in ${etaMinutes} mins.`);
           localStorage.removeItem(CART_KEY);
           renderCart();
           loadOrders();
@@ -726,6 +742,9 @@
           return;
         }
 
+        const latestEta = getDeliveryEtaForOrder(orders[0]);
+        updateDeliveryEtaBanner(latestEta);
+
         ordersWrap.innerHTML = orders.map(order => `
           <article class="order-card">
             <div class="order-meta">
@@ -735,6 +754,10 @@
             <div class="order-meta">
               <span>Total ₹${order.total || 0}</span>
               <span>${order.items ? order.items.length : 0} items</span>
+            </div>
+            <div class="order-meta">
+              <span>Delivery ETA</span>
+              <span>${getDeliveryEtaForOrder(order)} mins</span>
             </div>
             <div class="order-items">
               ${(order.items || []).map(item => `
@@ -760,6 +783,10 @@
       }
       showCartContent();
       initAddressState();
+      const storedEta = Number(localStorage.getItem("last_delivery_eta"));
+      if (storedEta === 5 || storedEta === 10) {
+        updateDeliveryEtaBanner(storedEta);
+      }
       renderCart();
       loadOrders();
     })();
