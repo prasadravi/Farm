@@ -145,6 +145,11 @@
       font-weight: 700;
       color: #1f2937;
     }
+    .upi-app-btn.active {
+      border-color: rgba(232, 196, 107, 0.8);
+      box-shadow: 0 0 0 3px rgba(232, 196, 107, 0.25);
+      background: #fff1cc;
+    }
     .upi-app-btn span {
       font-size: 0.86rem;
     }
@@ -598,6 +603,7 @@
     let addressReady = false;
     let paymentInitiated = false;
     let paymentProofReady = false;
+    let selectedUpiApp = null;
 
     function parseJwtPayload(token) {
       try {
@@ -689,9 +695,20 @@
       return `upi://pay?pa=9866039058@paytm&pn=NaturalMilk&am=${safeAmount}&cu=INR`;
     }
 
+    function buildIosUpiLink(amount, app) {
+      const safeAmount = Number(amount || 0).toFixed(2);
+      const params = `pa=9866039058@paytm&pn=NaturalMilk&am=${safeAmount}&cu=INR`;
+      if (app === "gpay") return `tez://upi/pay?${params}`;
+      if (app === "phonepe") return `phonepe://pay?${params}`;
+      if (app === "paytm") return `paytmmp://pay?${params}`;
+      return `upi://pay?${params}`;
+    }
+
     function buildAppUpiLink(amount, app) {
       const baseUpi = buildUpiLink(amount);
-      if (!isAndroidDevice()) return baseUpi;
+      if (!isAndroidDevice()) {
+        return buildIosUpiLink(amount, app);
+      }
 
       const packageMap = {
         gpay: "com.google.android.apps.nbu.paisa.user",
@@ -707,11 +724,21 @@
     }
 
     function updatePaymentUi(totalAmount) {
-      const upiLink = buildUpiLink(totalAmount);
+      const total = Number(totalAmount || 0);
+      if (total <= 0) {
+        if (upiQrWrap) upiQrWrap.style.display = "none";
+        if (paymentNote) paymentNote.textContent = "Add items to generate QR.";
+        return;
+      }
+
+      const upiLink = buildUpiLink(total);
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
       if (upiQrImage) upiQrImage.src = qrUrl;
       if (upiQrWrap) {
         upiQrWrap.style.display = "flex";
+      }
+      if (paymentNote && !paymentInitiated) {
+        paymentNote.textContent = "After payment, upload screenshot.";
       }
     }
 
@@ -855,7 +882,11 @@
       }
 
       const total = calcTotal(getCart());
-      const upiLink = buildUpiLink(total);
+      if (total <= 0) {
+        alert("Add items to pay.");
+        return;
+      }
+      const upiLink = selectedUpiApp ? buildAppUpiLink(total, selectedUpiApp) : buildUpiLink(total);
       paymentInitiated = true;
       showProofUpload();
 
@@ -875,7 +906,14 @@
       }
 
       const total = calcTotal(getCart());
+      if (total <= 0) {
+        alert("Add items to pay.");
+        return;
+      }
       const app = btn.dataset.upiApp;
+      selectedUpiApp = app;
+      paymentSection.querySelectorAll(".upi-app-btn").forEach(el => el.classList.remove("active"));
+      btn.classList.add("active");
       const upiLink = buildAppUpiLink(total, app);
       paymentInitiated = true;
       showProofUpload();
@@ -1053,6 +1091,7 @@
       initAddressState();
       if (paymentNote) paymentNote.textContent = "After payment, upload screenshot.";
       if (proofWrap) proofWrap.style.display = "none";
+      if (upiQrWrap) upiQrWrap.style.display = "flex";
       const storedEta = Number(localStorage.getItem("last_delivery_eta"));
       if (storedEta === 5 || storedEta === 10) {
         updateDeliveryEtaBanner(storedEta);
