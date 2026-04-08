@@ -256,7 +256,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const products = [
     { id: "milk500", title: "Fresh Cow Milk", price: 28, img: "images/stor-one.jpg", unit: "500 ml pouch" },
     { id: "cowcurd500", title: "Cow Curd", price: 110, img: "images/cow-curd.jpg", unit: "500 ml cup" },
-    { id: "buffalocurd500", title: "Bufflo Curd", price: 155, img: "images/buffalo-curd.jpg", unit: "500 ml cup" }
+    { id: "buffalocurd500", title: "Bufflo Curd", price: 155, img: "images/buffalo-curd.jpg", unit: "500 ml cup" },
+    { id: "buffalomilk500", title: "Bufflo Milk", price: 110, img: "images/store4.jpg", unit: "500 ml pouch" }
   ];
 
   const productGrid = byId("productGrid");
