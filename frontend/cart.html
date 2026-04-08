@@ -119,6 +119,92 @@
       margin-top: 2px;
       min-height: 18px;
     }
+    .payment-card {
+      display: grid;
+      gap: 12px;
+    }
+    .payment-row {
+      display: grid;
+      gap: 10px;
+    }
+    .payment-icons {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .upi-app-btn {
+      border: 1px solid rgba(232, 196, 107, 0.35);
+      background: #fff8e7;
+      border-radius: 12px;
+      padding: 12px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .upi-app-btn span {
+      font-size: 0.86rem;
+    }
+    .upi-app-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 800;
+      background: #111827;
+      color: #fff;
+    }
+    .upi-app-icon.gpay { background: #1a73e8; }
+    .upi-app-icon.phonepe { background: #673ab7; }
+    .upi-app-icon.paytm { background: #00baf2; }
+    .pay-now-btn {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      background: #111827;
+      color: #fff;
+      font-weight: 700;
+      padding: 12px 16px;
+      cursor: pointer;
+    }
+    .pay-now-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .upi-qr-wrap {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+    }
+    .upi-qr-wrap img {
+      width: 200px;
+      height: 200px;
+      border-radius: 12px;
+      border: 1px solid rgba(232, 196, 107, 0.4);
+    }
+    .payment-note {
+      font-size: 0.82rem;
+      color: #6b7280;
+    }
+    .proof-wrap {
+      display: none;
+      gap: 8px;
+    }
+    .proof-wrap label {
+      font-size: 0.82rem;
+      color: #111827;
+      font-weight: 600;
+    }
+    .proof-wrap input[type="file"] {
+      width: 100%;
+    }
     .item-list {
       display: grid;
       gap: 8px;
@@ -410,6 +496,35 @@
           </div>
         </section>
 
+        <section class="card payment-card" id="paymentSection">
+          <div class="section-title">Choose UPI payment method</div>
+          <div class="payment-row">
+            <div class="payment-icons">
+              <button class="upi-app-btn" type="button" data-upi-app="gpay">
+                <span class="upi-app-icon gpay">G</span>
+                <span>GPay</span>
+              </button>
+              <button class="upi-app-btn" type="button" data-upi-app="phonepe">
+                <span class="upi-app-icon phonepe">P</span>
+                <span>PhonePe</span>
+              </button>
+              <button class="upi-app-btn" type="button" data-upi-app="paytm">
+                <span class="upi-app-icon paytm">Pay</span>
+                <span>Paytm</span>
+              </button>
+            </div>
+            <button class="pay-now-btn" type="button" id="payNowBtn">Pay Now</button>
+            <div class="upi-qr-wrap" id="upiQrWrap">
+              <img id="upiQrImage" alt="UPI QR" />
+            </div>
+            <div class="payment-note" id="paymentNote">After payment, upload screenshot.</div>
+            <div class="proof-wrap" id="proofWrap">
+              <label for="paymentProof">Upload payment proof</label>
+              <input id="paymentProof" type="file" accept="image/*" />
+            </div>
+          </div>
+        </section>
+
         <section class="card">
           <div class="section-title">Bill summary</div>
           <div class="bill-row"><span>Item total</span><strong id="originalTotal">₹0</strong></div>
@@ -468,12 +583,21 @@
     const saveAddressBtn = document.getElementById("saveAddressBtn");
     const addressStatus = document.getElementById("addressStatus");
     const checkoutBtn = document.getElementById("checkoutBtn");
+    const paymentSection = document.getElementById("paymentSection");
+    const payNowBtn = document.getElementById("payNowBtn");
+    const upiQrWrap = document.getElementById("upiQrWrap");
+    const upiQrImage = document.getElementById("upiQrImage");
+    const paymentNote = document.getElementById("paymentNote");
+    const paymentProof = document.getElementById("paymentProof");
+    const proofWrap = document.getElementById("proofWrap");
     const cartContent = document.getElementById("cartContent");
     const guestLoginView = document.getElementById("guestLoginView");
     const checkoutWrap = document.querySelector(".checkout-wrap");
     const ADDRESS_KEY = "delivery_address";
     const HIDDEN_ORDERS_KEY = "hidden_recent_orders";
     let addressReady = false;
+    let paymentInitiated = false;
+    let paymentProofReady = false;
 
     function parseJwtPayload(token) {
       try {
@@ -552,6 +676,29 @@
       checkoutBtn.textContent = addressReady ? "Place Order" : "Add Address";
     }
 
+    function isMobileDevice() {
+      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
+    function buildUpiLink(amount) {
+      const safeAmount = Number(amount || 0).toFixed(2);
+      return `upi://pay?pa=9866039058@paytm&pn=NaturalMilk&am=${safeAmount}&cu=INR`;
+    }
+
+    function updatePaymentUi(totalAmount) {
+      const upiLink = buildUpiLink(totalAmount);
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+      if (upiQrImage) upiQrImage.src = qrUrl;
+      if (!isMobileDevice() && upiQrWrap) {
+        upiQrWrap.style.display = "flex";
+      }
+    }
+
+    function showProofUpload() {
+      if (paymentNote) paymentNote.textContent = "After payment, upload screenshot.";
+      if (proofWrap) proofWrap.style.display = "grid";
+    }
+
     function initAddressState() {
       const savedAddress = (localStorage.getItem(ADDRESS_KEY) || "").trim();
       if (addressInput) {
@@ -599,6 +746,7 @@
       if (summarySavings) summarySavings.textContent = `₹${savings}`;
       if (savingsAmount) savingsAmount.textContent = `₹${savings}`;
       if (payableTotal) payableTotal.textContent = `₹${total}`;
+      updatePaymentUi(total);
     }
 
     function renderCart() {
@@ -674,6 +822,52 @@
       addressReady = true;
       if (addressStatus) addressStatus.textContent = "Address added";
       updateCheckoutState();
+      if (paymentSection) paymentSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    payNowBtn?.addEventListener("click", () => {
+      if (!addressReady) {
+        if (addressStatus) addressStatus.textContent = "Complete address first";
+        addressInput?.focus();
+        addressInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      const total = calcTotal(getCart());
+      const upiLink = buildUpiLink(total);
+      paymentInitiated = true;
+      showProofUpload();
+
+      if (isMobileDevice()) {
+        window.location.href = upiLink;
+      }
+    });
+
+    paymentSection?.addEventListener("click", (event) => {
+      const btn = event.target.closest(".upi-app-btn");
+      if (!btn) return;
+      if (!addressReady) {
+        if (addressStatus) addressStatus.textContent = "Complete address first";
+        addressInput?.focus();
+        addressInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      const total = calcTotal(getCart());
+      const upiLink = buildUpiLink(total);
+      paymentInitiated = true;
+      showProofUpload();
+
+      if (isMobileDevice()) {
+        window.location.href = upiLink;
+      }
+    });
+
+    paymentProof?.addEventListener("change", () => {
+      paymentProofReady = Boolean(paymentProof.files && paymentProof.files.length);
+      if (paymentProofReady && paymentNote) {
+        paymentNote.textContent = "Payment proof uploaded.";
+      }
     });
 
     checkoutBtn?.addEventListener("click", async () => {
@@ -681,6 +875,17 @@
         if (addressStatus) addressStatus.textContent = "Complete address first";
         addressInput?.focus();
         addressInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      if (!paymentInitiated) {
+        alert("Please complete UPI payment first.");
+        return;
+      }
+
+      if (!paymentProofReady) {
+        alert("After payment, upload screenshot.");
+        paymentProof?.focus();
         return;
       }
 
@@ -824,6 +1029,8 @@
       }
       showCartContent();
       initAddressState();
+      if (paymentNote) paymentNote.textContent = "After payment, upload screenshot.";
+      if (proofWrap) proofWrap.style.display = "none";
       const storedEta = Number(localStorage.getItem("last_delivery_eta"));
       if (storedEta === 5 || storedEta === 10) {
         updateDeliveryEtaBanner(storedEta);
