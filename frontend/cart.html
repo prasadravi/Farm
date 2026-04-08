@@ -692,12 +692,12 @@
 
     function buildUpiLink(amount) {
       const safeAmount = Number(amount || 0).toFixed(2);
-      return `upi://pay?pa=9866039058@paytm&pn=NaturalMilk&am=${safeAmount}&cu=INR`;
+      return `upi://pay?pa=prasadravi789387@ybl&pn=NaturalMilk&am=${safeAmount}&cu=INR`;
     }
 
     function buildIosUpiLink(amount, app) {
       const safeAmount = Number(amount || 0).toFixed(2);
-      const params = `pa=9866039058@paytm&pn=NaturalMilk&am=${safeAmount}&cu=INR`;
+      const params = `pa=prasadravi789387@ybl&pn=NaturalMilk&am=${safeAmount}&cu=INR`;
       if (app === "gpay") return `tez://upi/pay?${params}`;
       if (app === "phonepe") return `phonepe://pay?${params}`;
       if (app === "paytm") return `paytmmp://pay?${params}`;
