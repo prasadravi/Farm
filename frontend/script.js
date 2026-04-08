@@ -254,7 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
      Product List
   ----------------------------*/
   const products = [
-    { id: "milk500", title: "Fresh Cow Milk", price: 28, img: "images/store1.jpg", unit: "500 ml pouch" },
+    { id: "milk500", title: "Fresh Cow Milk", price: 28, img: "images/stor-one.jpg", unit: "500 ml pouch" },
     { id: "curd500", title: "Farm Curd", price: 40, img: "images/store3.jpg", unit: "500 g cup" },
     { id: "cheese1", title: "Blue Cheese", price: 220, img: "images/store2.jpg", unit: "200 g wedge" },
     { id: "cowcurd500", title: "Cow Curd", price: 110, img: "images/cow-curd.jpg", unit: "500 ml cup" },
