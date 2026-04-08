@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
       passive.classList.add("visible");
       active.classList.remove("visible");
       [active, passive] = [passive, active];
-    }, 3000);
+    }, 2000);
   })();
 
   /* ---------------------------
