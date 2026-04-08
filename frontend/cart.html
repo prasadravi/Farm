@@ -734,11 +734,14 @@
       const upiLink = buildUpiLink(total);
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
       if (upiQrImage) upiQrImage.src = qrUrl;
+
       if (upiQrWrap) {
-        upiQrWrap.style.display = "flex";
+        upiQrWrap.style.display = isMobileDevice() ? "none" : "flex";
       }
       if (paymentNote && !paymentInitiated) {
-        paymentNote.textContent = "After payment, upload screenshot.";
+        paymentNote.textContent = isMobileDevice()
+          ? "Tap Pay Now to open UPI app, then upload screenshot."
+          : "Scan QR on desktop, then upload screenshot.";
       }
     }
 
@@ -915,8 +918,17 @@
       paymentSection.querySelectorAll(".upi-app-btn").forEach(el => el.classList.remove("active"));
       btn.classList.add("active");
       updatePaymentUi(total);
+
+      if (isMobileDevice()) {
+        const upiLink = buildAppUpiLink(total, app);
+        paymentInitiated = true;
+        showProofUpload();
+        window.location.href = upiLink;
+        return;
+      }
+
       if (paymentNote) {
-        paymentNote.textContent = "Scan the QR with your UPI app, then upload screenshot.";
+        paymentNote.textContent = "Scan the QR on desktop, then upload screenshot.";
       }
       if (upiQrWrap) {
         upiQrWrap.scrollIntoView({ behavior: "smooth", block: "center" });
