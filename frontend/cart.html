@@ -680,16 +680,37 @@
       return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     }
 
+    function isAndroidDevice() {
+      return /Android/i.test(navigator.userAgent);
+    }
+
     function buildUpiLink(amount) {
       const safeAmount = Number(amount || 0).toFixed(2);
       return `upi://pay?pa=9866039058@paytm&pn=NaturalMilk&am=${safeAmount}&cu=INR`;
+    }
+
+    function buildAppUpiLink(amount, app) {
+      const baseUpi = buildUpiLink(amount);
+      if (!isAndroidDevice()) return baseUpi;
+
+      const packageMap = {
+        gpay: "com.google.android.apps.nbu.paisa.user",
+        phonepe: "com.phonepe.app",
+        paytm: "net.one97.paytm"
+      };
+
+      const pkg = packageMap[app];
+      if (!pkg) return baseUpi;
+
+      const params = baseUpi.replace("upi://pay", "pay");
+      return `intent://${params}#Intent;scheme=upi;package=${pkg};end`;
     }
 
     function updatePaymentUi(totalAmount) {
       const upiLink = buildUpiLink(totalAmount);
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
       if (upiQrImage) upiQrImage.src = qrUrl;
-      if (!isMobileDevice() && upiQrWrap) {
+      if (upiQrWrap) {
         upiQrWrap.style.display = "flex";
       }
     }
@@ -854,7 +875,8 @@
       }
 
       const total = calcTotal(getCart());
-      const upiLink = buildUpiLink(total);
+      const app = btn.dataset.upiApp;
+      const upiLink = buildAppUpiLink(total, app);
       paymentInitiated = true;
       showProofUpload();
 
