@@ -36,13 +36,42 @@
             <div class="profile-meta" id="profileEmail">customer@email.com</div>
           </div>
 
-          <div class="profile-menu">
-            <button class="profile-tab active" type="button" data-tab="orders">Orders</button>
-            <button class="profile-tab" type="button" data-tab="addresses">Addresses</button>
-            <button class="profile-tab" type="button" data-tab="profile">Profile</button>
+          <div class="profile-cash-card">
+            <div class="profile-cash-head">
+              <span>Natural Milk Cash & Gift Card</span>
+              <span class="profile-cash-arrow">›</span>
+            </div>
+            <div class="profile-cash-row">
+              <span>Available Balance: <strong>₹0</strong></span>
+              <button class="profile-cash-btn" type="button">Add Balance</button>
+            </div>
+          </div>
+
+          <div class="profile-side-list">
+            <button class="profile-tab profile-side-item active" type="button" data-tab="orders">
+              <span class="profile-side-icon">🛍</span>
+              <span>Orders</span>
+            </button>
+            <button class="profile-side-item" type="button" id="supportBtn">
+              <span class="profile-side-icon">◔</span>
+              <span>Customer Support</span>
+            </button>
+            <button class="profile-side-item" type="button" id="referralsBtn">
+              <span class="profile-side-icon">♡</span>
+              <span>Manage Referrals</span>
+            </button>
+            <button class="profile-tab profile-side-item" type="button" data-tab="addresses">
+              <span class="profile-side-icon">⌖</span>
+              <span>Addresses</span>
+            </button>
+            <button class="profile-tab profile-side-item" type="button" data-tab="profile">
+              <span class="profile-side-icon">◉</span>
+              <span>Profile</span>
+            </button>
           </div>
 
           <button class="profile-logout" id="sideLogoutBtn" type="button">Log Out</button>
+          <div class="profile-side-brand">natural milk</div>
         </aside>
 
         <section class="profile-content">
@@ -111,6 +140,8 @@
     const logoutBtn = document.getElementById("logoutBtn");
     const sideLogoutBtn = document.getElementById("sideLogoutBtn");
     const loginLink = document.querySelector(".nav-login-link");
+    const supportBtn = document.getElementById("supportBtn");
+    const referralsBtn = document.getElementById("referralsBtn");
 
     const profileName = document.getElementById("profileName");
     const profileEmail = document.getElementById("profileEmail");
@@ -195,6 +226,12 @@
 
     logoutBtn?.addEventListener("click", handleLogout);
     sideLogoutBtn?.addEventListener("click", handleLogout);
+    supportBtn?.addEventListener("click", () => {
+      window.location.href = "contact.html";
+    });
+    referralsBtn?.addEventListener("click", () => {
+      alert("Referral program will be available soon.");
+    });
 
     function setUserInfo() {
       const token = localStorage.getItem("token");
