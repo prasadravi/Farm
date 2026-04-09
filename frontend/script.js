@@ -108,12 +108,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const cartPageBtn = byId("cartPageBtn");
     const loginLink = document.querySelector(".nav-login-link");
     const signupLink = document.querySelector(".nav-signup-link");
+    const profileLink = document.querySelector(".nav-profile-link");
     const logoutBtn = byId("logoutBtn");
 
     const loggedIn = isLoggedIn();
 
     if (loginLink) loginLink.style.display = loggedIn ? "none" : "inline-flex";
     if (signupLink) signupLink.style.display = loggedIn ? "none" : "inline-flex";
+    if (profileLink) profileLink.style.display = loggedIn ? "inline-flex" : "none";
     if (logoutBtn) logoutBtn.style.display = loggedIn ? "inline-flex" : "none";
 
     if (!cartPageBtn) return;

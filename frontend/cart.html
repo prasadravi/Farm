@@ -483,12 +483,14 @@
       <nav class="nav-left">
         <a href="index.html">Home</a>
         <a href="contact.html">Contact</a>
-        <a href="login.html">Login</a>
+        <a href="login.html" class="nav-login-link">Login</a>
       </nav>
 
       <h1 class="logo">NATURAL MILK</h1>
 
       <div class="nav-right">
+        <a href="profile.html" class="nav-action nav-profile-link" style="display:none;">Profile</a>
+        <button class="nav-action" id="logoutBtn" type="button" style="display:none;">Logout</button>
         <a class="outline-btn" href="index.html">Back to Store</a>
       </div>
     </div>
@@ -639,7 +641,11 @@
     const cartContent = document.getElementById("cartContent");
     const guestLoginView = document.getElementById("guestLoginView");
     const checkoutWrap = document.querySelector(".checkout-wrap");
+    const navLoginLink = document.querySelector(".nav-login-link");
+    const navProfileLink = document.querySelector(".nav-profile-link");
+    const navLogoutBtn = document.getElementById("logoutBtn");
     const ADDRESS_KEY = "delivery_address";
+    const ADDRESS_LIST_KEY = "saved_addresses";
     const HIDDEN_ORDERS_KEY = "hidden_recent_orders";
     let addressReady = false;
     let paymentInitiated = false;
@@ -702,6 +708,21 @@
         localStorage.removeItem(CART_KEY);
       }
     }
+
+    function syncNavAuthUi() {
+      const loggedIn = isLoggedIn();
+      if (navLoginLink) navLoginLink.style.display = loggedIn ? "none" : "inline-flex";
+      if (navProfileLink) navProfileLink.style.display = loggedIn ? "inline-flex" : "none";
+      if (navLogoutBtn) navLogoutBtn.style.display = loggedIn ? "inline-flex" : "none";
+    }
+
+    navLogoutBtn?.addEventListener("click", () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem(CART_KEY);
+      serverSessionValid = false;
+      syncNavAuthUi();
+      showGuestCartPrompt();
+    });
 
     async function hasValidSession() {
       enforceAuthState();
@@ -823,10 +844,27 @@
       updateCheckoutState();
     }
 
+    function getSavedAddresses() {
+      try {
+        return JSON.parse(localStorage.getItem(ADDRESS_LIST_KEY) || "[]");
+      } catch (_err) {
+        return [];
+      }
+    }
+
+    function persistAddressToList(value) {
+      const list = getSavedAddresses().filter(item => item && item.text);
+      if (!list.some(item => item.text === value)) {
+        list.unshift({ id: Date.now(), text: value });
+      }
+      localStorage.setItem(ADDRESS_LIST_KEY, JSON.stringify(list.slice(0, 8)));
+    }
+
     function saveAddressValue(value, statusText = "Address saved") {
       localStorage.setItem(ADDRESS_KEY, value);
       addressReady = true;
       lastSavedAddress = value;
+      persistAddressToList(value);
       if (addressStatus) addressStatus.textContent = statusText;
       updateCheckoutState();
     }
@@ -1213,6 +1251,7 @@
     });
 
     (async function initCartPage() {
+      syncNavAuthUi();
       const ok = await hasValidSession();
       if (!ok) {
         showGuestCartPrompt();

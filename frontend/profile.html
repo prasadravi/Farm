@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile - Natural Milk</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="profile-page">
+  <header class="navbar scrolled" id="navbar">
+    <div class="container nav-inner">
+      <nav class="nav-left">
+        <a href="index.html#home">Home</a>
+        <a href="index.html#store">Store</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <h1 class="logo">NATURAL MILK</h1>
+
+      <div class="nav-right">
+        <a href="login.html" class="nav-action nav-login-link">Login</a>
+        <button class="nav-action" id="logoutBtn" type="button" style="display:none;">Logout</button>
+        <a href="cart.html" class="nav-action">Cart</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="profile-shell">
+    <div class="container">
+      <div class="profile-grid" id="profileContent">
+        <aside class="profile-sidebar">
+          <div class="profile-card">
+            <div class="profile-avatar" id="profileAvatar">NM</div>
+            <div class="profile-name" id="profileName">Customer</div>
+            <div class="profile-meta" id="profileEmail">customer@email.com</div>
+          </div>
+
+          <div class="profile-menu">
+            <button class="profile-tab active" type="button" data-tab="orders">Orders</button>
+            <button class="profile-tab" type="button" data-tab="addresses">Addresses</button>
+            <button class="profile-tab" type="button" data-tab="profile">Profile</button>
+          </div>
+
+          <button class="profile-logout" id="sideLogoutBtn" type="button">Log Out</button>
+        </aside>
+
+        <section class="profile-content">
+          <div class="profile-panel active" data-panel="orders">
+            <div class="profile-panel-head">
+              <div>
+                <div class="profile-panel-title">Orders</div>
+                <div class="profile-panel-sub">Your recent deliveries</div>
+              </div>
+            </div>
+            <div id="ordersWrap" class="profile-list"></div>
+          </div>
+
+          <div class="profile-panel" data-panel="addresses">
+            <div class="profile-panel-head">
+              <div>
+                <div class="profile-panel-title">Addresses</div>
+                <div class="profile-panel-sub">Saved delivery locations</div>
+              </div>
+            </div>
+
+            <div class="profile-form-card">
+              <label class="profile-label" for="newAddress">Add new address</label>
+              <textarea id="newAddress" class="profile-textarea" rows="3" placeholder="House no, street, area, city"></textarea>
+              <button class="profile-btn" id="saveAddressBtn" type="button">Save Address</button>
+              <div class="profile-note" id="addressStatus"></div>
+            </div>
+
+            <div id="addressList" class="profile-list"></div>
+          </div>
+
+          <div class="profile-panel" data-panel="profile">
+            <div class="profile-panel-head">
+              <div>
+                <div class="profile-panel-title">Profile</div>
+                <div class="profile-panel-sub">Account details</div>
+              </div>
+            </div>
+
+            <div class="profile-info-card">
+              <div class="profile-info-row"><span>Name</span><strong id="infoName">Customer</strong></div>
+              <div class="profile-info-row"><span>Email</span><strong id="infoEmail">-</strong></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="profile-guest" id="guestLoginView">
+        <div class="profile-guest-card">
+          <h3 class="profile-guest-title">Please Login</h3>
+          <p class="profile-guest-copy">Login to view your profile and saved addresses.</p>
+          <a class="profile-btn" href="login.html?next=profile.html">Login</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script>
+    const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE)
+      ? window.APP_CONFIG.API_BASE
+      : "http://localhost:4000/api";
+
+    const profileContent = document.getElementById("profileContent");
+    const guestLoginView = document.getElementById("guestLoginView");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const sideLogoutBtn = document.getElementById("sideLogoutBtn");
+    const loginLink = document.querySelector(".nav-login-link");
+
+    const profileName = document.getElementById("profileName");
+    const profileEmail = document.getElementById("profileEmail");
+    const profileAvatar = document.getElementById("profileAvatar");
+    const infoName = document.getElementById("infoName");
+    const infoEmail = document.getElementById("infoEmail");
+
+    const ordersWrap = document.getElementById("ordersWrap");
+    const addressList = document.getElementById("addressList");
+    const newAddress = document.getElementById("newAddress");
+    const saveAddressBtn = document.getElementById("saveAddressBtn");
+    const addressStatus = document.getElementById("addressStatus");
+
+    const ADDRESS_LIST_KEY = "saved_addresses";
+    const DELIVERY_ADDRESS_KEY = "delivery_address";
+
+    function parseJwtPayload(token) {
+      try {
+        const parts = token.split(".");
+        if (parts.length !== 3) return null;
+        const normalized = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+        const json = atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "="));
+        return JSON.parse(json);
+      } catch (_err) {
+        return null;
+      }
+    }
+
+    function isLoggedIn() {
+      const token = localStorage.getItem("token");
+      if (!token) return false;
+      const payload = parseJwtPayload(token);
+      if (!payload) return false;
+      if (payload.exp && (payload.exp * 1000) <= Date.now()) return false;
+      return true;
+    }
+
+    async function validateSessionWithServer(force = false) {
+      if (!isLoggedIn()) return false;
+      if (!force && window.profileSessionValid === true) return true;
+
+      const token = localStorage.getItem("token");
+      if (!token) return false;
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error("Unauthorized");
+        window.profileSessionValid = true;
+        return true;
+      } catch (_err) {
+        window.profileSessionValid = false;
+        localStorage.removeItem("token");
+        return false;
+      }
+    }
+
+    function showGuest() {
+      if (profileContent) profileContent.style.display = "none";
+      if (guestLoginView) guestLoginView.style.display = "grid";
+    }
+
+    function showProfile() {
+      if (profileContent) profileContent.style.display = "grid";
+      if (guestLoginView) guestLoginView.style.display = "none";
+    }
+
+    function syncNavAuthUi() {
+      const loggedIn = isLoggedIn();
+      if (loginLink) loginLink.style.display = loggedIn ? "none" : "inline-flex";
+      if (logoutBtn) logoutBtn.style.display = loggedIn ? "inline-flex" : "none";
+    }
+
+    function handleLogout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("cart");
+      window.profileSessionValid = false;
+      syncNavAuthUi();
+      showGuest();
+    }
+
+    logoutBtn?.addEventListener("click", handleLogout);
+    sideLogoutBtn?.addEventListener("click", handleLogout);
+
+    function setUserInfo() {
+      const token = localStorage.getItem("token");
+      const payload = token ? parseJwtPayload(token) : null;
+      const email = payload?.email || payload?.sub || "";
+      const name = payload?.name || payload?.fullName || (email ? email.split("@")[0] : "Customer");
+      const safeName = (name || "Customer").trim();
+      const initials = safeName.split(" ").map(part => part[0]).slice(0, 2).join("").toUpperCase();
+
+      if (profileName) profileName.textContent = safeName || "Customer";
+      if (profileEmail) profileEmail.textContent = email || "-";
+      if (infoName) infoName.textContent = safeName || "Customer";
+      if (infoEmail) infoEmail.textContent = email || "-";
+      if (profileAvatar) profileAvatar.textContent = initials || "NM";
+    }
+
+    function getAddressList() {
+      try {
+        const list = JSON.parse(localStorage.getItem(ADDRESS_LIST_KEY) || "[]");
+        if (Array.isArray(list) && list.length) return list;
+      } catch (_err) {
+        // ignore
+      }
+
+      const fallback = (localStorage.getItem(DELIVERY_ADDRESS_KEY) || "").trim();
+      return fallback ? [{ id: "legacy", text: fallback }] : [];
+    }
+
+    function saveAddressList(list) {
+      localStorage.setItem(ADDRESS_LIST_KEY, JSON.stringify(list));
+    }
+
+    function setDefaultAddress(address) {
+      localStorage.setItem(DELIVERY_ADDRESS_KEY, address);
+    }
+
+    function renderAddressList() {
+      const list = getAddressList();
+      const defaultAddress = (localStorage.getItem(DELIVERY_ADDRESS_KEY) || "").trim();
+
+      if (!addressList) return;
+
+      if (!list.length) {
+        addressList.innerHTML = '<div class="profile-empty">No saved addresses yet.</div>';
+        return;
+      }
+
+      addressList.innerHTML = list.map(item => {
+        const isDefault = item.text === defaultAddress;
+        return `
+          <div class="profile-card-list" data-address-id="${item.id}">
+            <div class="profile-address-text">${item.text}</div>
+            <div class="profile-address-actions">
+              <button class="profile-link-btn" data-action="use" data-address-id="${item.id}">
+                ${isDefault ? "Default" : "Use for cart"}
+              </button>
+              <button class="profile-link-btn danger" data-action="delete" data-address-id="${item.id}">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    saveAddressBtn?.addEventListener("click", () => {
+      const value = (newAddress?.value || "").trim();
+      if (value.length < 6) {
+        if (addressStatus) addressStatus.textContent = "Enter a full address.";
+        return;
+      }
+
+      const list = getAddressList();
+      if (!list.some(item => item.text === value)) {
+        list.unshift({ id: Date.now(), text: value });
+      }
+      saveAddressList(list.slice(0, 8));
+      setDefaultAddress(value);
+      renderAddressList();
+      if (addressStatus) addressStatus.textContent = "Address saved.";
+      if (newAddress) newAddress.value = "";
+    });
+
+    addressList?.addEventListener("click", (event) => {
+      const btn = event.target.closest("button[data-action]");
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const id = btn.dataset.addressId;
+      const list = getAddressList();
+      const target = list.find(item => String(item.id) === String(id));
+      if (!target) return;
+
+      if (action === "use") {
+        setDefaultAddress(target.text);
+        renderAddressList();
+        if (addressStatus) addressStatus.textContent = "Default address updated.";
+        return;
+      }
+
+      if (action === "delete") {
+        const nextList = list.filter(item => String(item.id) !== String(id));
+        saveAddressList(nextList);
+        const currentDefault = (localStorage.getItem(DELIVERY_ADDRESS_KEY) || "").trim();
+        if (currentDefault === target.text) {
+          localStorage.removeItem(DELIVERY_ADDRESS_KEY);
+        }
+        renderAddressList();
+        if (addressStatus) addressStatus.textContent = "Address removed.";
+      }
+    });
+
+    function initTabs() {
+      const tabs = Array.from(document.querySelectorAll(".profile-tab"));
+      const panels = Array.from(document.querySelectorAll(".profile-panel"));
+
+      tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          const key = tab.dataset.tab;
+          tabs.forEach(btn => btn.classList.remove("active"));
+          tab.classList.add("active");
+
+          panels.forEach(panel => {
+            panel.classList.toggle("active", panel.dataset.panel === key);
+          });
+        });
+      });
+    }
+
+    async function loadOrders() {
+      if (!ordersWrap) return;
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/orders/myorders`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const orders = await res.json();
+        if (!res.ok || !Array.isArray(orders) || orders.length === 0) {
+          ordersWrap.innerHTML = '<div class="profile-empty">No orders yet.</div>';
+          return;
+        }
+
+        ordersWrap.innerHTML = orders.map(order => {
+          const itemsCount = Array.isArray(order.items) ? order.items.length : 0;
+          const status = order.status || "pending";
+          return `
+            <div class="profile-card-list">
+              <div class="profile-order-row">
+                <span>Order ${order.id || "-"}</span>
+                <span>₹${order.total || 0}</span>
+              </div>
+              <div class="profile-order-meta">
+                <span>${itemsCount} items</span>
+                <span>${status}</span>
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (_err) {
+        ordersWrap.innerHTML = '<div class="profile-empty">Unable to load orders.</div>';
+      }
+    }
+
+    (async function initProfilePage() {
+      syncNavAuthUi();
+      const ok = await validateSessionWithServer();
+      if (!ok) {
+        showGuest();
+        return;
+      }
+      showProfile();
+      setUserInfo();
+      initTabs();
+      renderAddressList();
+      loadOrders();
+    })();
+  </script>
+</body>
+</html>
