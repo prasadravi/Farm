@@ -48,9 +48,9 @@
           </div>
 
           <div class="profile-side-list">
-            <button class="profile-tab profile-side-item active" type="button" data-tab="orders">
+            <button class="profile-tab profile-side-item active" type="button" data-tab="products">
               <span class="profile-side-icon">🛍</span>
-              <span>Orders</span>
+              <span>Products</span>
             </button>
             <button class="profile-side-item" type="button" id="supportBtn">
               <span class="profile-side-icon">◔</span>
@@ -75,14 +75,14 @@
         </aside>
 
         <section class="profile-content">
-          <div class="profile-panel active" data-panel="orders">
+          <div class="profile-panel active" data-panel="products">
             <div class="profile-panel-head">
               <div>
-                <div class="profile-panel-title">Orders</div>
-                <div class="profile-panel-sub">Your recent deliveries</div>
+                <div class="profile-panel-title">View Products</div>
+                <div class="profile-panel-sub">Tap any product to add it and go to cart</div>
               </div>
             </div>
-            <div id="ordersWrap" class="profile-list"></div>
+            <div id="productsWrap" class="profile-products-grid"></div>
           </div>
 
           <div class="profile-panel" data-panel="addresses">
@@ -149,7 +149,7 @@
     const infoName = document.getElementById("infoName");
     const infoEmail = document.getElementById("infoEmail");
 
-    const ordersWrap = document.getElementById("ordersWrap");
+    const productsWrap = document.getElementById("productsWrap");
     const addressList = document.getElementById("addressList");
     const newAddress = document.getElementById("newAddress");
     const saveAddressBtn = document.getElementById("saveAddressBtn");
@@ -157,6 +157,13 @@
 
     const ADDRESS_LIST_KEY = "saved_addresses";
     const DELIVERY_ADDRESS_KEY = "delivery_address";
+    const CART_KEY = "cart";
+    const PRODUCTS = [
+      { id: "milk500", title: "Fresh Cow Milk", price: 28, unit: "500 ml pouch", img: "images/stor-one.jpg" },
+      { id: "cowcurd500", title: "Cow Curd", price: 110, unit: "500 ml cup", img: "images/cow-curd.jpg" },
+      { id: "buffalocurd500", title: "Bufflo Curd", price: 155, unit: "500 ml cup", img: "images/buffalo-curd.jpg" },
+      { id: "buffalomilk500", title: "Bufflo Milk", price: 110, unit: "500 ml pouch", img: "images/store-four.jpg" }
+    ];
 
     function parseJwtPayload(token) {
       try {
@@ -358,41 +365,57 @@
       });
     }
 
-    async function loadOrders() {
-      if (!ordersWrap) return;
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
+    function getCart() {
       try {
-        const res = await fetch(`${API_BASE}/orders/myorders`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
-        const orders = await res.json();
-        if (!res.ok || !Array.isArray(orders) || orders.length === 0) {
-          ordersWrap.innerHTML = '<div class="profile-empty">No orders yet.</div>';
-          return;
-        }
-
-        ordersWrap.innerHTML = orders.map(order => {
-          const itemsCount = Array.isArray(order.items) ? order.items.length : 0;
-          const status = order.status || "pending";
-          return `
-            <div class="profile-card-list">
-              <div class="profile-order-row">
-                <span>Order ${order.id || "-"}</span>
-                <span>₹${order.total || 0}</span>
-              </div>
-              <div class="profile-order-meta">
-                <span>${itemsCount} items</span>
-                <span>${status}</span>
-              </div>
-            </div>
-          `;
-        }).join("");
+        return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
       } catch (_err) {
-        ordersWrap.innerHTML = '<div class="profile-empty">Unable to load orders.</div>';
+        return [];
       }
     }
+
+    function setCart(cart) {
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    }
+
+    function renderProducts() {
+      if (!productsWrap) return;
+      productsWrap.innerHTML = PRODUCTS.map(item => `
+        <article class="profile-product-card">
+          <img src="${item.img}" alt="${item.title}" class="profile-product-img" loading="lazy" decoding="async" />
+          <div class="profile-product-copy">
+            <div class="profile-product-title">${item.title}</div>
+            <div class="profile-product-sub">${item.unit}</div>
+            <div class="profile-product-foot">
+              <strong>₹${item.price}</strong>
+              <button class="profile-link-btn" type="button" data-add-id="${item.id}">Add & Go Cart</button>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    productsWrap?.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-add-id]");
+      if (!button) return;
+      const productId = button.dataset.addId;
+      const product = PRODUCTS.find(item => item.id === productId);
+      if (!product) return;
+
+      const cart = getCart();
+      const existing = cart.find(item => item.id === product.id);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({
+          id: product.id,
+          title: product.title,
+          price: Number(product.price),
+          qty: 1
+        });
+      }
+      setCart(cart);
+      window.location.href = "cart.html";
+    });
 
     (async function initProfilePage() {
       syncNavAuthUi();
@@ -404,8 +427,8 @@
       showProfile();
       setUserInfo();
       initTabs();
+      renderProducts();
       renderAddressList();
-      loadOrders();
     })();
   </script>
 </body>
