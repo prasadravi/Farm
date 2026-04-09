@@ -123,6 +123,32 @@
       display: grid;
       gap: 12px;
     }
+    .payment-mode-card {
+      display: grid;
+      gap: 10px;
+    }
+    .payment-mode-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .payment-mode-btn {
+      border: 1px solid rgba(232, 196, 107, 0.35);
+      background: #fff8e7;
+      border-radius: 12px;
+      padding: 12px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      cursor: pointer;
+      color: #1f2937;
+    }
+    .payment-mode-btn.active {
+      border-color: rgba(232, 196, 107, 0.8);
+      box-shadow: 0 0 0 3px rgba(232, 196, 107, 0.25);
+      background: #fff1cc;
+    }
     .payment-row {
       display: grid;
       gap: 10px;
@@ -501,6 +527,14 @@
           </div>
         </section>
 
+        <section class="card payment-mode-card" id="paymentModeSection">
+          <div class="section-title">Choose payment option</div>
+          <div class="payment-mode-options">
+            <button class="payment-mode-btn active" type="button" data-payment-mode="online">Online Payment</button>
+            <button class="payment-mode-btn" type="button" data-payment-mode="cod">Cash on Delivery</button>
+          </div>
+        </section>
+
         <section class="card payment-card" id="paymentSection">
           <div class="section-title">Choose UPI payment method</div>
           <div class="payment-row">
@@ -595,6 +629,7 @@
     const paymentNote = document.getElementById("paymentNote");
     const paymentProof = document.getElementById("paymentProof");
     const proofWrap = document.getElementById("proofWrap");
+    const paymentModeSection = document.getElementById("paymentModeSection");
     const cartContent = document.getElementById("cartContent");
     const guestLoginView = document.getElementById("guestLoginView");
     const checkoutWrap = document.querySelector(".checkout-wrap");
@@ -604,6 +639,7 @@
     let paymentInitiated = false;
     let paymentProofReady = false;
     let selectedUpiApp = null;
+    let paymentMode = "online";
 
     function parseJwtPayload(token) {
       try {
@@ -750,6 +786,22 @@
       if (proofWrap) proofWrap.style.display = "grid";
     }
 
+    function updatePaymentModeUi() {
+      if (!paymentSection) return;
+      if (paymentMode === "cod") {
+        paymentSection.style.display = "none";
+        paymentInitiated = true;
+        paymentProofReady = true;
+        if (paymentNote) paymentNote.textContent = "Cash on Delivery selected.";
+        if (proofWrap) proofWrap.style.display = "none";
+      } else {
+        paymentSection.style.display = "grid";
+        paymentInitiated = false;
+        paymentProofReady = false;
+        updatePaymentUi(calcTotal(getCart()));
+      }
+    }
+
     function initAddressState() {
       const savedAddress = (localStorage.getItem(ADDRESS_KEY) || "").trim();
       if (addressInput) {
@@ -873,7 +925,16 @@
       addressReady = true;
       if (addressStatus) addressStatus.textContent = "Address added";
       updateCheckoutState();
-      if (paymentSection) paymentSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (paymentModeSection) paymentModeSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    paymentModeSection?.addEventListener("click", (event) => {
+      const btn = event.target.closest(".payment-mode-btn");
+      if (!btn) return;
+      paymentModeSection.querySelectorAll(".payment-mode-btn").forEach(el => el.classList.remove("active"));
+      btn.classList.add("active");
+      paymentMode = btn.dataset.paymentMode || "online";
+      updatePaymentModeUi();
     });
 
     payNowBtn?.addEventListener("click", () => {
@@ -951,13 +1012,15 @@
       }
 
       if (!paymentInitiated) {
-        alert("Please complete UPI payment first.");
+        alert("Please complete payment first.");
         return;
       }
 
       if (!paymentProofReady) {
-        alert("After payment, upload screenshot.");
-        paymentProof?.focus();
+        if (paymentMode === "online") {
+          alert("After payment, upload screenshot.");
+          paymentProof?.focus();
+        }
         return;
       }
 
@@ -1104,6 +1167,7 @@
       if (paymentNote) paymentNote.textContent = "After payment, upload screenshot.";
       if (proofWrap) proofWrap.style.display = "none";
       if (upiQrWrap) upiQrWrap.style.display = "flex";
+      updatePaymentModeUi();
       const storedEta = Number(localStorage.getItem("last_delivery_eta"));
       if (storedEta === 5 || storedEta === 10) {
         updateDeliveryEtaBanner(storedEta);
