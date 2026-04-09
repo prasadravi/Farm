@@ -103,6 +103,10 @@
       font-size: 0.86rem;
       margin-bottom: 8px;
       outline: none;
+      min-height: 72px;
+      line-height: 1.4;
+      resize: vertical;
+      font-family: inherit;
     }
     .address-input:focus {
       border-color: #c9ac67;
@@ -112,12 +116,14 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
     .address-status {
       font-size: 0.76rem;
       color: #6f4f16;
       margin-top: 2px;
       min-height: 18px;
+      flex-basis: 100%;
     }
     .payment-card {
       display: grid;
@@ -520,7 +526,7 @@
 
         <section class="card">
           <div class="section-title">Delivery address</div>
-          <input id="addressInput" class="address-input" type="text" placeholder="Enter your full address" />
+          <textarea id="addressInput" class="address-input" rows="3" placeholder="Enter your full address"></textarea>
           <div class="address-row">
             <button class="mini-btn" type="button" id="saveAddressBtn">Add Address</button>
             <div class="address-status" id="addressStatus"></div>
@@ -640,6 +646,7 @@
     let paymentProofReady = false;
     let selectedUpiApp = null;
     let paymentMode = "online";
+    let lastSavedAddress = "";
 
     function parseJwtPayload(token) {
       try {
@@ -808,9 +815,18 @@
         addressInput.value = savedAddress;
       }
       addressReady = savedAddress.length >= 6;
+      lastSavedAddress = savedAddress;
       if (addressStatus) {
         addressStatus.textContent = addressReady ? "Address added" : "";
       }
+      updateCheckoutState();
+    }
+
+    function saveAddressValue(value, statusText = "Address saved") {
+      localStorage.setItem(ADDRESS_KEY, value);
+      addressReady = true;
+      lastSavedAddress = value;
+      if (addressStatus) addressStatus.textContent = statusText;
       updateCheckoutState();
     }
 
@@ -921,11 +937,26 @@
         updateCheckoutState();
         return;
       }
-      localStorage.setItem(ADDRESS_KEY, value);
-      addressReady = true;
-      if (addressStatus) addressStatus.textContent = "Address added";
-      updateCheckoutState();
+      saveAddressValue(value, "Address added");
       if (paymentModeSection) paymentModeSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    addressInput?.addEventListener("input", () => {
+      const value = (addressInput?.value || "").trim();
+      if (value !== lastSavedAddress) {
+        addressReady = false;
+        updateCheckoutState();
+        if (addressStatus) {
+          addressStatus.textContent = value.length ? "Tap Add Address to save." : "";
+        }
+      }
+    });
+
+    addressInput?.addEventListener("blur", () => {
+      const value = (addressInput?.value || "").trim();
+      if (value.length >= 6 && value !== lastSavedAddress) {
+        saveAddressValue(value);
+      }
     });
 
     paymentModeSection?.addEventListener("click", (event) => {
