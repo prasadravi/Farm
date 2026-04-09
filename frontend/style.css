@@ -737,12 +737,21 @@ body {
   gap: 10px; 
 }
 .add-btn { 
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: #fff; 
   border-radius: 999px; 
-  padding: 8px 14px; 
-  border: none; 
+  border: 1px solid rgba(17, 24, 39, 0.18);
   cursor: pointer; 
   font-weight: 700; 
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.add-btn:hover {
+  background: #fef3c7;
 }
 
 /* GO TOP */

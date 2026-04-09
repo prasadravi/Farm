@@ -279,7 +279,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="card-subtitle">${p.unit}</div>
           <div class="card-controls">
             <div class="price">₹${p.price}</div>
-            <button class="add-btn" data-id="${p.id}">Add to Cart</button>
+            <button class="add-btn" data-id="${p.id}" aria-label="Add ${p.title}">+</button>
           </div>
         </div>
       </article>
