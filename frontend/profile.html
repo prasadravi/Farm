@@ -79,7 +79,7 @@
             <div class="profile-panel-head">
               <div>
                 <div class="profile-panel-title">View Products</div>
-                <div class="profile-panel-sub">Tap any product to add it and go to cart</div>
+                <div class="profile-panel-sub">Tap + to add more products (max 4 per product)</div>
               </div>
             </div>
             <div id="productsWrap" class="profile-products-grid"></div>
@@ -379,6 +379,7 @@
 
     function renderProducts() {
       if (!productsWrap) return;
+      const cart = getCart();
       productsWrap.innerHTML = PRODUCTS.map(item => `
         <article class="profile-product-card">
           <img src="${item.img}" alt="${item.title}" class="profile-product-img" loading="lazy" decoding="async" />
@@ -387,7 +388,10 @@
             <div class="profile-product-sub">${item.unit}</div>
             <div class="profile-product-foot">
               <strong>₹${item.price}</strong>
-              <button class="profile-link-btn" type="button" data-add-id="${item.id}">Add & Go Cart</button>
+              <div class="profile-product-actions">
+                <span class="profile-product-qty">${Math.min(4, Number((cart.find(c => c.id === item.id) || {}).qty || 0))}/4</span>
+                <button class="profile-plus-btn" type="button" data-add-id="${item.id}" aria-label="Add ${item.title}">+</button>
+              </div>
             </div>
           </div>
         </article>
@@ -404,6 +408,10 @@
       const cart = getCart();
       const existing = cart.find(item => item.id === product.id);
       if (existing) {
+        if (Number(existing.qty) >= 4) {
+          alert("Maximum 4 allowed for this product.");
+          return;
+        }
         existing.qty += 1;
       } else {
         cart.push({
@@ -414,7 +422,7 @@
         });
       }
       setCart(cart);
-      window.location.href = "cart.html";
+      renderProducts();
     });
 
     (async function initProfilePage() {

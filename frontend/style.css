@@ -405,6 +405,32 @@ body {
   align-items: center;
   gap: 8px;
 }
+.profile-page .profile-product-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.profile-page .profile-product-qty {
+  font-size: 0.78rem;
+  color: #6b7280;
+  min-width: 28px;
+  text-align: right;
+}
+.profile-page .profile-plus-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 196, 107, 0.85);
+  background: #fff8e7;
+  color: #6f4f16;
+  font-size: 1.1rem;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+}
+.profile-page .profile-plus-btn:hover {
+  background: #ffefc4;
+}
 .profile-page .profile-card-list {
   border: 1px solid #eceff4;
   border-radius: 12px;
