@@ -647,6 +647,7 @@
     let selectedUpiApp = null;
     let paymentMode = "online";
     let lastSavedAddress = "";
+    let addressSaveTimer = null;
 
     function parseJwtPayload(token) {
       try {
@@ -943,17 +944,41 @@
 
     addressInput?.addEventListener("input", () => {
       const value = (addressInput?.value || "").trim();
-      if (value !== lastSavedAddress) {
+      if (addressSaveTimer) {
+        clearTimeout(addressSaveTimer);
+        addressSaveTimer = null;
+      }
+
+      if (value.length < 6) {
         addressReady = false;
         updateCheckoutState();
         if (addressStatus) {
-          addressStatus.textContent = value.length ? "Tap Add Address to save." : "";
+          addressStatus.textContent = value.length ? "Please enter a full address." : "";
         }
+        return;
       }
+
+      if (value === lastSavedAddress) {
+        addressReady = true;
+        updateCheckoutState();
+        if (addressStatus) addressStatus.textContent = "Address added";
+        return;
+      }
+
+      addressReady = false;
+      updateCheckoutState();
+      if (addressStatus) addressStatus.textContent = "Saving address...";
+      addressSaveTimer = setTimeout(() => {
+        saveAddressValue(value);
+      }, 600);
     });
 
     addressInput?.addEventListener("blur", () => {
       const value = (addressInput?.value || "").trim();
+      if (addressSaveTimer) {
+        clearTimeout(addressSaveTimer);
+        addressSaveTimer = null;
+      }
       if (value.length >= 6 && value !== lastSavedAddress) {
         saveAddressValue(value);
       }
