@@ -84,12 +84,6 @@ body {
   gap: 18px;
   min-height: 54px;
 }
-.nav-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  flex: 0 0 auto;
-}
 .nav-left { 
   position: absolute; 
   left: 5%; 
@@ -132,60 +126,6 @@ body {
 .navbar-home .logo {
   justify-self: center;
   margin: 0;
-}
-.delivery-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
-  border-radius: 14px;
-  border: 1px solid rgba(17, 24, 39, 0.12);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-}
-.delivery-logo {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #fef7e3, #f3c566 68%);
-  border: 2px solid #2d5d9f;
-  color: #2d5d9f;
-  font-family: 'Playfair Display', serif;
-  font-size: 1.06rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.delivery-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 110px;
-}
-.delivery-label {
-  color: #667085;
-  font-size: 0.7rem;
-  line-height: 1;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-}
-.delivery-city {
-  border: none;
-  background: transparent;
-  color: #1f2937;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1.1;
-  cursor: pointer;
-}
-.delivery-caret {
-  font-size: 0.72rem;
-  color: #6b7280;
 }
 .nav-action {
   display: inline-flex;
@@ -266,10 +206,6 @@ body {
 }
 .navbar.scrolled .nav-action:hover {
   background: #f8f4ea;
-}
-.navbar.scrolled .delivery-chip {
-  border-color: rgba(17, 24, 39, 0.1);
-  background: #ffffff;
 }
 
 /* PROFILE PAGE */
@@ -2008,16 +1944,6 @@ body {
   display: none;
 }
 
-@media (max-width: 768px) {
-  .nav-toggle {
-    display: block;
-    position: absolute;
-    right: 16px;
-    top: 16px;
-    z-index: 200;
-  }
-}
-
 @media (min-width: 768px) and (max-width: 1023px) {
 
   .nav-inner {
@@ -2075,10 +2001,6 @@ body {
 
   .navbar-home .nav-inner {
     gap: 8px;
-  }
-
-  .navbar-home .nav-brand {
-    order: 1;
   }
 
   .logo {
@@ -2139,34 +2061,9 @@ body {
     width: 100%;
   }
 
-  .navbar-home .nav-brand {
-    position: static;
-    width: auto;
-    display: flex;
-  }
-
   .navbar.menu-open .nav-left,
   .navbar.menu-open .nav-right {
     display: flex;
-  }
-
-  .delivery-chip {
-    min-height: 44px;
-    padding: 5px 9px;
-  }
-
-  .delivery-logo {
-    width: 40px;
-    height: 40px;
-    font-size: 0.9rem;
-  }
-
-  .delivery-copy {
-    min-width: 94px;
-  }
-
-  .delivery-city {
-    font-size: 0.88rem;
   }
 
   .nav-left {
