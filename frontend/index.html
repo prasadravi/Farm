@@ -15,21 +15,14 @@
   <!-- NAVBAR -->
   <header class="navbar navbar-home" id="navbar">
     <div class="container nav-inner nav-inner-home">
-      <div class="nav-brand">
-        <h1 class="logo">NATURAL MILK</h1>
-        <div class="delivery-chip" role="group" aria-label="Delivery location">
-          <div class="delivery-logo" aria-hidden="true">CD</div>
-          <div class="delivery-copy">
-            <span class="delivery-label">Deliver In</span>
-            <button class="delivery-city" type="button" aria-label="Selected delivery city">
-              <span>Guntur</span>
-              <span class="delivery-caret" aria-hidden="true">▼</span>
-            </button>
-          </div>
-        </div>
+      <div class="nav-cart-left">
+        <button class="nav-action cart-page-btn" id="cartPageBtn" aria-label="Cart">
+          <span>Cart</span>
+          <span class="cart-pill" id="cartCount">0</span>
+        </button>
       </div>
 
-      <nav class="nav-left">
+      <nav class="nav-center">
         <a href="#home">Home</a>
         <a href="#" id="openAboutBtn">About</a>
         <a href="#store" id="navStore">Store</a>
@@ -47,10 +40,6 @@
         <a href="signup.html" class="nav-action nav-signup-link">Sign Up</a>
         <a href="profile.html" class="nav-action nav-profile-link" style="display:none;">Profile</a>
         <button class="nav-action" id="logoutBtn" type="button" style="display:none;">Logout</button>
-        <button class="nav-action cart-page-btn" id="cartPageBtn" aria-label="Cart">
-          <span>Cart</span>
-          <span class="cart-pill" id="cartCount">0</span>
-        </button>
       </div>
     </div>
   </header>
