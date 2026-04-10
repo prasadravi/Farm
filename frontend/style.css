@@ -2006,6 +2006,8 @@ body {
   }
 
   .navbar-home .nav-inner {
+    display: flex;
+    width: 100%;
     gap: 8px;
   }
 
@@ -2016,6 +2018,7 @@ body {
     letter-spacing: 0.6px;
     order: 1;
     width: auto;
+    margin-right: auto;
   }
 
   .nav-toggle {
@@ -2074,6 +2077,7 @@ body {
 
   .nav-left {
     order: 3;
+    width: 100%;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
@@ -2095,6 +2099,7 @@ body {
 
   .nav-right {
     order: 4;
+    width: 100%;
     margin-top: 10px;
     gap: 8px;
     flex-wrap: wrap;
