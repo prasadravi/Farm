@@ -14,6 +14,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const $$ = sel => Array.from(document.querySelectorAll(sel));
   let toastTimer = null;
 
+  async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+  }
+
   function showToast(message) {
     let toast = byId("appToast");
     if (!toast) {
@@ -79,21 +89,34 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!isLoggedIn()) return false;
     if (!force && serverSessionValid === true) return true;
 
+    // Keep cart/actions responsive: use local JWT checks by default and only force server
+    // validation when needed (checkout or explicit verification).
+    if (!force) {
+      serverSessionValid = true;
+      return true;
+    }
+
     const token = getToken();
     if (!token) return false;
 
     try {
-      const res = await fetch(`${API_BASE}/auth/me`, {
+      const res = await fetchWithTimeout(`${API_BASE}/auth/me`, {
         headers: { "Authorization": `Bearer ${token}` }
-      });
+      }, 7000);
       if (!res.ok) throw new Error("Unauthorized");
       serverSessionValid = true;
       return true;
     } catch (_err) {
-      serverSessionValid = false;
-      localStorage.removeItem("token");
-      localStorage.removeItem(CART_KEY);
-      return false;
+      serverSessionValid = null;
+
+      // Clear auth only for explicit unauthorized responses, not transient timeout/network.
+      if (_err && (_err.message === "Unauthorized")) {
+        localStorage.removeItem("token");
+        localStorage.removeItem(CART_KEY);
+        return false;
+      }
+
+      return true;
     }
   }
 
@@ -234,7 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ----------------------------*/
   const slideA = byId("slideA");
   const slideB = byId("slideB");
-  const heroImages = ["images/milk-bg.jpg", "images/farm-bg.jpg", "images/cow-bg.jpg"];
+  const heroImages = ["images/milk-bg.webp", "images/farm-bg.webp", "images/cow-bg.webp"];
   (function initSlides() {
     if (!slideA || !slideB) return;
     let active = slideA;

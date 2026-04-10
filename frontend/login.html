@@ -39,6 +39,16 @@
     const params = new URLSearchParams(window.location.search);
     const nextPage = params.get("next");
 
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 9000) {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { ...options, signal: controller.signal });
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -48,11 +58,11 @@
       try {
         submitBtn.disabled = true;
         submitBtn.textContent = "Signing in...";
-        const res = await fetch(`${API_BASE}/auth/login`, {
+        const res = await fetchWithTimeout(`${API_BASE}/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
-        });
+        }, 10000);
 
         const data = await res.json();
         if (res.ok) {
@@ -62,7 +72,8 @@
           alert(data.message || "Login failed");
         }
       } catch (err) {
-        alert("Error connecting to server.");
+        const isTimeout = err && err.name === "AbortError";
+        alert(isTimeout ? "Server is taking too long. Please try again." : "Error connecting to server.");
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Login";
