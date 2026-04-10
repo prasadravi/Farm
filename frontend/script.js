@@ -288,7 +288,6 @@ document.addEventListener("DOMContentLoaded", () => {
     productCards = $$("#productGrid .store-card");
     renderProductDots();
   }
-  renderProducts();
 
   function renderProductDots() {
     if (!productDots) return;
@@ -609,5 +608,6 @@ document.addEventListener("DOMContentLoaded", () => {
   renderDrawer();
   updateCartCount();
   syncAuthUi();
+  renderProducts();
   updateProductDots(0);
 });
