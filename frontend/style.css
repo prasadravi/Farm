@@ -732,26 +732,57 @@ body {
 }
 .store-card .card-controls { 
   display: flex; 
-  justify-content: center; 
+  justify-content: space-between; 
+  align-items: center;
   margin-top: 12px; 
   gap: 10px; 
 }
 .add-btn { 
-  width: 34px;
-  height: 34px;
+  min-width: 96px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #fff; 
-  border-radius: 999px; 
-  border: 1px solid rgba(17, 24, 39, 0.18);
+  background: #fff;
+  color: #ff2b72;
+  border-radius: 16px;
+  border: 2px solid #ff2b72;
   cursor: pointer; 
   font-weight: 700; 
-  font-size: 1.1rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
   line-height: 1;
 }
 .add-btn:hover {
-  background: #fef3c7;
+  background: #fff5f8;
+}
+.store-qty-pill {
+  min-width: 120px;
+  height: 40px;
+  padding: 0 8px;
+  border-radius: 14px;
+  background: #ff2b72;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.store-qty-btn {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 1.45rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.store-qty-count {
+  font-size: 1.05rem;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
 }
 
 /* GO TOP */

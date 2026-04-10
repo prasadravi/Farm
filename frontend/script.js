@@ -273,13 +273,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderProducts() {
     if (!productGrid) return;
     productGrid.innerHTML = products.map((p, index) => `
-      <article class="store-card" data-index="${index}" style="background-image:url('${p.img}')">
+      <article class="store-card" data-index="${index}" data-product-id="${p.id}" style="background-image:url('${p.img}')">
         <div class="card-inner">
           <div class="card-caption">${p.title}</div>
           <div class="card-subtitle">${p.unit}</div>
           <div class="card-controls">
             <div class="price">₹${p.price}</div>
-            <button class="add-btn" data-id="${p.id}" aria-label="Add ${p.title}">+</button>
+            ${renderProductControl(p.id, p.title, getProductQty(p.id))}
           </div>
         </div>
       </article>
@@ -355,6 +355,40 @@ document.addEventListener("DOMContentLoaded", () => {
   const setCart = c => localStorage.setItem(CART_KEY, JSON.stringify(c));
   const logoutBtn = byId("logoutBtn");
 
+  function getProductQty(productId) {
+    const found = getCart().find(item => item.id === productId);
+    return found ? Number(found.qty || 0) : 0;
+  }
+
+  function renderProductControl(productId, title, qty) {
+    if (qty > 0) {
+      return `
+        <div class="store-qty-pill" data-id="${productId}">
+          <button class="store-qty-btn qty-dec" type="button" data-action="decrease" data-id="${productId}" aria-label="Decrease ${title}">−</button>
+          <span class="store-qty-count">${qty}</span>
+          <button class="store-qty-btn qty-inc" type="button" data-action="increase" data-id="${productId}" aria-label="Increase ${title}">+</button>
+        </div>
+      `;
+    }
+    return `<button class="add-btn" type="button" data-action="add" data-id="${productId}" aria-label="Add ${title}">ADD</button>`;
+  }
+
+  function refreshProductCardControls() {
+    if (!productGrid) return;
+    const cards = Array.from(productGrid.querySelectorAll(".store-card[data-product-id]"));
+    cards.forEach(card => {
+      const productId = card.dataset.productId;
+      const product = products.find(p => p.id === productId);
+      const controls = card.querySelector(".card-controls");
+      const priceEl = controls?.querySelector(".price");
+      if (!product || !controls || !priceEl) return;
+
+      const qty = getProductQty(productId);
+      const controlHtml = renderProductControl(productId, product.title, qty);
+      controls.innerHTML = `${priceEl.outerHTML}${controlHtml}`;
+    });
+  }
+
   logoutBtn?.addEventListener("click", () => {
     localStorage.removeItem("token");
     localStorage.removeItem(CART_KEY);
@@ -376,7 +410,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   updateCartCount();
 
-  async function addToCart(item) {
+  async function changeCartQty(item, delta) {
     const canUseCart = await validateSessionWithServer();
     if (!canUseCart) {
       alert("Please login first to add items to cart.");
@@ -386,22 +420,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const cart = getCart();
     const existing = cart.find(x => x.id === item.id);
-    if (existing) existing.qty += 1;
-    else cart.push({ ...item, qty: 1 });
+
+    if (delta > 0) {
+      if (existing) existing.qty += 1;
+      else cart.push({ ...item, qty: 1 });
+      showToast(`${item.title} added to cart`);
+    }
+
+    if (delta < 0 && existing) {
+      existing.qty -= 1;
+      if (existing.qty <= 0) {
+        const idx = cart.findIndex(x => x.id === item.id);
+        if (idx >= 0) cart.splice(idx, 1);
+      }
+    }
+
     setCart(cart);
     updateCartCount();
     renderDrawer();
-    showToast(`${item.title} added to cart`);
+    refreshProductCardControls();
   }
 
   productGrid?.addEventListener("click", e => {
-    const t = e.target;
-    if (t.matches(".add-btn")) {
-      const id = t.dataset.id;
-      const prod = products.find(p => p.id === id);
-      if (prod) {
-        addToCart(prod);
-      }
+    const button = e.target.closest("button[data-id]");
+    if (!button) return;
+
+    const id = button.dataset.id;
+    const action = button.dataset.action;
+    const prod = products.find(p => p.id === id);
+    if (!prod) return;
+
+    if (action === "add" || action === "increase") {
+      changeCartQty(prod, 1);
+      return;
+    }
+
+    if (action === "decrease") {
+      changeCartQty(prod, -1);
     }
   });
 
