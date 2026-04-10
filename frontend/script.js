@@ -237,19 +237,51 @@ document.addEventListener("DOMContentLoaded", () => {
   const heroImages = ["images/milk-bg.jpg", "images/farm-bg.jpg", "images/cow-bg.jpg"];
   (function initSlides() {
     if (!slideA || !slideB) return;
-    let active = slideA, passive = slideB;
+    let active = slideA;
+    let passive = slideB;
     let idx = 0;
+    let slideTimerId = null;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const setSlide = (el, src) => el.style.backgroundImage = `url('${src}')`;
+
+    // Warm cache for upcoming slide images to reduce decode jank on mobile.
+    heroImages.forEach((src) => {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = src;
+    });
+
     setSlide(active, heroImages[0]);
     active.classList.add("visible");
     setSlide(passive, heroImages[1] || heroImages[0]);
-    setInterval(() => {
+
+    if (prefersReducedMotion || heroImages.length < 2) return;
+
+    const rotateSlides = () => {
       idx = (idx + 1) % heroImages.length;
       setSlide(passive, heroImages[idx]);
       passive.classList.add("visible");
       active.classList.remove("visible");
       [active, passive] = [passive, active];
-    }, 2000);
+    };
+
+    const startSlides = () => {
+      if (slideTimerId !== null) return;
+      slideTimerId = window.setInterval(rotateSlides, 5000);
+    };
+
+    const stopSlides = () => {
+      if (slideTimerId === null) return;
+      window.clearInterval(slideTimerId);
+      slideTimerId = null;
+    };
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopSlides();
+      else startSlides();
+    });
+
+    startSlides();
   })();
 
   /* ---------------------------
@@ -328,8 +360,14 @@ document.addEventListener("DOMContentLoaded", () => {
     return closest;
   }
 
+  let productScrollTicking = false;
   productGrid?.addEventListener("scroll", () => {
-    updateProductDots(activeProductIndex());
+    if (productScrollTicking) return;
+    productScrollTicking = true;
+    window.requestAnimationFrame(() => {
+      updateProductDots(activeProductIndex());
+      productScrollTicking = false;
+    });
   }, { passive: true });
 
   productDots?.addEventListener("click", e => {
