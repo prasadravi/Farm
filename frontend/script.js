@@ -243,17 +243,19 @@ document.addEventListener("DOMContentLoaded", () => {
     let slideTimerId = null;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const setSlide = (el, src) => el.style.backgroundImage = `url('${src}')`;
-
-    // Warm cache for upcoming slide images to reduce decode jank on mobile.
-    heroImages.forEach((src) => {
+    const preloadImage = (src) => {
       const img = new Image();
       img.decoding = "async";
       img.src = src;
-    });
+    };
 
     setSlide(active, heroImages[0]);
     active.classList.add("visible");
-    setSlide(passive, heroImages[1] || heroImages[0]);
+    setSlide(passive, heroImages[0]);
+
+    if ("requestIdleCallback" in window && heroImages[1]) {
+      window.requestIdleCallback(() => preloadImage(heroImages[1]), { timeout: 1000 });
+    }
 
     if (prefersReducedMotion || heroImages.length < 2) return;
 
@@ -302,10 +304,42 @@ document.addEventListener("DOMContentLoaded", () => {
   let productCards = [];
   let productDotButtons = [];
 
+  const lazyBgObserver = ("IntersectionObserver" in window)
+    ? new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const src = el.getAttribute("data-bg");
+        if (src) {
+          el.style.backgroundImage = `url('${src}')`;
+          el.removeAttribute("data-bg");
+        }
+        observer.unobserve(el);
+      });
+    }, { rootMargin: "240px 0px" })
+    : null;
+
+  function hydrateLazyBackgrounds(scope = document) {
+    const nodes = Array.from(scope.querySelectorAll("[data-bg]"));
+    if (!nodes.length) return;
+
+    if (!lazyBgObserver) {
+      nodes.forEach((el) => {
+        const src = el.getAttribute("data-bg");
+        if (!src) return;
+        el.style.backgroundImage = `url('${src}')`;
+        el.removeAttribute("data-bg");
+      });
+      return;
+    }
+
+    nodes.forEach((el) => lazyBgObserver.observe(el));
+  }
+
   function renderProducts() {
     if (!productGrid) return;
     productGrid.innerHTML = products.map((p, index) => `
-      <article class="store-card" data-index="${index}" data-product-id="${p.id}" style="background-image:url('${p.img}')">
+      <article class="store-card" data-index="${index}" data-product-id="${p.id}" data-bg="${p.img}">
         <div class="card-inner">
           <div class="card-caption">${p.title}</div>
           <div class="card-subtitle">${p.unit}</div>
@@ -319,6 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     productCards = $$("#productGrid .store-card");
     renderProductDots();
+    hydrateLazyBackgrounds(productGrid);
   }
 
   function renderProductDots() {

@@ -93,10 +93,25 @@
       <div class="gallery-strip-viewport" id="galleryViewport">
         <div class="gallery-strip" id="galleryStrip">
           <div class="gallery-item"><img src="images/stor-one.jpg" alt="Fresh milk pouring" loading="lazy" decoding="async"></div>
-          <div class="gallery-item wide"><img src="images/store2.jpg" alt="Cow in field" loading="lazy" decoding="async"></div>
+          <div class="gallery-item wide">
+            <picture>
+              <source srcset="images/store2.webp" type="image/webp">
+              <img src="images/store2.jpg" alt="Cow in field" loading="lazy" decoding="async">
+            </picture>
+          </div>
           <div class="gallery-item"><img src="images/about-person.jpg" alt="Farmer smiling" loading="lazy" decoding="async"></div>
-          <div class="gallery-item wide"><img src="images/store3.jpg" alt="Assorted cheeses" loading="lazy" decoding="async"></div>
-          <div class="gallery-item"><img src="images/store3.jpg" alt="Farm curd" loading="lazy" decoding="async"></div>
+          <div class="gallery-item wide">
+            <picture>
+              <source srcset="images/store3.webp" type="image/webp">
+              <img src="images/store3.jpg" alt="Assorted cheeses" loading="lazy" decoding="async">
+            </picture>
+          </div>
+          <div class="gallery-item">
+            <picture>
+              <source srcset="images/store3.webp" type="image/webp">
+              <img src="images/store3.jpg" alt="Farm curd" loading="lazy" decoding="async">
+            </picture>
+          </div>
         </div>
 
         <!-- arrows overlayed above images -->
