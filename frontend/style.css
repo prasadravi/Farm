@@ -78,7 +78,9 @@ body {
   position: relative; 
 }
 .navbar-home .nav-inner {
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
   gap: 18px;
   min-height: 54px;
 }
@@ -98,8 +100,7 @@ body {
 .navbar-home .nav-left {
   position: static;
   left: auto;
-  flex: 1 1 auto;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .nav-left a { 
   text-decoration: none; 
@@ -126,7 +127,11 @@ body {
 .navbar-home .nav-right {
   position: static;
   right: auto;
-  flex: 0 0 auto;
+  justify-content: flex-end;
+}
+.navbar-home .logo {
+  justify-self: center;
+  margin: 0;
 }
 .delivery-chip {
   display: inline-flex;
