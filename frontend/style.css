@@ -2982,13 +2982,26 @@ body {
 }
 
 /* Responsive polish for phone and tablet */
+
 .nav-toggle {
   display: none;
 }
 
+@media (max-width: 768px) {
+  .nav-toggle {
+    display: block;
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    z-index: 200;
+  }
+}
+
 @media (min-width: 768px) and (max-width: 1023px) {
+
   .nav-inner {
     gap: 10px;
+    position: relative;
   }
 
   .nav-left {
