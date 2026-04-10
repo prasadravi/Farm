@@ -3062,6 +3062,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    margin-left: auto;
     width: 40px;
     height: 40px;
     border: 1px solid rgba(17,24,39,0.14);
@@ -3161,11 +3162,7 @@ body {
   }
 
   .navbar:not(.menu-open) .nav-right {
-    display: flex;
-    width: auto;
-    margin-top: 0;
-    margin-left: auto;
-    gap: 0;
+    display: none;
   }
 
   .navbar:not(.menu-open) .nav-right .nav-action,
