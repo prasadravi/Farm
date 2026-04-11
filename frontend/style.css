@@ -2396,16 +2396,56 @@ body {
   }
 
   .store-grid {
-    display: flex;
-    overflow-x: auto;
-    gap: 12px;
-    scroll-snap-type: x mandatory;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    overflow: visible;
+    scroll-snap-type: none;
   }
 
   .store-card {
-    flex: 0 0 84vw;
-    min-height: 270px;
-    scroll-snap-align: start;
+    flex: initial;
+    min-height: 235px;
+    scroll-snap-align: none;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+  }
+
+  .store-controls,
+  .store-dots {
+    display: none;
+  }
+
+  .store-card .card-inner {
+    padding: 10px;
+    background: #fff;
+    border-top: 1px solid #eceff4;
+    border-radius: 0 0 14px 14px;
+    min-height: 96px;
+  }
+
+  .store-card .card-caption {
+    color: #1f2937;
+    font-size: 1rem;
+  }
+
+  .store-card .card-caption::after {
+    display: none;
+  }
+
+  .store-card .card-subtitle {
+    color: #6b7280;
+    font-size: 0.74rem;
+    margin-top: 2px;
+  }
+
+  .store-card .card-controls {
+    margin-top: 8px;
+  }
+
+  .store-card .price {
+    color: #111827;
+    font-size: 0.9rem;
   }
 
   .gallery-item,
@@ -2440,8 +2480,7 @@ body {
   }
 
   .store-card {
-    flex-basis: 88vw;
-    min-height: 260px;
+    min-height: 222px;
   }
 
   .gallery-item,
