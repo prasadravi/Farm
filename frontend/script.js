@@ -313,7 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
      Product List
   ----------------------------*/
   // Add product IDs here to mark them as out of stock, e.g. ["buffalomilk500"]
-  const OUT_OF_STOCK_IDS = ["Cow Curd 500mlcup"];
+  const OUT_OF_STOCK_IDS = ["CowCurd500ml"];
 
   const products = [
     { id: "milk500", title: "Fresh Cow Milk", price: 28, img: "images/stor-one.jpg", unit: "500 ml pouch" },
