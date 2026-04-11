@@ -841,6 +841,13 @@
     }
 
     function applyCouponCode(rawCode) {
+      const cart = getCart();
+      if (!cart.length) {
+        alert("First add items.");
+        if (couponStatus) couponStatus.textContent = "First add items.";
+        return;
+      }
+
       const code = normalizeCouponCode(rawCode);
       if (!code) {
         appliedCoupon = null;
