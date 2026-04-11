@@ -984,12 +984,12 @@ body {
 
 /* HOME ORDER FOOTER */
 .order-footer {
-  background: #8f1d22;
-  color: #f7e8c7;
+  background: linear-gradient(180deg, #d7b15a 0%, #b88d2f 100%);
+  color: #1f1f24;
 }
 
 .order-cta {
-  background: #942024;
+  background: linear-gradient(180deg, #d8b460 0%, #c79a3f 100%);
   padding: 110px 0 90px;
   text-align: center;
 }
@@ -999,7 +999,7 @@ body {
 }
 
 .order-cta h2 {
-  color: #fff;
+  color: #1f1f24;
   font-family: 'Poppins', sans-serif;
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 700;
@@ -1007,7 +1007,7 @@ body {
 }
 
 .order-cta p {
-  color: rgba(255, 255, 255, 0.93);
+  color: #2d2f34;
   line-height: 1.55;
   max-width: 640px;
   margin: 0 auto 24px;
@@ -1034,7 +1034,7 @@ body {
 }
 
 .order-footer-main {
-  background: #8a191d;
+  background: rgba(142, 106, 34, 0.45);
   padding: 56px 0 0;
 }
 
@@ -1045,7 +1045,7 @@ body {
 }
 
 .order-footer-grid h3 {
-  color: #f1dca7;
+  color: #1f1f24;
   font-size: 1.1rem;
   margin-bottom: 10px;
   font-weight: 700;
@@ -1054,7 +1054,7 @@ body {
 .order-footer-grid p,
 .order-footer-grid li,
 .order-footer-grid a {
-  color: #f7e8c7;
+  color: #272a30;
   font-size: 0.98rem;
   line-height: 1.55;
   text-decoration: none;
@@ -1069,15 +1069,15 @@ body {
 }
 
 .order-footer-grid a:hover {
-  color: #fff;
+  color: #111;
 }
 
 .order-footer-copy {
   margin-top: 22px;
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  border-top: 1px solid rgba(31, 31, 36, 0.18);
   text-align: center;
   padding: 14px 0 16px;
-  color: #f0ddb3;
+  color: #2a2d33;
   font-size: 0.95rem;
 }
 
