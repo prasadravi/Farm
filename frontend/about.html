@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About Us - Natural Milk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #13b14a;
+      --beige: #eee2cc;
+      --ink: #121212;
+      --muted: #63676f;
+      --brand: #7c1f1f;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--ink);
+      background: #f6f7f8;
+    }
+
+    .top-strip {
+      background: var(--green);
+      color: #fff;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 8px 12px;
+    }
+
+    .top-strip .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: #e9ffe8;
+      color: #0a8f33;
+      padding: 2px 10px;
+      margin-left: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .main-nav {
+      position: sticky;
+      top: 0;
+      z-index: 80;
+      background: #fff;
+      border-bottom: 1px solid #eaecf0;
+    }
+
+    .nav-inner {
+      width: min(1200px, 92%);
+      margin: 0 auto;
+      min-height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #f6cf86, #8d3d14);
+      border: 2px solid #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .brand-text {
+      line-height: 1.15;
+    }
+
+    .brand-text strong {
+      display: block;
+      font-size: 1.05rem;
+      color: var(--brand);
+    }
+
+    .brand-text span {
+      display: block;
+      font-size: 0.78rem;
+      color: #5f6470;
+    }
+
+    .links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .links a {
+      text-decoration: none;
+      color: #2a2f36;
+      font-size: 0.92rem;
+      font-weight: 500;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+    }
+
+    .links a.active {
+      color: #7f2727;
+      border-bottom-color: #7f2727;
+      font-weight: 700;
+    }
+
+    .cart-link {
+      text-decoration: none;
+      color: #111827;
+      font-size: 1.2rem;
+      position: relative;
+      margin-left: 6px;
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -7px;
+      right: -10px;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ef4444;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0 4px;
+    }
+
+    .hero-about {
+      background: var(--beige);
+      padding: 70px 0;
+    }
+
+    .hero-wrap {
+      width: min(1200px, 92%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 520px;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .story-chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: #e4d4b2;
+      color: #8a5c2b;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      margin-bottom: 16px;
+    }
+
+    .about-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4.4vw, 3.35rem);
+      line-height: 1.04;
+      margin-bottom: 14px;
+    }
+
+    .about-copy {
+      color: #5e6066;
+      line-height: 1.8;
+      font-size: 1rem;
+      max-width: 610px;
+    }
+
+    .about-copy + .about-copy {
+      margin-top: 12px;
+    }
+
+    .about-media {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(100, 85, 52, 0.2);
+      background: #fff;
+      box-shadow: 0 24px 48px rgba(23, 27, 32, 0.16);
+      min-height: 380px;
+    }
+
+    .about-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .years-chip {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      background: #8c2022;
+      color: #fff;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 0.94rem;
+      font-weight: 600;
+      box-shadow: 0 10px 24px rgba(89, 12, 15, 0.34);
+    }
+
+    .years-chip b {
+      font-size: 2rem;
+      margin-right: 6px;
+      vertical-align: middle;
+      line-height: 1;
+    }
+
+    .values {
+      padding: 58px 0 76px;
+    }
+
+    .values-inner {
+      width: min(1200px, 92%);
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .values-chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: #e9dcc0;
+      color: #886036;
+      padding: 7px 14px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .values h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 3.1vw, 2.25rem);
+      margin-bottom: 10px;
+    }
+
+    .values p {
+      color: #666a73;
+      max-width: 760px;
+      margin: 0 auto;
+      line-height: 1.75;
+    }
+
+    .floating-actions {
+      position: fixed;
+      right: 16px;
+      bottom: 18px;
+      display: grid;
+      gap: 10px;
+      z-index: 120;
+    }
+
+    .fab {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-decoration: none;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.28);
+    }
+
+    .fab.whatsapp { background: #22c55e; }
+    .fab.cart { background: #111827; position: relative; }
+    .fab.whatsapp svg { width: 22px; height: 22px; fill: #fff; }
+    .fab.cart span { font-size: 1.05rem; }
+
+    .fab-badge {
+      position: absolute;
+      top: -6px;
+      right: -5px;
+      min-width: 17px;
+      height: 17px;
+      border-radius: 999px;
+      background: #f59e0b;
+      color: #111;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      padding: 0 4px;
+    }
+
+    @media (max-width: 980px) {
+      .hero-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .about-media {
+        min-height: 320px;
+      }
+
+      .links {
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-inner {
+        min-height: 58px;
+      }
+
+      .links {
+        display: none;
+      }
+
+      .hero-about {
+        padding: 42px 0;
+      }
+
+      .years-chip b {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-strip">🚚 Orders above ₹1000 get <span class="pill">FREE DELIVERY</span></div>
+
+  <header class="main-nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html">
+        <div class="brand-logo">NM</div>
+        <div class="brand-text">
+          <strong>Maharaja</strong>
+          <span>Home Foods</span>
+        </div>
+      </a>
+
+      <nav class="links" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="about.html" class="active">About</a>
+        <a href="index.html#store">Products</a>
+        <a href="index.html#gallery">Gallery</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <a class="cart-link" href="cart.html" aria-label="Cart">
+        🛒
+        <span class="cart-badge" id="cartCountTop">0</span>
+      </a>
+    </div>
+  </header>
+
+  <section class="hero-about">
+    <div class="hero-wrap">
+      <div>
+        <div class="story-chip">Our Story</div>
+        <h1 class="about-heading">The Royal Taste of Tradition</h1>
+        <p class="about-copy">Welcome to Maharaja Home Foods, where every bite tells a story of tradition, love, and the finest ingredients. We are a family-owned business dedicated to bringing you authentic homemade flavors.</p>
+        <p class="about-copy">Our journey began in Andhra Pradesh with one mission: share the taste of pure, farm-fresh goodness with everyone. What started as a small home kitchen has grown into a trusted brand.</p>
+      </div>
+
+      <div class="about-media">
+        <img src="images/about-person.jpg" alt="Natural Milk brand and products" />
+        <div class="years-chip"><b>10+</b>Years of Excellence</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="values">
+    <div class="values-inner">
+      <div class="values-chip">Our Values</div>
+      <h2>Pure Ingredients. Honest Process. Trusted Taste.</h2>
+      <p>Every product is prepared with quality-first methods and strict hygiene. From farm to family table, we ensure freshness, consistency, and a traditional taste you can trust every day.</p>
+    </div>
+  </section>
+
+  <div class="floating-actions" aria-hidden="true">
+    <a class="fab whatsapp" href="https://wa.me/919866039058" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.5 0 .17 5.32.17 11.9c0 2.1.55 4.15 1.6 5.96L0 24l6.3-1.65a11.84 11.84 0 0 0 5.76 1.47h.01c6.56 0 11.9-5.33 11.9-11.9 0-3.18-1.24-6.17-3.45-8.44Zm-8.45 18.33h-.01a9.93 9.93 0 0 1-5.05-1.38l-.36-.21-3.74.98 1-3.65-.24-.38a9.93 9.93 0 0 1-1.53-5.27c0-5.49 4.46-9.96 9.94-9.96 2.66 0 5.15 1.04 7.03 2.92a9.87 9.87 0 0 1 2.9 7.03c0 5.49-4.46 9.96-9.94 9.96Zm5.46-7.44c-.3-.15-1.8-.89-2.08-1s-.48-.15-.68.15-.78 1-.96 1.2-.35.22-.65.07a8.14 8.14 0 0 1-2.4-1.48 8.93 8.93 0 0 1-1.66-2.06c-.17-.3-.02-.46.13-.6.14-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.68-1.63-.93-2.24-.25-.6-.5-.52-.68-.53h-.58c-.2 0-.52.08-.8.37-.27.3-1.03 1.01-1.03 2.46s1.05 2.86 1.2 3.06c.15.2 2.06 3.15 5 4.42.7.3 1.25.49 1.68.63.7.22 1.33.19 1.83.11.56-.08 1.8-.74 2.05-1.46.25-.72.25-1.34.18-1.46-.08-.12-.28-.2-.58-.35Z"/>
+      </svg>
+    </a>
+    <a class="fab cart" href="cart.html" aria-label="Cart">
+      <span>🛒</span>
+      <span class="fab-badge" id="cartCountFab">0</span>
+    </a>
+  </div>
+
+  <script>
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const count = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+    const top = document.getElementById("cartCountTop");
+    const fab = document.getElementById("cartCountFab");
+    if (top) top.textContent = count;
+    if (fab) fab.textContent = count;
+  </script>
+</body>
+</html>
