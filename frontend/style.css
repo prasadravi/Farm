@@ -2108,6 +2108,7 @@ body {
     display: flex;
     width: 100%;
     gap: 8px;
+    padding-right: 56px;
   }
 
   .logo {
@@ -2126,7 +2127,10 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-left: auto;
+    margin-left: 0;
+    position: fixed;
+    top: 12px;
+    right: 14px;
     width: 40px;
     height: 40px;
     border: 1px solid rgba(17,24,39,0.14);
@@ -2134,6 +2138,7 @@ body {
     border-radius: 10px;
     cursor: pointer;
     gap: 4px;
+    z-index: 170;
   }
 
   .nav-toggle span {
@@ -2236,8 +2241,8 @@ body {
 
   .navbar:not(.menu-open) .nav-right .cart-page-btn {
     position: fixed;
-    right: 16px;
-    bottom: 84px;
+    right: 14px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
     width: 52px;
     height: 52px;
     border-radius: 50%;
