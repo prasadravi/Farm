@@ -78,6 +78,11 @@
             <div class="profile-form-card">
               <label class="profile-label" for="newAddress">Add new address</label>
               <textarea id="newAddress" class="profile-textarea" rows="3" placeholder="House no, street, area, city"></textarea>
+              <div class="profile-address-grid">
+                <input id="landmarkInput" class="profile-input profile-input-full" type="text" placeholder="Landmark" />
+                <input id="pincodeInput" class="profile-input" type="text" inputmode="numeric" maxlength="6" placeholder="Pin code" />
+                <input id="phoneInput" class="profile-input" type="tel" inputmode="numeric" maxlength="10" placeholder="Phone number" />
+              </div>
               <button class="profile-btn" id="saveAddressBtn" type="button">Save Address</button>
               <div class="profile-note" id="addressStatus"></div>
             </div>
@@ -132,11 +137,60 @@
 
     const addressList = document.getElementById("addressList");
     const newAddress = document.getElementById("newAddress");
+    const landmarkInput = document.getElementById("landmarkInput");
+    const pincodeInput = document.getElementById("pincodeInput");
+    const phoneInput = document.getElementById("phoneInput");
     const saveAddressBtn = document.getElementById("saveAddressBtn");
     const addressStatus = document.getElementById("addressStatus");
 
     const ADDRESS_LIST_KEY = "saved_addresses";
     const DELIVERY_ADDRESS_KEY = "delivery_address";
+    const DELIVERY_DETAILS_KEY = "delivery_details";
+
+    function getDeliveryDetailsFromInputs() {
+      return {
+        address: (newAddress?.value || "").trim(),
+        landmark: (landmarkInput?.value || "").trim(),
+        pincode: (pincodeInput?.value || "").replace(/\D/g, "").trim(),
+        phone: (phoneInput?.value || "").replace(/\D/g, "").trim()
+      };
+    }
+
+    function validateDeliveryDetails(details) {
+      if (!details.address || details.address.length < 6) return "Enter a full address.";
+      if (!details.landmark || details.landmark.length < 3) return "Enter a valid landmark.";
+      if (!/^\d{6}$/.test(details.pincode)) return "Pin code must be 6 digits.";
+      if (!/^\d{10}$/.test(details.phone)) return "Phone number must be 10 digits.";
+      return "";
+    }
+
+    function normalizeDeliveryDetails(raw = {}) {
+      return {
+        address: (raw.address || "").trim(),
+        landmark: (raw.landmark || "").trim(),
+        pincode: String(raw.pincode || "").replace(/\D/g, "").trim(),
+        phone: String(raw.phone || "").replace(/\D/g, "").trim()
+      };
+    }
+
+    function buildAddressLabel(details) {
+      return `${details.address} | Landmark: ${details.landmark} | Pin: ${details.pincode} | Phone: ${details.phone}`;
+    }
+
+    function detailsFingerprint(details) {
+      return `${details.address}|${details.landmark}|${details.pincode}|${details.phone}`;
+    }
+
+    function getSavedDeliveryDetails() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(DELIVERY_DETAILS_KEY) || "null");
+        if (!parsed || typeof parsed !== "object") return null;
+        const details = normalizeDeliveryDetails(parsed);
+        return details.address ? details : null;
+      } catch (_err) {
+        return null;
+      }
+    }
 
     function parseJwtPayload(token) {
       try {
@@ -228,26 +282,60 @@
     function getAddressList() {
       try {
         const list = JSON.parse(localStorage.getItem(ADDRESS_LIST_KEY) || "[]");
-        if (Array.isArray(list) && list.length) return list;
+        if (Array.isArray(list) && list.length) {
+          return list
+            .filter(item => item && (item.text || item.address))
+            .map(item => {
+              const details = normalizeDeliveryDetails(item);
+              const text = item.text || buildAddressLabel(details);
+              return {
+                id: item.id || Date.now(),
+                text,
+                ...details
+              };
+            });
+        }
       } catch (_err) {
         // ignore
       }
 
+      const savedDetails = getSavedDeliveryDetails();
+      if (savedDetails) {
+        return [{ id: "legacy-details", text: buildAddressLabel(savedDetails), ...savedDetails }];
+      }
+
       const fallback = (localStorage.getItem(DELIVERY_ADDRESS_KEY) || "").trim();
-      return fallback ? [{ id: "legacy", text: fallback }] : [];
+      return fallback
+        ? [{ id: "legacy", text: fallback, address: fallback, landmark: "", pincode: "", phone: "" }]
+        : [];
     }
 
     function saveAddressList(list) {
       localStorage.setItem(ADDRESS_LIST_KEY, JSON.stringify(list));
     }
 
-    function setDefaultAddress(address) {
-      localStorage.setItem(DELIVERY_ADDRESS_KEY, address);
+    function setDefaultAddress(details) {
+      localStorage.setItem(DELIVERY_ADDRESS_KEY, details.address);
+      localStorage.setItem(DELIVERY_DETAILS_KEY, JSON.stringify(details));
+    }
+
+    function fillAddressForm(details) {
+      if (newAddress) newAddress.value = details.address || "";
+      if (landmarkInput) landmarkInput.value = details.landmark || "";
+      if (pincodeInput) pincodeInput.value = details.pincode || "";
+      if (phoneInput) phoneInput.value = details.phone || "";
     }
 
     function renderAddressList() {
       const list = getAddressList();
-      const defaultAddress = (localStorage.getItem(DELIVERY_ADDRESS_KEY) || "").trim();
+      const defaultDetails = getSavedDeliveryDetails() || {
+        address: (localStorage.getItem(DELIVERY_ADDRESS_KEY) || "").trim(),
+        landmark: "",
+        pincode: "",
+        phone: ""
+      };
+      fillAddressForm(defaultDetails);
+      const defaultFingerprint = detailsFingerprint(defaultDetails);
 
       if (!addressList) return;
 
@@ -257,7 +345,8 @@
       }
 
       addressList.innerHTML = list.map(item => {
-        const isDefault = item.text === defaultAddress;
+        const itemDetails = normalizeDeliveryDetails(item);
+        const isDefault = detailsFingerprint(itemDetails) === defaultFingerprint;
         return `
           <div class="profile-card-list" data-address-id="${item.id}">
             <div class="profile-address-text">${item.text}</div>
@@ -273,21 +362,27 @@
     }
 
     saveAddressBtn?.addEventListener("click", () => {
-      const value = (newAddress?.value || "").trim();
-      if (value.length < 6) {
-        if (addressStatus) addressStatus.textContent = "Enter a full address.";
+      const details = getDeliveryDetailsFromInputs();
+      const errorText = validateDeliveryDetails(details);
+      if (errorText) {
+        if (addressStatus) addressStatus.textContent = errorText;
         return;
       }
 
       const list = getAddressList();
-      if (!list.some(item => item.text === value)) {
-        list.unshift({ id: Date.now(), text: value });
+      const nextItem = {
+        id: Date.now(),
+        text: buildAddressLabel(details),
+        ...details
+      };
+
+      if (!list.some(item => detailsFingerprint(normalizeDeliveryDetails(item)) === detailsFingerprint(details))) {
+        list.unshift(nextItem);
       }
       saveAddressList(list.slice(0, 8));
-      setDefaultAddress(value);
+      setDefaultAddress(details);
       renderAddressList();
       if (addressStatus) addressStatus.textContent = "Address saved.";
-      if (newAddress) newAddress.value = "";
     });
 
     addressList?.addEventListener("click", (event) => {
@@ -300,7 +395,7 @@
       if (!target) return;
 
       if (action === "use") {
-        setDefaultAddress(target.text);
+        setDefaultAddress(normalizeDeliveryDetails(target));
         renderAddressList();
         if (addressStatus) addressStatus.textContent = "Default address updated.";
         return;
@@ -310,8 +405,9 @@
         const nextList = list.filter(item => String(item.id) !== String(id));
         saveAddressList(nextList);
         const currentDefault = (localStorage.getItem(DELIVERY_ADDRESS_KEY) || "").trim();
-        if (currentDefault === target.text) {
+        if (currentDefault === normalizeDeliveryDetails(target).address) {
           localStorage.removeItem(DELIVERY_ADDRESS_KEY);
+          localStorage.removeItem(DELIVERY_DETAILS_KEY);
         }
         renderAddressList();
         if (addressStatus) addressStatus.textContent = "Address removed.";
