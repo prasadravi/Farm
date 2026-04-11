@@ -2418,7 +2418,12 @@ body {
 
   .store-card .card-inner {
     padding: 10px;
-    background: #fff;
+    background: linear-gradient(
+      to top,
+      rgba(255, 255, 255, 0.98) 0%,
+      rgba(255, 255, 255, 0.98) 42%,
+      rgba(255, 255, 255, 0) 70%
+    );
     border-top: 1px solid #eceff4;
     border-radius: 0 0 14px 14px;
     min-height: 96px;
