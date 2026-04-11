@@ -22,14 +22,17 @@
   var normalizedSaved = normalizeApiBase(savedApiBase);
   var apiBase = defaultApiBase;
 
-  if (normalizedSaved) {
+  if (!isLocal) {
+    // Always use deployed backend on hosted frontend to avoid stale overrides.
+    apiBase = cloudApiBase;
+  }
+
+  if (isLocal && normalizedSaved) {
     var savedHost = new URL(normalizedSaved).hostname;
     var isSavedLocal = localHosts.indexOf(savedHost) !== -1;
 
     // On deployed clients, ignore stale localhost overrides that cause long request timeouts.
-    if (!(isSavedLocal && !isLocal)) {
-      apiBase = normalizedSaved;
-    }
+    if (isSavedLocal) apiBase = normalizedSaved;
   }
 
   localStorage.setItem("API_BASE_URL", apiBase);
