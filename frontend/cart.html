@@ -150,6 +150,20 @@
       min-height: 18px;
       flex-basis: 100%;
     }
+    .section-refresh {
+      animation: sectionPulse 420ms ease;
+    }
+    @keyframes sectionPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(201, 172, 103, 0);
+      }
+      45% {
+        box-shadow: 0 0 0 4px rgba(201, 172, 103, 0.28);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(201, 172, 103, 0);
+      }
+    }
     .payment-card {
       display: grid;
       gap: 12px;
@@ -529,7 +543,7 @@
 
         <div class="save-strip">Yay! You saved <span id="savingsAmount">₹0</span> on this order</div>
 
-        <section class="card">
+        <section class="card" id="deliveryAddressSection">
           <div class="coupon-head">
             <div>
               <div><strong>Get extra ₹50 OFF</strong></div>
@@ -656,6 +670,7 @@
     const savingsAmount = document.getElementById("savingsAmount");
     const payableTotal = document.getElementById("payableTotal");
     const deliveryEtaText = document.getElementById("deliveryEtaText");
+    const deliveryAddressSection = document.getElementById("deliveryAddressSection");
     const addressInput = document.getElementById("addressInput");
     const landmarkInput = document.getElementById("landmarkInput");
     const pincodeInput = document.getElementById("pincodeInput");
@@ -723,6 +738,26 @@
         };
       } catch (_err) {
         return null;
+      }
+    }
+
+    function refreshDeliverySection(statusText = "") {
+      const savedDetails = getDeliveryDetailsFromStorage();
+      if (!savedDetails) return;
+
+      if (addressInput) addressInput.value = savedDetails.address;
+      if (landmarkInput) landmarkInput.value = savedDetails.landmark;
+      if (pincodeInput) pincodeInput.value = savedDetails.pincode;
+      if (phoneInput) phoneInput.value = savedDetails.phone;
+
+      if (statusText && addressStatus) {
+        addressStatus.textContent = statusText;
+      }
+
+      if (deliveryAddressSection) {
+        deliveryAddressSection.classList.remove("section-refresh");
+        void deliveryAddressSection.offsetWidth;
+        deliveryAddressSection.classList.add("section-refresh");
       }
     }
 
@@ -953,8 +988,8 @@
       lastSavedAddress = details.address;
       lastSavedDeliveryFingerprint = getDeliveryFingerprint(details);
       persistAddressToList(buildAddressLabel(details));
-      if (addressStatus) addressStatus.textContent = statusText;
       updateCheckoutState();
+      refreshDeliverySection(statusText);
     }
 
     function getCart() {
