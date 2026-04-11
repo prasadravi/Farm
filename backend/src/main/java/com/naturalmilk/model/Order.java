@@ -15,6 +15,7 @@ public class Order {
     private String userId;
     private java.util.List<OrderItem> items;
     private double total;
+    private DeliveryDetails deliveryDetails;
     private String status;
     private long createdAt;
     private long updatedAt;
@@ -24,6 +25,7 @@ public class Order {
     public String getUserId() { return userId; }
     public List<OrderItem> getItems() { return items; }
     public double getTotal() { return total; }
+    public DeliveryDetails getDeliveryDetails() { return deliveryDetails; }
     public String getStatus() { return status; }
     public long getCreatedAt() { return createdAt; }
     public long getUpdatedAt() { return updatedAt; }
@@ -33,6 +35,7 @@ public class Order {
     public void setUserId(String userId) { this.userId = userId; }
     public void setItems(List<OrderItem> items) { this.items = items; }
     public void setTotal(double total) { this.total = total; }
+    public void setDeliveryDetails(DeliveryDetails deliveryDetails) { this.deliveryDetails = deliveryDetails; }
     public void setStatus(String status) { this.status = status; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
@@ -47,6 +50,7 @@ public class Order {
         private String userId;
         private List<OrderItem> items;
         private double total;
+        private DeliveryDetails deliveryDetails;
         private String status;
         private long createdAt;
         private long updatedAt;
@@ -68,6 +72,11 @@ public class Order {
         
         public Builder total(double total) {
             this.total = total;
+            return this;
+        }
+
+        public Builder deliveryDetails(DeliveryDetails deliveryDetails) {
+            this.deliveryDetails = deliveryDetails;
             return this;
         }
         
@@ -92,11 +101,31 @@ public class Order {
             order.userId = this.userId;
             order.items = this.items;
             order.total = this.total;
+            order.deliveryDetails = this.deliveryDetails;
             order.status = this.status;
             order.createdAt = this.createdAt;
             order.updatedAt = this.updatedAt;
             return order;
         }
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DeliveryDetails {
+        private String address;
+        private String landmark;
+        private String pincode;
+        private String phone;
+
+        public String getAddress() { return address; }
+        public String getLandmark() { return landmark; }
+        public String getPincode() { return pincode; }
+        public String getPhone() { return phone; }
+
+        public void setAddress(String address) { this.address = address; }
+        public void setLandmark(String landmark) { this.landmark = landmark; }
+        public void setPincode(String pincode) { this.pincode = pincode; }
+        public void setPhone(String phone) { this.phone = phone; }
     }
 
     @NoArgsConstructor
