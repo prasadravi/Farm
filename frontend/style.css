@@ -2300,6 +2300,28 @@ body {
     color: #111;
   }
 
+  .home-whatsapp-btn {
+    position: fixed;
+    right: 14px;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #22c55e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+    z-index: 139;
+  }
+
+  .home-whatsapp-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: #fff;
+    display: block;
+  }
+
   .nav-signup-link {
     display: none !important;
   }
