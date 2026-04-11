@@ -570,20 +570,6 @@
 
         <div class="save-strip">Yay! You saved <span id="savingsAmount">₹0</span> on this order</div>
 
-        <section class="card" id="couponSection">
-          <div class="coupon-head">
-            <div>
-              <div><strong>Apply Coupon</strong></div>
-              <div class="coupon-code">Enter your coupon code</div>
-            </div>
-          </div>
-          <div class="coupon-form">
-            <input id="couponInput" class="coupon-input" type="text" placeholder="Enter coupon code" />
-            <button class="mini-btn" type="button" id="applyCouponBtn">Apply</button>
-          </div>
-          <div class="coupon-status" id="couponStatus"></div>
-        </section>
-
         <section class="card">
           <div class="delivery-row">
             <span id="deliveryEtaText">Delivery in 5 mins</span>
@@ -650,7 +636,6 @@
         <section class="card">
           <div class="section-title">Bill summary</div>
           <div class="bill-row"><span>Item total</span><strong id="originalTotal">₹0</strong></div>
-          <div class="bill-row" id="couponDiscountRow" style="display:none;"><span>Coupon discount</span><strong id="couponDiscountAmount">-₹0</strong></div>
           <div class="bill-row"><span>Delivery fee</span><strong>FREE</strong></div>
           <div class="bill-row"><span>Handling fee</span><strong>FREE</strong></div>
           <div class="bill-row total"><span>To Pay</span><strong id="summaryTotal">₹0</strong></div>
@@ -701,11 +686,6 @@
     const summarySavings = document.getElementById("summarySavings");
     const savingsAmount = document.getElementById("savingsAmount");
     const payableTotal = document.getElementById("payableTotal");
-    const couponInput = document.getElementById("couponInput");
-    const applyCouponBtn = document.getElementById("applyCouponBtn");
-    const couponStatus = document.getElementById("couponStatus");
-    const couponDiscountRow = document.getElementById("couponDiscountRow");
-    const couponDiscountAmount = document.getElementById("couponDiscountAmount");
     const deliveryEtaText = document.getElementById("deliveryEtaText");
     const deliveryAddressSection = document.getElementById("deliveryAddressSection");
     const addressInput = document.getElementById("addressInput");
@@ -733,17 +713,6 @@
     const DELIVERY_DETAILS_KEY = "delivery_details";
     const ADDRESS_LIST_KEY = "saved_addresses";
     const HIDDEN_ORDERS_KEY = "hidden_recent_orders";
-    const COUPON_KEY = "applied_coupon";
-    // Update coupon code/discount here whenever you want to rotate offers.
-    const ACTIVE_COUPON = {
-      code: "FARM97",
-      discountRate: 0.5,
-      label: "50% OFF"
-    };
-    
-    const VALID_COUPONS = {
-      [ACTIVE_COUPON.code]: ACTIVE_COUPON
-    };
     let addressReady = false;
     let paymentInitiated = false;
     let paymentProofReady = false;
@@ -752,7 +721,6 @@
     let lastSavedAddress = "";
     let lastSavedDeliveryFingerprint = "";
     let addressSaveTimer = null;
-    let appliedCoupon = null;
 
     function getDeliveryDetailsFromInputs() {
       return {
@@ -814,62 +782,8 @@
       return `${details.address} | Landmark: ${details.landmark} | Pin: ${details.pincode} | Phone: ${details.phone}`;
     }
 
-    function normalizeCouponCode(rawCode) {
-      return String(rawCode || "").trim().toUpperCase();
-    }
-
-    function calculateCouponDiscount(subtotal) {
-      if (!appliedCoupon) return 0;
-      return Math.round(Number(subtotal || 0) * Number(appliedCoupon.discountRate || 0));
-    }
-
     function calcPayableTotal(items) {
-      const subtotal = calcTotal(items);
-      const couponDiscount = calculateCouponDiscount(subtotal);
-      return Math.max(0, subtotal - couponDiscount);
-    }
-
-    function loadCouponState() {
-      const storedCode = normalizeCouponCode(localStorage.getItem(COUPON_KEY));
-      appliedCoupon = VALID_COUPONS[storedCode] || null;
-      if (couponInput) couponInput.value = appliedCoupon ? appliedCoupon.code : "";
-      if (couponStatus) {
-        couponStatus.textContent = appliedCoupon
-          ? `Coupon ${appliedCoupon.code} applied (${appliedCoupon.label}).`
-          : "";
-      }
-    }
-
-    function applyCouponCode(rawCode) {
-      const cart = getCart();
-      if (!cart.length) {
-        if (couponStatus) couponStatus.textContent = "First add items.";
-        return;
-      }
-
-      const code = normalizeCouponCode(rawCode);
-      if (!code) {
-        appliedCoupon = null;
-        localStorage.removeItem(COUPON_KEY);
-        if (couponStatus) couponStatus.textContent = "Enter a coupon code.";
-        renderCart();
-        return;
-      }
-
-      const match = VALID_COUPONS[code];
-      if (!match) {
-        appliedCoupon = null;
-        localStorage.removeItem(COUPON_KEY);
-        if (couponStatus) couponStatus.textContent = "Invalid coupon code.";
-        renderCart();
-        return;
-      }
-
-      appliedCoupon = match;
-      localStorage.setItem(COUPON_KEY, match.code);
-      if (couponInput) couponInput.value = match.code;
-      if (couponStatus) couponStatus.textContent = `Coupon ${match.code} applied (${match.label}).`;
-      renderCart();
+      return calcTotal(items);
     }
 
     function parseJwtPayload(token) {
@@ -1126,27 +1040,16 @@
     function updateSummary(cart) {
       const itemCount = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
       const subtotal = calcTotal(cart);
-      const couponDiscount = calculateCouponDiscount(subtotal);
-      const total = Math.max(0, subtotal - couponDiscount);
+      const total = subtotal;
       const mrpTotal = Math.round(subtotal * 1.14);
       const baseSavings = Math.max(0, mrpTotal - subtotal);
-      const savings = baseSavings + couponDiscount;
+      const savings = baseSavings;
       if (cartCount) cartCount.textContent = itemCount;
       if (originalTotal) originalTotal.textContent = `₹${mrpTotal}`;
       if (summaryTotal) summaryTotal.textContent = `₹${total}`;
       if (summarySavings) summarySavings.textContent = `₹${savings}`;
       if (savingsAmount) savingsAmount.textContent = `₹${savings}`;
       if (payableTotal) payableTotal.textContent = `₹${total}`;
-
-      if (couponDiscountRow && couponDiscountAmount) {
-        if (couponDiscount > 0 && appliedCoupon) {
-          couponDiscountRow.style.display = "flex";
-          couponDiscountAmount.textContent = `-₹${couponDiscount}`;
-        } else {
-          couponDiscountRow.style.display = "none";
-          couponDiscountAmount.textContent = "-₹0";
-        }
-      }
 
       updatePaymentUi(total);
     }
@@ -1210,17 +1113,6 @@
     document.getElementById("clearCartBtn").addEventListener("click", () => {
       localStorage.removeItem(CART_KEY);
       renderCart();
-    });
-
-    applyCouponBtn?.addEventListener("click", () => {
-      applyCouponCode(couponInput?.value || "");
-    });
-
-    couponInput?.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        applyCouponCode(couponInput.value || "");
-      }
     });
 
     saveAddressBtn?.addEventListener("click", () => {
@@ -1417,9 +1309,7 @@
               qty: Number(item.qty),
               price: Number(item.price)
             })),
-            total: calcPayableTotal(cart),
-            couponCode: appliedCoupon ? appliedCoupon.code : null,
-            couponDiscount: calculateCouponDiscount(calcTotal(cart))
+            total: calcPayableTotal(cart)
           })
         });
 
@@ -1530,7 +1420,6 @@
         return;
       }
       showCartContent();
-      loadCouponState();
       initAddressState();
       if (paymentNote) paymentNote.textContent = "After payment, upload screenshot.";
       if (proofWrap) proofWrap.style.display = "none";

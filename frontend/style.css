@@ -798,6 +798,12 @@ body {
 .add-btn:hover {
   background: #fff5f8;
 }
+.add-btn.out-of-stock {
+  color: #6b7280;
+  border-color: #d1d5db;
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
 .store-qty-pill {
   min-width: 120px;
   height: 40px;

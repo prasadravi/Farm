@@ -312,12 +312,15 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------------------
      Product List
   ----------------------------*/
+  // Add product IDs here to mark them as out of stock, e.g. ["buffalomilk500"]
+  const OUT_OF_STOCK_IDS = [];
+
   const products = [
     { id: "milk500", title: "Fresh Cow Milk", price: 28, img: "images/stor-one.jpg", unit: "500 ml pouch" },
     { id: "cowcurd500", title: "Cow Curd", price: 110, img: "images/cow-curd.jpg", unit: "500 ml cup" },
     { id: "buffalocurd500", title: "Bufflo Curd", price: 155, img: "images/buffalo-curd.jpg", unit: "500 ml cup" },
     { id: "buffalomilk500", title: "Bufflo Milk", price: 110, img: "images/store-four.jpg", unit: "500 ml pouch" }
-  ];
+  ].map((item) => ({ ...item, inStock: !OUT_OF_STOCK_IDS.includes(item.id) }));
 
   const productGrid = byId("productGrid");
   const productDots = byId("productDots");
@@ -368,7 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="card-subtitle">${p.unit}</div>
           <div class="card-controls">
             <div class="price">₹${p.price}</div>
-            ${renderProductControl(p.id, p.title, getProductQty(p.id))}
+            ${renderProductControl(p.id, p.title, getProductQty(p.id), p.inStock)}
           </div>
         </div>
       </article>
@@ -455,7 +458,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return found ? Number(found.qty || 0) : 0;
   }
 
-  function renderProductControl(productId, title, qty) {
+  function renderProductControl(productId, title, qty, inStock = true) {
+    if (!inStock) {
+      return `<button class="add-btn out-of-stock" type="button" disabled aria-label="${title} out of stock">Out of Stock</button>`;
+    }
+
     if (qty > 0) {
       return `
         <div class="store-qty-pill" data-id="${productId}">
@@ -479,7 +486,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!product || !controls || !priceEl) return;
 
       const qty = getProductQty(productId);
-      const controlHtml = renderProductControl(productId, product.title, qty);
+      const controlHtml = renderProductControl(productId, product.title, qty, product.inStock);
       controls.innerHTML = `${priceEl.outerHTML}${controlHtml}`;
     });
   }
@@ -510,6 +517,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!canUseCart) {
       alert("Please login first to add items to cart.");
       window.location.href = "login.html?next=index.html";
+      return;
+    }
+
+    if (!item.inStock && delta > 0) {
+      showToast(`${item.title} is out of stock`);
       return;
     }
 
@@ -546,6 +558,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!prod) return;
 
     if (action === "add" || action === "increase") {
+      if (!prod.inStock) {
+        showToast(`${prod.title} is out of stock`);
+        return;
+      }
       changeCartQty(prod, 1);
       return;
     }
