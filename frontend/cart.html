@@ -574,7 +574,7 @@
           <div class="coupon-head">
             <div>
               <div><strong>Apply Coupon</strong></div>
-              <div class="coupon-code">Use code FARM96 for 50% OFF</div>
+              <div class="coupon-code">Enter your coupon code</div>
             </div>
           </div>
           <div class="coupon-form">
@@ -734,8 +734,14 @@
     const ADDRESS_LIST_KEY = "saved_addresses";
     const HIDDEN_ORDERS_KEY = "hidden_recent_orders";
     const COUPON_KEY = "applied_coupon";
+    // Update coupon code/discount here whenever you want to rotate offers.
+    const ACTIVE_COUPON = {
+      code: "FARM96",
+      discountRate: 0.5,
+      label: "50% OFF"
+    };
     const VALID_COUPONS = {
-      FARM96: { code: "FARM96", discountRate: 0.5, label: "50% OFF" }
+      [ACTIVE_COUPON.code]: ACTIVE_COUPON
     };
     let addressReady = false;
     let paymentInitiated = false;
