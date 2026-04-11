@@ -48,19 +48,11 @@
           </div>
 
           <div class="profile-side-list">
-            <button class="profile-tab profile-side-item active" type="button" data-tab="products">
-              <span class="profile-side-icon">🛍</span>
-              <span>Products</span>
-            </button>
             <button class="profile-side-item" type="button" id="supportBtn">
               <span class="profile-side-icon">◔</span>
               <span>Customer Support</span>
             </button>
-            <button class="profile-side-item" type="button" id="referralsBtn">
-              <span class="profile-side-icon">♡</span>
-              <span>Manage Referrals</span>
-            </button>
-            <button class="profile-tab profile-side-item" type="button" data-tab="addresses">
+            <button class="profile-tab profile-side-item active" type="button" data-tab="addresses">
               <span class="profile-side-icon">⌖</span>
               <span>Addresses</span>
             </button>
@@ -75,17 +67,7 @@
         </aside>
 
         <section class="profile-content">
-          <div class="profile-panel active" data-panel="products">
-            <div class="profile-panel-head">
-              <div>
-                <div class="profile-panel-title">View Products</div>
-                <div class="profile-panel-sub">Tap + to add more products (max 4 per product)</div>
-              </div>
-            </div>
-            <div id="productsWrap" class="profile-products-grid"></div>
-          </div>
-
-          <div class="profile-panel" data-panel="addresses">
+          <div class="profile-panel active" data-panel="addresses">
             <div class="profile-panel-head">
               <div>
                 <div class="profile-panel-title">Addresses</div>
@@ -141,7 +123,6 @@
     const sideLogoutBtn = document.getElementById("sideLogoutBtn");
     const loginLink = document.querySelector(".nav-login-link");
     const supportBtn = document.getElementById("supportBtn");
-    const referralsBtn = document.getElementById("referralsBtn");
 
     const profileName = document.getElementById("profileName");
     const profileEmail = document.getElementById("profileEmail");
@@ -149,7 +130,6 @@
     const infoName = document.getElementById("infoName");
     const infoEmail = document.getElementById("infoEmail");
 
-    const productsWrap = document.getElementById("productsWrap");
     const addressList = document.getElementById("addressList");
     const newAddress = document.getElementById("newAddress");
     const saveAddressBtn = document.getElementById("saveAddressBtn");
@@ -157,13 +137,6 @@
 
     const ADDRESS_LIST_KEY = "saved_addresses";
     const DELIVERY_ADDRESS_KEY = "delivery_address";
-    const CART_KEY = "cart";
-    const PRODUCTS = [
-      { id: "milk500", title: "Fresh Cow Milk", price: 28, unit: "500 ml pouch", img: "images/stor-one.jpg" },
-      { id: "cowcurd500", title: "Cow Curd", price: 110, unit: "500 ml cup", img: "images/cow-curd.jpg" },
-      { id: "buffalocurd500", title: "Bufflo Curd", price: 155, unit: "500 ml cup", img: "images/buffalo-curd.jpg" },
-      { id: "buffalomilk500", title: "Bufflo Milk", price: 110, unit: "500 ml pouch", img: "images/store-four.jpg" }
-    ];
 
     function parseJwtPayload(token) {
       try {
@@ -235,9 +208,6 @@
     sideLogoutBtn?.addEventListener("click", handleLogout);
     supportBtn?.addEventListener("click", () => {
       window.location.href = "contact.html";
-    });
-    referralsBtn?.addEventListener("click", () => {
-      alert("Referral program will be available soon.");
     });
 
     function setUserInfo() {
@@ -365,66 +335,6 @@
       });
     }
 
-    function getCart() {
-      try {
-        return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-      } catch (_err) {
-        return [];
-      }
-    }
-
-    function setCart(cart) {
-      localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    }
-
-    function renderProducts() {
-      if (!productsWrap) return;
-      const cart = getCart();
-      productsWrap.innerHTML = PRODUCTS.map(item => `
-        <article class="profile-product-card">
-          <img src="${item.img}" alt="${item.title}" class="profile-product-img" loading="lazy" decoding="async" />
-          <div class="profile-product-copy">
-            <div class="profile-product-title">${item.title}</div>
-            <div class="profile-product-sub">${item.unit}</div>
-            <div class="profile-product-foot">
-              <strong>₹${item.price}</strong>
-              <div class="profile-product-actions">
-                <span class="profile-product-qty">${Math.min(4, Number((cart.find(c => c.id === item.id) || {}).qty || 0))}/4</span>
-                <button class="profile-plus-btn" type="button" data-add-id="${item.id}" aria-label="Add ${item.title}">+</button>
-              </div>
-            </div>
-          </div>
-        </article>
-      `).join("");
-    }
-
-    productsWrap?.addEventListener("click", (event) => {
-      const button = event.target.closest("button[data-add-id]");
-      if (!button) return;
-      const productId = button.dataset.addId;
-      const product = PRODUCTS.find(item => item.id === productId);
-      if (!product) return;
-
-      const cart = getCart();
-      const existing = cart.find(item => item.id === product.id);
-      if (existing) {
-        if (Number(existing.qty) >= 4) {
-          alert("Maximum 4 allowed for this product.");
-          return;
-        }
-        existing.qty += 1;
-      } else {
-        cart.push({
-          id: product.id,
-          title: product.title,
-          price: Number(product.price),
-          qty: 1
-        });
-      }
-      setCart(cart);
-      renderProducts();
-    });
-
     (async function initProfilePage() {
       syncNavAuthUi();
       const ok = await validateSessionWithServer();
@@ -435,7 +345,6 @@
       showProfile();
       setUserInfo();
       initTabs();
-      renderProducts();
       renderAddressList();
     })();
   </script>
