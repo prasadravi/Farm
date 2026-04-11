@@ -4,303 +4,397 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Contact - Natural Milk</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <style>
-    .contact-page-shell {
+    :root {
+      --contact-bg: #e8e1d1;
+      --contact-card: #f8f8f8;
+      --contact-pill: #8e1e1e;
+      --contact-accent: #12b24a;
+      --contact-text: #1f1f24;
+      --contact-subtext: #4b5563;
+    }
+
+    .contact-page {
       min-height: 100vh;
-      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(249,248,243,0.95));
+      background: var(--contact-bg);
+      color: var(--contact-text);
+      padding-bottom: 48px;
     }
 
-    .contact-glass-wrap {
-      background: rgba(255, 255, 255, 0.78);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.85);
-      border-radius: 18px;
-      box-shadow: 0 14px 40px rgba(11,16,18,0.08);
-      padding: 24px;
-      margin-top: -56px;
-      position: relative;
-      z-index: 3;
-    }
-
-    .contact-standalone {
-      padding: 60px 0 100px;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .form-actions .send-btn {
-      width: 300px;
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .guest-login-view {
-      width: min(100%, 430px);
-      margin: 0 auto;
-      min-height: calc(100vh - 320px);
-      display: none;
-      place-items: center;
-    }
-
-    .guest-login-card {
-      width: 100%;
-      background: #fff;
-      border: 1px solid rgba(232, 196, 107, 0.28);
-      border-radius: 12px;
-      padding: 26px 18px;
+    .contact-top-strip {
+      background: var(--contact-accent);
+      color: #fff;
       text-align: center;
-      box-shadow: 0 10px 26px rgba(17, 24, 39, 0.08);
+      font-size: 0.86rem;
+      font-weight: 600;
+      padding: 10px 14px;
+      letter-spacing: 0.2px;
     }
 
-    .guest-login-title {
-      font-size: 1.3rem;
+    .contact-top-strip .free-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 8px;
+      background: #e8ffe8;
+      color: #07833b;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      padding: 3px 10px;
       font-weight: 700;
-      color: #111827;
+    }
+
+    .contact-nav {
+      background: #fff;
+      border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+    }
+
+    .contact-nav-inner {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 74px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fef0cd, #b68128 72%);
+      border: 2px solid #5a3b06;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #4c3408;
+    }
+
+    .brand-title {
+      font-size: 1.65rem;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: #7b2319;
+      line-height: 1;
+    }
+
+    .brand-sub {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 3px;
+      line-height: 1;
+    }
+
+    .contact-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 0.94rem;
+      font-weight: 500;
+    }
+
+    .contact-links a {
+      text-decoration: none;
+      color: #2c2f35;
+      transition: color .2s ease;
+    }
+
+    .contact-links a:hover,
+    .contact-links a.active {
+      color: #0e8040;
+    }
+
+    .contact-shell {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 32px;
+    }
+
+    .contact-heading {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .contact-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #d9c89f;
+      color: #5f4a22;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      margin-bottom: 12px;
+    }
+
+    .contact-heading h1 {
+      font-size: clamp(1.95rem, 4vw, 3rem);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      line-height: 1.2;
       margin-bottom: 8px;
     }
 
-    .guest-login-copy {
-      font-size: 0.9rem;
-      color: #6b7280;
-      margin-bottom: 16px;
+    .contact-heading p {
+      max-width: 760px;
+      margin: 0 auto;
+      color: var(--contact-subtext);
+      line-height: 1.6;
+      font-size: 0.98rem;
     }
 
-    .guest-login-btn {
+    .contact-grid-layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+      gap: 20px;
+    }
+
+    .contact-card {
+      background: var(--contact-card);
+      border-radius: 14px;
+      border: 1px solid rgba(17, 24, 39, 0.08);
+      padding: 20px;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+    }
+
+    .contact-card h2 {
+      font-size: 1.9rem;
+      margin-bottom: 12px;
+      line-height: 1.1;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .contact-card h3 {
+      font-size: 1rem;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      font-weight: 700;
+      color: #2b2f35;
+    }
+
+    .contact-card p {
+      color: #3f4652;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    .contact-card .hours {
+      margin-top: 10px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .cta-btn {
+      margin-top: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 9px;
+      background: var(--contact-pill);
+      color: #fff;
+      font-size: 0.94rem;
+      font-weight: 700;
+      padding: 11px 14px;
+      cursor: pointer;
+      transition: transform .2s ease, filter .2s ease;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .form-stack {
+      display: grid;
+      gap: 9px;
+      margin-top: 8px;
+    }
+
+    .form-stack input,
+    .form-stack textarea {
+      width: 100%;
+      border: 1px solid #d7d7da;
+      border-radius: 9px;
+      background: #fff;
+      font-family: inherit;
+      color: #1f2937;
+      font-size: 0.93rem;
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    .form-stack textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .floating-actions {
+      position: fixed;
+      right: 14px;
+      bottom: 14px;
+      display: grid;
+      gap: 10px;
+      z-index: 50;
+    }
+
+    .fab {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 100%;
-      background: var(--gold);
-      color: #111;
-      border-radius: 10px;
-      border: none;
+      color: #fff;
       text-decoration: none;
+      font-size: 1rem;
       font-weight: 700;
-      padding: 12px 16px;
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.24);
     }
 
-    @media (max-width: 980px) {
-      .contact-glass-wrap {
-        margin-top: -34px;
-        padding: 16px;
+    .fab.whatsapp { background: #22c55e; }
+    .fab.cart { background: #8e1e1e; }
+
+    @media (max-width: 960px) {
+      .contact-nav-inner {
+        flex-direction: column;
+        justify-content: center;
+        padding: 12px 0;
       }
-      .contact-standalone {
-        padding: 42px 0 80px;
+
+      .contact-links {
+        flex-wrap: wrap;
+        justify-content: center;
       }
-      .form-actions .send-btn {
-        width: 100%;
+
+      .contact-grid-layout {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <div class="contact-page-shell">
-    <header class="navbar scrolled" id="navbar">
-      <div class="container nav-inner">
-        <nav class="nav-left">
-          <a href="index.html#home">Home</a>
-          <a href="index.html#store">Store</a>
-          <a href="index.html#gallery">Gallery</a>
-          <a href="contact.html">Contact</a>
-        </nav>
+  <div class="contact-page">
+    <div class="contact-top-strip">
+      Orders above ₹1000 get <span class="free-pill">FREE DELIVERY</span>
+    </div>
 
-        <h1 class="logo">NATURAL MILK</h1>
-
-        <div class="nav-right">
-          <button class="outline-btn" id="loginBtn">Login</button>
-          <button class="outline-btn" id="signUpBtn">Sign Up</button>
-        </div>
-      </div>
-    </header>
-
-    <header class="about-hero" style="background-image: url('images/contact-hero.jpg'); margin-top: 78px;">
-      <div class="about-hero-overlay"></div>
-      <div class="about-hero-content container">
-        <h2 class="about-title">Contacts</h2>
-        <div class="breadcrumb"><a href="index.html#home">Home</a> <span>//</span> <span class="current">Contact</span></div>
-      </div>
-    </header>
-
-    <main class="contact-standalone container">
-      <section class="contact-glass-wrap" id="contactContent">
-        <section class="contact-section" style="padding: 0; background: transparent;">
-          <div class="contact-grid">
-            <div class="contact-info">
-              <div class="small-label">CONTACT FORM</div>
-              <h3 class="about-headline">Have Questions? Get In Touch!</h3>
-              <p class="about-paragraph">We are happy to help with fresh milk orders and delivery support.</p>
-              <p class="about-paragraph">Phone: +91 90000 55555</p>
-              <p class="about-paragraph">Address: 705 Pike Street, Convention Center</p>
-              <p class="about-paragraph">Email: support@naturalmilk.com</p>
-            </div>
-
-            <form class="contact-form" id="contactFormPage">
-              <div class="form-row">
-                <input id="firstName" type="text" placeholder="First Name" required>
-                <input id="lastName" type="text" placeholder="Last Name" required>
-              </div>
-              <div class="form-row">
-                <input id="email" type="email" placeholder="Email Address" required>
-                <input id="subject" type="text" placeholder="Subject" required>
-              </div>
-              <textarea id="message" rows="5" placeholder="Your Message" required></textarea>
-              <div class="form-actions">
-                <button class="btn send-btn" type="submit" id="submitContactBtn">SUBMIT FORM</button>
-                <button class="btn send-btn" type="button" id="backHomeBtn">BACK TO HOME</button>
-              </div>
-            </form>
+    <header class="contact-nav">
+      <div class="contact-nav-inner">
+        <div class="brand">
+          <div class="brand-logo">NM</div>
+          <div>
+            <div class="brand-title">NATURAL MILK</div>
+            <div class="brand-sub">Farm Fresh Dairy</div>
           </div>
-        </section>
+        </div>
+
+        <nav class="contact-links" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="index.html#store">Products</a>
+          <a href="index.html#gallery">Gallery</a>
+          <a href="contact.html" class="active">Contact</a>
+          <a href="cart.html" aria-label="Cart">Cart</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="contact-shell">
+      <section class="contact-heading">
+        <span class="contact-tag">Get in Touch</span>
+        <h1>We'd Love to Hear From You</h1>
+        <p>Have questions about our products? Want to place an order? Reach out to us and we'll get back to you as soon as possible.</p>
       </section>
 
-      <div class="guest-login-view" id="guestLoginView">
-        <div class="guest-login-card">
-          <h3 class="guest-login-title">Please Login</h3>
-          <p class="guest-login-copy">Please login to access the contact form.</p>
-          <a class="guest-login-btn" href="login.html?next=contact.html">Login</a>
-        </div>
-      </div>
+      <section class="contact-grid-layout">
+        <article class="contact-card">
+          <h2>Contact Information</h2>
+
+          <h3>Phone</h3>
+          <p>9866039058</p>
+
+          <h3>Email</h3>
+          <p>prasadravi9866@gmail.com</p>
+
+          <h3>Address</h3>
+          <p>P.Agaraham Thongadi madalam-533408</p>
+
+          <h3>Business Hours</h3>
+          <div class="hours">
+            <p>Mon - Fri: 9AM to 5PM</p>
+            <p>Saturday: 9AM to 1PM</p>
+            <p>Sunday: Holiday</p>
+          </div>
+
+          <h3>Quick WhatsApp</h3>
+          <p>For faster response, reach out directly on WhatsApp.</p>
+          <button class="cta-btn" id="quickChatBtn" type="button">Chat on WhatsApp</button>
+        </article>
+
+        <article class="contact-card">
+          <h2>Send us a Message</h2>
+          <form class="form-stack" id="contactFormPage">
+            <input id="name" type="text" placeholder="Enter your full name" required />
+            <input id="phone" type="text" placeholder="Enter your phone number" required />
+            <input id="email" type="email" placeholder="Enter your email address" required />
+            <textarea id="message" placeholder="How can we help you?" required></textarea>
+            <button class="cta-btn" id="sendWhatsappBtn" type="submit">Send via WhatsApp</button>
+          </form>
+        </article>
+      </section>
     </main>
+
+    <div class="floating-actions" aria-hidden="true">
+      <a class="fab whatsapp" href="https://wa.me/919866039058" target="_blank" rel="noopener noreferrer">🟢</a>
+      <a class="fab cart" href="cart.html">🛒</a>
+    </div>
   </div>
 
-  <script src="config.js"></script>
   <script>
-    const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE)
-      ? window.APP_CONFIG.API_BASE
-      : "http://localhost:4000/api";
+    const WHATSAPP_NUMBER = "919866039058";
 
-    const contactContent = document.getElementById('contactContent');
-    const guestLoginView = document.getElementById('guestLoginView');
-
-    function parseJwtPayload(token) {
-      try {
-        const parts = token.split('.');
-        if (parts.length !== 3) return null;
-        const normalized = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-        const json = atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '='));
-        return JSON.parse(json);
-      } catch (_err) {
-        return null;
-      }
+    function openWhatsApp(message) {
+      const encoded = encodeURIComponent(message);
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`, "_blank", "noopener");
     }
 
-    function isLoggedIn() {
-      const token = localStorage.getItem('token');
-      if (!token) return false;
-      const payload = parseJwtPayload(token);
-      if (!payload) return false;
-      if (payload.exp && (payload.exp * 1000) <= Date.now()) return false;
-      return true;
-    }
-
-    async function hasValidSession() {
-      if (!isLoggedIn()) {
-        localStorage.removeItem('token');
-        return false;
-      }
-
-      const token = localStorage.getItem('token');
-      if (!token) return false;
-
-      try {
-        const res = await fetch(`${API_BASE}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (!res.ok) throw new Error('Unauthorized');
-        return true;
-      } catch (_err) {
-        localStorage.removeItem('token');
-        return false;
-      }
-    }
-
-    function showGuestPrompt() {
-      if (contactContent) contactContent.style.display = 'none';
-      if (guestLoginView) guestLoginView.style.display = 'grid';
-    }
-
-    function showContactForm() {
-      if (contactContent) contactContent.style.display = 'block';
-      if (guestLoginView) guestLoginView.style.display = 'none';
-    }
-
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      window.location.href = 'login.html';
+    document.getElementById("quickChatBtn").addEventListener("click", () => {
+      openWhatsApp("Hello, I need details about your dairy products.");
     });
 
-    document.getElementById('signUpBtn').addEventListener('click', () => {
-      window.location.href = 'signup.html';
-    });
-
-    document.getElementById('backHomeBtn').addEventListener('click', () => {
-      window.location.href = 'index.html';
-    });
-
-    document.getElementById('contactFormPage').addEventListener('submit', async (e) => {
+    document.getElementById("contactFormPage").addEventListener("submit", (e) => {
       e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const message = document.getElementById("message").value.trim();
 
-      const hasSession = await hasValidSession();
-      if (!hasSession) {
-        showGuestPrompt();
-        return;
-      }
+      const text = [
+        "Hello Natural Milk,",
+        "",
+        `Name: ${name}`,
+        `Phone: ${phone}`,
+        `Email: ${email}`,
+        `Message: ${message}`
+      ].join("\n");
 
-      const submitBtn = document.getElementById('submitContactBtn');
-      const payload = {
-        firstName: document.getElementById('firstName').value.trim(),
-        lastName: document.getElementById('lastName').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        subject: document.getElementById('subject').value.trim(),
-        message: document.getElementById('message').value.trim()
-      };
-
-      if (!payload.firstName || !payload.email || !payload.message) {
-        alert('Please fill all required fields.');
-        return;
-      }
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'SENDING...';
-
-      try {
-        const res = await fetch(`${API_BASE}/contact`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (res.ok) {
-          alert('Message sent successfully!');
-          e.target.reset();
-        } else {
-          const text = await res.text();
-          alert(text || 'Failed to send message.');
-        }
-      } catch (_err) {
-        alert('Unable to connect. Please try again.');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'SUBMIT FORM';
-      }
+      openWhatsApp(text);
     });
-
-    (async function initContactPage() {
-      const hasSession = await hasValidSession();
-      if (!hasSession) {
-        showGuestPrompt();
-        return;
-      }
-      showContactForm();
-    })();
   </script>
 </body>
 </html>
