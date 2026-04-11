@@ -1286,6 +1286,8 @@
         return;
       }
 
+      const details = getDeliveryDetailsFromInputs();
+
       const token = localStorage.getItem("token");
       const valid = await validateSessionWithServer(true);
       if (!token || !valid) {
@@ -1309,7 +1311,13 @@
               qty: Number(item.qty),
               price: Number(item.price)
             })),
-            total: calcPayableTotal(cart)
+            total: calcPayableTotal(cart),
+            deliveryDetails: {
+              address: details.address,
+              landmark: details.landmark,
+              pincode: details.pincode,
+              phone: details.phone
+            }
           })
         });
 

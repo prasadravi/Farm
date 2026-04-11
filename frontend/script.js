@@ -681,6 +681,21 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      let savedDetails = null;
+      try {
+        savedDetails = JSON.parse(localStorage.getItem("delivery_details") || "null");
+      } catch (_err) {
+        savedDetails = null;
+      }
+
+      const fallbackAddress = (localStorage.getItem("delivery_address") || "").trim();
+      const deliveryDetails = {
+        address: (savedDetails?.address || fallbackAddress || "").trim(),
+        landmark: (savedDetails?.landmark || "").trim(),
+        pincode: (savedDetails?.pincode || "").trim(),
+        phone: (savedDetails?.phone || "").trim(),
+      };
+
       const total = calcTotal(items);
       drawerCheckout.disabled = true;
       drawerCheckout.textContent = "Placing order...";
@@ -692,7 +707,7 @@ document.addEventListener("DOMContentLoaded", () => {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ items, total }),
+        body: JSON.stringify({ items, total, deliveryDetails }),
       });
 
       const data = await res.json();
