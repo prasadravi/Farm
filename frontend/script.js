@@ -313,14 +313,20 @@ document.addEventListener("DOMContentLoaded", () => {
      Product List
   ----------------------------*/
   // Add product IDs here to mark them as out of stock, e.g. ["buffalomilk500"]
-  const OUT_OF_STOCK_IDS = ["CowCurd500ml"];
+  const OUT_OF_STOCK_IDS = ["CowMilk"];
+  const outOfStockLookup = new Set(
+    OUT_OF_STOCK_IDS.map((id) => String(id).trim().toLowerCase())
+  );
 
   const products = [
     { id: "milk500", title: "Fresh Cow Milk", price: 28, img: "images/stor-one.jpg", unit: "500 ml pouch" },
     { id: "cowcurd500", title: "Cow Curd", price: 110, img: "images/cow-curd.jpg", unit: "500 ml cup" },
     { id: "buffalocurd500", title: "Bufflo Curd", price: 155, img: "images/buffalo-curd.jpg", unit: "500 ml cup" },
     { id: "buffalomilk500", title: "Bufflo Milk", price: 110, img: "images/store-four.jpg", unit: "500 ml pouch" }
-  ].map((item) => ({ ...item, inStock: !OUT_OF_STOCK_IDS.includes(item.id) }));
+  ].map((item) => ({
+    ...item,
+    inStock: !outOfStockLookup.has(String(item.id).trim().toLowerCase())
+  }));
 
   const productGrid = byId("productGrid");
   const productDots = byId("productDots");
