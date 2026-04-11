@@ -112,6 +112,31 @@
       border-color: #c9ac67;
       box-shadow: 0 0 0 3px rgba(201, 172, 103, 0.16);
     }
+    .address-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .address-field {
+      width: 100%;
+      border: 1px solid #d7c9a7;
+      background: #fffdf7;
+      color: #1f2937;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.84rem;
+      outline: none;
+      min-height: 42px;
+      font-family: inherit;
+    }
+    .address-field.full {
+      grid-column: 1 / -1;
+    }
+    .address-field:focus {
+      border-color: #c9ac67;
+      box-shadow: 0 0 0 3px rgba(201, 172, 103, 0.16);
+    }
     .address-row {
       display: flex;
       align-items: center;
@@ -529,6 +554,11 @@
         <section class="card">
           <div class="section-title">Delivery address</div>
           <textarea id="addressInput" class="address-input" rows="3" placeholder="Enter your full address"></textarea>
+          <div class="address-grid">
+            <input id="landmarkInput" class="address-field full" type="text" placeholder="Landmark" />
+            <input id="pincodeInput" class="address-field" type="text" inputmode="numeric" maxlength="6" placeholder="Pin code" />
+            <input id="phoneInput" class="address-field" type="tel" inputmode="numeric" maxlength="10" placeholder="Phone number" />
+          </div>
           <div class="address-row">
             <button class="mini-btn" type="button" id="saveAddressBtn">Add Address</button>
             <div class="address-status" id="addressStatus"></div>
@@ -627,6 +657,9 @@
     const payableTotal = document.getElementById("payableTotal");
     const deliveryEtaText = document.getElementById("deliveryEtaText");
     const addressInput = document.getElementById("addressInput");
+    const landmarkInput = document.getElementById("landmarkInput");
+    const pincodeInput = document.getElementById("pincodeInput");
+    const phoneInput = document.getElementById("phoneInput");
     const saveAddressBtn = document.getElementById("saveAddressBtn");
     const addressStatus = document.getElementById("addressStatus");
     const checkoutBtn = document.getElementById("checkoutBtn");
@@ -645,6 +678,7 @@
     const navProfileLink = document.querySelector(".nav-profile-link");
     const navLogoutBtn = document.getElementById("logoutBtn");
     const ADDRESS_KEY = "delivery_address";
+    const DELIVERY_DETAILS_KEY = "delivery_details";
     const ADDRESS_LIST_KEY = "saved_addresses";
     const HIDDEN_ORDERS_KEY = "hidden_recent_orders";
     let addressReady = false;
@@ -653,7 +687,48 @@
     let selectedUpiApp = null;
     let paymentMode = "online";
     let lastSavedAddress = "";
+    let lastSavedDeliveryFingerprint = "";
     let addressSaveTimer = null;
+
+    function getDeliveryDetailsFromInputs() {
+      return {
+        address: (addressInput?.value || "").trim(),
+        landmark: (landmarkInput?.value || "").trim(),
+        pincode: (pincodeInput?.value || "").replace(/\D/g, "").trim(),
+        phone: (phoneInput?.value || "").replace(/\D/g, "").trim()
+      };
+    }
+
+    function validateDeliveryDetails(details) {
+      if (!details.address || details.address.length < 6) return "Please enter a full address.";
+      if (!details.landmark || details.landmark.length < 3) return "Please enter a valid landmark.";
+      if (!/^\d{6}$/.test(details.pincode)) return "Pin code must be 6 digits.";
+      if (!/^\d{10}$/.test(details.phone)) return "Phone number must be 10 digits.";
+      return "";
+    }
+
+    function getDeliveryFingerprint(details) {
+      return JSON.stringify(details);
+    }
+
+    function getDeliveryDetailsFromStorage() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(DELIVERY_DETAILS_KEY) || "null");
+        if (!raw || typeof raw !== "object") return null;
+        return {
+          address: (raw.address || "").trim(),
+          landmark: (raw.landmark || "").trim(),
+          pincode: (raw.pincode || "").replace(/\D/g, "").trim(),
+          phone: (raw.phone || "").replace(/\D/g, "").trim()
+        };
+      } catch (_err) {
+        return null;
+      }
+    }
+
+    function buildAddressLabel(details) {
+      return `${details.address} | Landmark: ${details.landmark} | Pin: ${details.pincode} | Phone: ${details.phone}`;
+    }
 
     function parseJwtPayload(token) {
       try {
@@ -832,12 +907,23 @@
     }
 
     function initAddressState() {
-      const savedAddress = (localStorage.getItem(ADDRESS_KEY) || "").trim();
-      if (addressInput) {
-        addressInput.value = savedAddress;
-      }
-      addressReady = savedAddress.length >= 6;
-      lastSavedAddress = savedAddress;
+      const savedDetails = getDeliveryDetailsFromStorage();
+      const fallbackAddress = (localStorage.getItem(ADDRESS_KEY) || "").trim();
+      const details = savedDetails || {
+        address: fallbackAddress,
+        landmark: "",
+        pincode: "",
+        phone: ""
+      };
+
+      if (addressInput) addressInput.value = details.address;
+      if (landmarkInput) landmarkInput.value = details.landmark;
+      if (pincodeInput) pincodeInput.value = details.pincode;
+      if (phoneInput) phoneInput.value = details.phone;
+
+      addressReady = !validateDeliveryDetails(details);
+      lastSavedAddress = details.address;
+      lastSavedDeliveryFingerprint = addressReady ? getDeliveryFingerprint(details) : "";
       if (addressStatus) {
         addressStatus.textContent = addressReady ? "Address added" : "";
       }
@@ -860,11 +946,13 @@
       localStorage.setItem(ADDRESS_LIST_KEY, JSON.stringify(list.slice(0, 8)));
     }
 
-    function saveAddressValue(value, statusText = "Address saved") {
-      localStorage.setItem(ADDRESS_KEY, value);
+    function saveAddressValue(details, statusText = "Address saved") {
+      localStorage.setItem(DELIVERY_DETAILS_KEY, JSON.stringify(details));
+      localStorage.setItem(ADDRESS_KEY, details.address);
       addressReady = true;
-      lastSavedAddress = value;
-      persistAddressToList(value);
+      lastSavedAddress = details.address;
+      lastSavedDeliveryFingerprint = getDeliveryFingerprint(details);
+      persistAddressToList(buildAddressLabel(details));
       if (addressStatus) addressStatus.textContent = statusText;
       updateCheckoutState();
     }
@@ -969,34 +1057,41 @@
     });
 
     saveAddressBtn?.addEventListener("click", () => {
-      const value = (addressInput?.value || "").trim();
-      if (value.length < 6) {
+      const details = getDeliveryDetailsFromInputs();
+      const errorText = validateDeliveryDetails(details);
+      if (errorText) {
         addressReady = false;
-        if (addressStatus) addressStatus.textContent = "Please enter a valid address.";
+        if (addressStatus) addressStatus.textContent = errorText;
         updateCheckoutState();
         return;
       }
-      saveAddressValue(value, "Address added");
+      saveAddressValue(details, "Address added");
       if (paymentModeSection) paymentModeSection.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
-    addressInput?.addEventListener("input", () => {
-      const value = (addressInput?.value || "").trim();
+    function onDeliveryInputChange() {
+      const details = getDeliveryDetailsFromInputs();
+      if (pincodeInput) pincodeInput.value = details.pincode;
+      if (phoneInput) phoneInput.value = details.phone;
+
       if (addressSaveTimer) {
         clearTimeout(addressSaveTimer);
         addressSaveTimer = null;
       }
 
-      if (value.length < 6) {
+      const errorText = validateDeliveryDetails(details);
+      if (errorText) {
         addressReady = false;
         updateCheckoutState();
         if (addressStatus) {
-          addressStatus.textContent = value.length ? "Please enter a full address." : "";
+          const anyInput = Boolean(details.address || details.landmark || details.pincode || details.phone);
+          addressStatus.textContent = anyInput ? errorText : "";
         }
         return;
       }
 
-      if (value === lastSavedAddress) {
+      const detailsFingerprint = getDeliveryFingerprint(details);
+      if (detailsFingerprint === lastSavedDeliveryFingerprint) {
         addressReady = true;
         updateCheckoutState();
         if (addressStatus) addressStatus.textContent = "Address added";
@@ -1007,19 +1102,27 @@
       updateCheckoutState();
       if (addressStatus) addressStatus.textContent = "Saving address...";
       addressSaveTimer = setTimeout(() => {
-        saveAddressValue(value);
+        saveAddressValue(details);
       }, 600);
-    });
+    }
 
-    addressInput?.addEventListener("blur", () => {
-      const value = (addressInput?.value || "").trim();
+    function onDeliveryInputBlur() {
+      const details = getDeliveryDetailsFromInputs();
+      if (pincodeInput) pincodeInput.value = details.pincode;
+      if (phoneInput) phoneInput.value = details.phone;
+
       if (addressSaveTimer) {
         clearTimeout(addressSaveTimer);
         addressSaveTimer = null;
       }
-      if (value.length >= 6 && value !== lastSavedAddress) {
-        saveAddressValue(value);
+      if (!validateDeliveryDetails(details) && getDeliveryFingerprint(details) !== lastSavedDeliveryFingerprint) {
+        saveAddressValue(details);
       }
+    }
+
+    [addressInput, landmarkInput, pincodeInput, phoneInput].forEach((field) => {
+      field?.addEventListener("input", onDeliveryInputChange);
+      field?.addEventListener("blur", onDeliveryInputBlur);
     });
 
     paymentModeSection?.addEventListener("click", (event) => {
