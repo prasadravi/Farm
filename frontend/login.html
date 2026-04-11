@@ -49,23 +49,33 @@
       }
     }
 
-    async function loginWithRetry(payload) {
-      try {
-        return await fetchWithTimeout(`${API_BASE}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }, 20000);
-      } catch (err) {
-        if (!(err && err.name === "AbortError")) throw err;
+    const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
-        // Render free instances can take extra time on first request (cold start).
-        return await fetchWithTimeout(`${API_BASE}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }, 30000);
+    async function loginWithRetry(payload) {
+      const maxAttempts = 3;
+      let lastError = null;
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        try {
+          if (attempt > 1) {
+            submitBtn.textContent = `Trying again (${attempt}/${maxAttempts})...`;
+          }
+
+          return await fetchWithTimeout(`${API_BASE}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }, 18000);
+        } catch (err) {
+          lastError = err;
+          if (attempt < maxAttempts) {
+            await wait(900);
+            continue;
+          }
+        }
       }
+
+      throw lastError || new Error("Login failed");
     }
 
     form.addEventListener("submit", async (e) => {
@@ -86,9 +96,8 @@
         } else {
           alert(data.message || "Login failed");
         }
-      } catch (err) {
-        const isTimeout = err && err.name === "AbortError";
-        alert(isTimeout ? "Server is waking up. Please wait 20-30 seconds and try again." : "Error connecting to server.");
+      } catch (_err) {
+        alert("Unable to sign in right now. Please try again.");
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Login";
