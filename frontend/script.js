@@ -313,7 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
      Product List
   ----------------------------*/
   // Add product IDs here to mark them as out of stock, e.g. ["buffalomilk500"]
-  const OUT_OF_STOCK_IDS = ["CowMilk"];
+  const OUT_OF_STOCK_IDS = ["CowCurd"];
   const outOfStockLookup = new Set(
     OUT_OF_STOCK_IDS.map((id) => String(id).trim().toLowerCase())
   );
