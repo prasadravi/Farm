@@ -302,18 +302,6 @@
       font-size: 0.82rem;
       color: #6b7280;
     }
-    .proof-wrap {
-      display: none;
-      gap: 8px;
-    }
-    .proof-wrap label {
-      font-size: 0.82rem;
-      color: #111827;
-      font-weight: 600;
-    }
-    .proof-wrap input[type="file"] {
-      width: 100%;
-    }
     .item-list {
       display: grid;
       gap: 8px;
@@ -631,11 +619,7 @@
             <div class="upi-qr-wrap" id="upiQrWrap">
               <img id="upiQrImage" alt="UPI QR" />
             </div>
-            <div class="payment-note" id="paymentNote">After payment, upload screenshot.</div>
-            <div class="proof-wrap" id="proofWrap">
-              <label for="paymentProof">Upload payment proof</label>
-              <input id="paymentProof" type="file" accept="image/*" />
-            </div>
+            <div class="payment-note" id="paymentNote">Select any UPI app and tap Pay Now.</div>
           </div>
         </section>
 
@@ -706,8 +690,6 @@
     const upiQrWrap = document.getElementById("upiQrWrap");
     const upiQrImage = document.getElementById("upiQrImage");
     const paymentNote = document.getElementById("paymentNote");
-    const paymentProof = document.getElementById("paymentProof");
-    const proofWrap = document.getElementById("proofWrap");
     const paymentModeSection = document.getElementById("paymentModeSection");
     const cartContent = document.getElementById("cartContent");
     const guestLoginView = document.getElementById("guestLoginView");
@@ -724,7 +706,6 @@
     const UPI_NOTE = "Milk Order";
     let addressReady = false;
     let paymentInitiated = false;
-    let paymentProofReady = false;
     let selectedUpiApp = null;
     let paymentMode = "online";
     let lastSavedAddress = "";
@@ -954,14 +935,13 @@
       }
       if (paymentNote && !paymentInitiated) {
         paymentNote.textContent = isMobileDevice()
-          ? "Tap Pay Now to open UPI app, then upload screenshot."
-          : "Scan QR on desktop, then upload screenshot.";
+          ? "Tap Pay Now to open your UPI app."
+          : "Scan QR on desktop or tap Pay Now on mobile.";
       }
     }
 
-    function showProofUpload() {
-      if (paymentNote) paymentNote.textContent = "Payment app opened. Complete payment and place order.";
-      if (proofWrap) proofWrap.style.display = "grid";
+    function markPaymentStarted() {
+      if (paymentNote) paymentNote.textContent = "Payment app opened. Complete payment and tap Place Order.";
     }
 
     function updatePaymentModeUi() {
@@ -969,13 +949,11 @@
       if (paymentMode === "cod") {
         paymentSection.style.display = "none";
         paymentInitiated = true;
-        paymentProofReady = true;
         if (paymentNote) paymentNote.textContent = "Cash on Delivery selected.";
-        if (proofWrap) proofWrap.style.display = "none";
       } else {
         paymentSection.style.display = "grid";
         paymentInitiated = false;
-        paymentProofReady = true;
+        if (paymentNote) paymentNote.textContent = "Select any UPI app and tap Pay Now.";
         updatePaymentUi(calcPayableTotal(getCart()));
       }
     }
@@ -1226,7 +1204,7 @@
       }
       const upiLink = selectedUpiApp ? buildAppUpiLink(total, selectedUpiApp) : buildUpiLink(total);
       paymentInitiated = true;
-      showProofUpload();
+      markPaymentStarted();
 
       if (isMobileDevice()) {
         if (selectedUpiApp) {
@@ -1254,29 +1232,22 @@
       }
       const app = btn.dataset.upiApp;
       selectedUpiApp = app;
+      paymentInitiated = true;
       paymentSection.querySelectorAll(".upi-app-btn").forEach(el => el.classList.remove("active"));
       btn.classList.add("active");
       updatePaymentUi(total);
 
       if (isMobileDevice()) {
-        paymentInitiated = true;
-        showProofUpload();
+        markPaymentStarted();
         openUpiApp(total, app);
         return;
       }
 
       if (paymentNote) {
-        paymentNote.textContent = "Scan the QR on desktop, then upload screenshot.";
+        paymentNote.textContent = "App selected. Tap Pay Now to continue with UPI.";
       }
       if (upiQrWrap) {
         upiQrWrap.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    });
-
-    paymentProof?.addEventListener("change", () => {
-      paymentProofReady = Boolean(paymentProof.files && paymentProof.files.length);
-      if (paymentProofReady && paymentNote) {
-        paymentNote.textContent = "Payment proof uploaded.";
       }
     });
 
@@ -1291,10 +1262,6 @@
       if (!paymentInitiated) {
         alert("Please complete payment first.");
         return;
-      }
-
-      if (!paymentProofReady) {
-        paymentProofReady = true;
       }
 
       const cart = getCart();
@@ -1446,9 +1413,7 @@
       }
       showCartContent();
       initAddressState();
-      if (paymentNote) paymentNote.textContent = "After payment, upload screenshot.";
-      if (proofWrap) proofWrap.style.display = "none";
-      if (upiQrWrap) upiQrWrap.style.display = "flex";
+      if (paymentNote) paymentNote.textContent = "Select any UPI app and tap Pay Now.";
       updatePaymentModeUi();
       const storedEta = Number(localStorage.getItem("last_delivery_eta"));
       if (storedEta === 5 || storedEta === 10) {
