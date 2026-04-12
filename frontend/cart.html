@@ -701,9 +701,8 @@
     const DELIVERY_DETAILS_KEY = "delivery_details";
     const ADDRESS_LIST_KEY = "saved_addresses";
     const HIDDEN_ORDERS_KEY = "hidden_recent_orders";
-    const UPI_ID = "9866039058@slc";
-    const UPI_PAYEE_NAME = "NaturalMilk";
-    const UPI_NOTE = "Milk Order";
+    const UPI_ID = "prasadravi789381@ybl";
+    const UPI_PAYEE_NAME = "RaviPrasad";
     let addressReady = false;
     let paymentInitiated = false;
     let selectedUpiApp = null;
@@ -878,12 +877,12 @@
 
     function buildUpiLink(amount) {
       const safeAmount = Number(amount || 0).toFixed(2);
-      return `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR&tn=${encodeURIComponent(UPI_NOTE)}`;
+      return `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR`;
     }
 
     function buildIosUpiLink(amount, app) {
       const safeAmount = Number(amount || 0).toFixed(2);
-      const params = `pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR&tn=${encodeURIComponent(UPI_NOTE)}`;
+      const params = `pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR`;
       if (app === "gpay") return `tez://upi/pay?${params}`;
       if (app === "phonepe") return `phonepe://pay?${params}`;
       if (app === "paytm") return `paytmmp://pay?${params}`;
@@ -892,7 +891,7 @@
 
     function buildAppUpiLink(amount, app) {
       const safeAmount = Number(amount || 0).toFixed(2);
-      const params = `pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR&tn=${encodeURIComponent(UPI_NOTE)}`;
+      const params = `pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR`;
       if (app === "gpay") return isAndroidDevice() ? `tez://upi/pay?${params}` : `gpay://upi/pay?${params}`;
       if (app === "phonepe") return `phonepe://pay?${params}`;
       if (app === "paytm") return `paytmmp://pay?${params}`;
