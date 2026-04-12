@@ -18,7 +18,7 @@ public class SecurityConfig {
             .cors(cors -> {})
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**", "/orders/**").permitAll()
+                .requestMatchers("/auth/**", "/orders/**", "/payments/**").permitAll()
                 .anyRequest().permitAll()
             )
             .httpBasic(httpBasic -> httpBasic.disable())

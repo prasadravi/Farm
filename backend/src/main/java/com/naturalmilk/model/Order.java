@@ -20,6 +20,7 @@ public class Order {
     private String landmark;
     private String pincode;
     private String phone;
+    private PaymentDetails payment;
     private String status;
     private long createdAt;
     private long updatedAt;
@@ -34,6 +35,7 @@ public class Order {
     public String getLandmark() { return landmark; }
     public String getPincode() { return pincode; }
     public String getPhone() { return phone; }
+    public PaymentDetails getPayment() { return payment; }
     public String getStatus() { return status; }
     public long getCreatedAt() { return createdAt; }
     public long getUpdatedAt() { return updatedAt; }
@@ -48,6 +50,7 @@ public class Order {
     public void setLandmark(String landmark) { this.landmark = landmark; }
     public void setPincode(String pincode) { this.pincode = pincode; }
     public void setPhone(String phone) { this.phone = phone; }
+    public void setPayment(PaymentDetails payment) { this.payment = payment; }
     public void setStatus(String status) { this.status = status; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
@@ -67,6 +70,7 @@ public class Order {
         private String landmark;
         private String pincode;
         private String phone;
+        private PaymentDetails payment;
         private String status;
         private long createdAt;
         private long updatedAt;
@@ -115,6 +119,11 @@ public class Order {
             this.phone = phone;
             return this;
         }
+
+        public Builder payment(PaymentDetails payment) {
+            this.payment = payment;
+            return this;
+        }
         
         public Builder status(String status) {
             this.status = status;
@@ -142,11 +151,34 @@ public class Order {
             order.landmark = this.landmark;
             order.pincode = this.pincode;
             order.phone = this.phone;
+            order.payment = this.payment;
             order.status = this.status;
             order.createdAt = this.createdAt;
             order.updatedAt = this.updatedAt;
             return order;
         }
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PaymentDetails {
+        private String method;
+        private String status;
+        private String paymentRecordId;
+        private String razorpayOrderId;
+        private String razorpayPaymentId;
+
+        public String getMethod() { return method; }
+        public String getStatus() { return status; }
+        public String getPaymentRecordId() { return paymentRecordId; }
+        public String getRazorpayOrderId() { return razorpayOrderId; }
+        public String getRazorpayPaymentId() { return razorpayPaymentId; }
+
+        public void setMethod(String method) { this.method = method; }
+        public void setStatus(String status) { this.status = status; }
+        public void setPaymentRecordId(String paymentRecordId) { this.paymentRecordId = paymentRecordId; }
+        public void setRazorpayOrderId(String razorpayOrderId) { this.razorpayOrderId = razorpayOrderId; }
+        public void setRazorpayPaymentId(String razorpayPaymentId) { this.razorpayPaymentId = razorpayPaymentId; }
     }
 
     @NoArgsConstructor
