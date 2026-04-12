@@ -231,41 +231,47 @@
       gap: 10px;
     }
     .upi-app-btn {
-      border: 1px solid rgba(232, 196, 107, 0.35);
-      background: #fff8e7;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
       border-radius: 12px;
-      padding: 12px 8px;
+      padding: 12px 10px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 8px;
       cursor: pointer;
-      font-weight: 700;
-      color: #1f2937;
+      font-weight: 600;
+      color: #111827;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
     }
     .upi-app-btn.active {
-      border-color: rgba(232, 196, 107, 0.8);
-      box-shadow: 0 0 0 3px rgba(232, 196, 107, 0.25);
-      background: #fff1cc;
+      border-color: #111827;
+      box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.12);
+      background: #f9fafb;
+      transform: translateY(-1px);
+    }
+    .upi-app-btn:hover {
+      border-color: #cbd5e1;
     }
     .upi-app-btn span {
-      font-size: 0.86rem;
+      font-size: 0.85rem;
     }
     .upi-app-icon {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 800;
-      background: #111827;
+      letter-spacing: 0.2px;
+      background: #0f172a;
       color: #fff;
     }
-    .upi-app-icon.gpay { background: #1a73e8; }
-    .upi-app-icon.phonepe { background: #673ab7; }
-    .upi-app-icon.paytm { background: #00baf2; }
+    .upi-app-icon.gpay { background: #2563eb; }
+    .upi-app-icon.phonepe { background: #6d28d9; }
+    .upi-app-icon.paytm { background: #0891b2; }
     .pay-now-btn {
       width: 100%;
       border: none;
@@ -713,6 +719,9 @@
     const DELIVERY_DETAILS_KEY = "delivery_details";
     const ADDRESS_LIST_KEY = "saved_addresses";
     const HIDDEN_ORDERS_KEY = "hidden_recent_orders";
+    const UPI_ID = "9866039058@slc";
+    const UPI_PAYEE_NAME = "NaturalMilk";
+    const UPI_NOTE = "Milk Order";
     let addressReady = false;
     let paymentInitiated = false;
     let paymentProofReady = false;
@@ -888,12 +897,12 @@
 
     function buildUpiLink(amount) {
       const safeAmount = Number(amount || 0).toFixed(2);
-      return `upi://pay?pa=9866039058@slc&pn=NaturalMilk&am=${safeAmount}&cu=INR`;
+      return `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR&tn=${encodeURIComponent(UPI_NOTE)}`;
     }
 
     function buildIosUpiLink(amount, app) {
       const safeAmount = Number(amount || 0).toFixed(2);
-      const params = `pa=9866039058@slc&pn=NaturalMilk&am=${safeAmount}&cu=INR`;
+      const params = `pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR&tn=${encodeURIComponent(UPI_NOTE)}`;
       if (app === "gpay") return `tez://upi/pay?${params}`;
       if (app === "phonepe") return `phonepe://pay?${params}`;
       if (app === "paytm") return `paytmmp://pay?${params}`;
@@ -901,22 +910,31 @@
     }
 
     function buildAppUpiLink(amount, app) {
-      const baseUpi = buildUpiLink(amount);
-      if (!isAndroidDevice()) {
-        return buildIosUpiLink(amount, app);
-      }
+      const safeAmount = Number(amount || 0).toFixed(2);
+      const params = `pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR&tn=${encodeURIComponent(UPI_NOTE)}`;
+      if (app === "gpay") return isAndroidDevice() ? `tez://upi/pay?${params}` : `gpay://upi/pay?${params}`;
+      if (app === "phonepe") return `phonepe://pay?${params}`;
+      if (app === "paytm") return `paytmmp://pay?${params}`;
+      return `upi://pay?${params}`;
+    }
 
-      const packageMap = {
-        gpay: "com.google.android.apps.nbu.paisa.user",
-        phonepe: "com.phonepe.app",
-        paytm: "net.one97.paytm"
+    function openUpiApp(amount, app) {
+      const appLink = buildAppUpiLink(amount, app);
+      const fallbackLink = buildUpiLink(amount);
+      let movedToApp = false;
+
+      const onHidden = () => {
+        movedToApp = true;
       };
 
-      const pkg = packageMap[app];
-      if (!pkg) return baseUpi;
+      document.addEventListener("visibilitychange", onHidden, { once: true });
+      window.location.href = appLink;
 
-      const params = baseUpi.replace("upi://pay", "pay");
-      return `intent://${params}#Intent;scheme=upi;package=${pkg};end`;
+      window.setTimeout(() => {
+        if (!movedToApp) {
+          window.location.href = fallbackLink;
+        }
+      }, 900);
     }
 
     function updatePaymentUi(totalAmount) {
@@ -942,7 +960,7 @@
     }
 
     function showProofUpload() {
-      if (paymentNote) paymentNote.textContent = "After payment, upload screenshot.";
+      if (paymentNote) paymentNote.textContent = "Payment app opened. Complete payment and place order.";
       if (proofWrap) proofWrap.style.display = "grid";
     }
 
@@ -957,7 +975,7 @@
       } else {
         paymentSection.style.display = "grid";
         paymentInitiated = false;
-        paymentProofReady = false;
+        paymentProofReady = true;
         updatePaymentUi(calcPayableTotal(getCart()));
       }
     }
@@ -1211,7 +1229,11 @@
       showProofUpload();
 
       if (isMobileDevice()) {
-        window.location.href = upiLink;
+        if (selectedUpiApp) {
+          openUpiApp(total, selectedUpiApp);
+        } else {
+          window.location.href = upiLink;
+        }
       }
     });
 
@@ -1237,10 +1259,9 @@
       updatePaymentUi(total);
 
       if (isMobileDevice()) {
-        const upiLink = buildAppUpiLink(total, app);
         paymentInitiated = true;
         showProofUpload();
-        window.location.href = upiLink;
+        openUpiApp(total, app);
         return;
       }
 
@@ -1273,11 +1294,7 @@
       }
 
       if (!paymentProofReady) {
-        if (paymentMode === "online") {
-          alert("After payment, upload screenshot.");
-          paymentProof?.focus();
-        }
-        return;
+        paymentProofReady = true;
       }
 
       const cart = getCart();

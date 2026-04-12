@@ -37,6 +37,17 @@
 
     const form = document.getElementById("signupForm");
     const submitBtn = document.getElementById("signupSubmitBtn");
+
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { ...options, signal: controller.signal });
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -52,11 +63,11 @@
       try {
         submitBtn.disabled = true;
         submitBtn.textContent = "Creating...";
-        const res = await fetch(`${API_BASE}/auth/register`, {
+        const res = await fetchWithTimeout(`${API_BASE}/auth/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password }),
-        });
+        }, 7500);
 
         const data = await res.json();
 
@@ -68,7 +79,7 @@
         }
       } catch (err) {
         console.error("Error:", err);
-        alert("Error connecting to server.");
+        alert("Unable to sign up right now. Please try again.");
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Sign Up";

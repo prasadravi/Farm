@@ -44,6 +44,13 @@ public class OrderController {
 
             order.setUserId(userId);
 
+            if (order.getDeliveryDetails() != null) {
+                order.setAddress(order.getDeliveryDetails().getAddress());
+                order.setLandmark(order.getDeliveryDetails().getLandmark());
+                order.setPincode(order.getDeliveryDetails().getPincode());
+                order.setPhone(order.getDeliveryDetails().getPhone());
+            }
+
             Order createdOrder = orderService.createOrder(order);
             return ResponseEntity.ok(createdOrder);
         } catch (Exception e) {
