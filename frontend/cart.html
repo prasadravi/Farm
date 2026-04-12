@@ -662,6 +662,7 @@
   </div>
 
   <script src="config.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
     const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE)
       ? window.APP_CONFIG.API_BASE
@@ -701,8 +702,6 @@
     const DELIVERY_DETAILS_KEY = "delivery_details";
     const ADDRESS_LIST_KEY = "saved_addresses";
     const HIDDEN_ORDERS_KEY = "hidden_recent_orders";
-    const UPI_ID = "prasadravi789381@ybl";
-    const UPI_PAYEE_NAME = "RaviPrasad";
     let addressReady = false;
     let paymentInitiated = false;
     let selectedUpiApp = null;
@@ -871,76 +870,222 @@
       return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     }
 
-    function isAndroidDevice() {
-      return /Android/i.test(navigator.userAgent);
-    }
-
-    function buildUpiLink(amount) {
-      const safeAmount = Number(amount || 0).toFixed(2);
-      return `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR`;
-    }
-
-    function buildIosUpiLink(amount, app) {
-      const safeAmount = Number(amount || 0).toFixed(2);
-      const params = `pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR`;
-      if (app === "gpay") return `tez://upi/pay?${params}`;
-      if (app === "phonepe") return `phonepe://pay?${params}`;
-      if (app === "paytm") return `paytmmp://pay?${params}`;
-      return `upi://pay?${params}`;
-    }
-
-    function buildAppUpiLink(amount, app) {
-      const safeAmount = Number(amount || 0).toFixed(2);
-      const params = `pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR`;
-      if (app === "gpay") return isAndroidDevice() ? `tez://upi/pay?${params}` : `gpay://upi/pay?${params}`;
-      if (app === "phonepe") return `phonepe://pay?${params}`;
-      if (app === "paytm") return `paytmmp://pay?${params}`;
-      return `upi://pay?${params}`;
-    }
-
-    function openUpiApp(amount, app) {
-      const appLink = buildAppUpiLink(amount, app);
-      const fallbackLink = buildUpiLink(amount);
-      let movedToApp = false;
-
-      const onHidden = () => {
-        movedToApp = true;
-      };
-
-      document.addEventListener("visibilitychange", onHidden, { once: true });
-      window.location.href = appLink;
-
-      window.setTimeout(() => {
-        if (!movedToApp) {
-          window.location.href = fallbackLink;
-        }
-      }, 900);
-    }
-
     function updatePaymentUi(totalAmount) {
       const total = Number(totalAmount || 0);
       if (total <= 0) {
         if (upiQrWrap) upiQrWrap.style.display = "none";
-        if (paymentNote) paymentNote.textContent = "Add items to generate QR.";
+        if (paymentNote) paymentNote.textContent = "Add items to continue payment.";
         return;
       }
 
-      const upiLink = buildUpiLink(total);
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
-      if (upiQrImage) upiQrImage.src = qrUrl;
+      if (upiQrWrap) upiQrWrap.style.display = "none";
+      if (upiQrImage) upiQrImage.removeAttribute("src");
 
-      if (upiQrWrap) {
-        upiQrWrap.style.display = isMobileDevice() ? "none" : "flex";
-      }
       if (paymentNote && !paymentInitiated) {
         paymentNote.textContent = isMobileDevice()
-          ? "Tap Pay Now to open your UPI app."
-          : "Scan QR on desktop or tap Pay Now on mobile.";
+          ? "Tap Pay Now to open Razorpay checkout."
+          : "Tap Pay Now to open Razorpay checkout.";
       }
     }
 
     function markPaymentStarted() {
-      if (paymentNote) paymentNote.textContent = "Payment app opened. Complete payment and tap Place Order.";
+      if (paymentNote) paymentNote.textContent = "Payment initiated. Complete checkout to place order.";
+    }
+
+    async function placeOrderAfterPayment(token, cart, details, paymentData = null) {
+      const body = {
+        items: cart.map(item => ({
+          id: item.id,
+          title: item.title,
+          qty: Number(item.qty),
+          price: Number(item.price)
+        })),
+        total: calcPayableTotal(cart),
+        deliveryDetails: {
+          address: details.address,
+          landmark: details.landmark,
+          pincode: details.pincode,
+          phone: details.phone
+        }
+      };
+
+      if (paymentData) {
+        body.payment = {
+          method: paymentData.method || "RAZORPAY",
+          status: paymentData.status || "PAID",
+          paymentRecordId: paymentData.paymentRecordId || "",
+          razorpayOrderId: paymentData.razorpayOrderId || "",
+          razorpayPaymentId: paymentData.razorpayPaymentId || ""
+        };
+      }
+
+      return fetch(`${API_BASE}/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(body)
+      });
+    }
+
+    function showPaymentSuccess() {
+      window.location.href = "payment-success.html";
+    }
+
+    function showPaymentFailure(message = "Payment failed") {
+      if (paymentNote) paymentNote.textContent = message;
+      alert(message);
+    }
+
+    async function startRazorpayPayment() {
+      if (paymentMode === "cod") {
+        return;
+      }
+
+      if (!addressReady) {
+        if (addressStatus) addressStatus.textContent = "Complete address first";
+        addressInput?.focus();
+        addressInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      const cart = getCart();
+      if (!cart.length) {
+        alert("Your cart is empty.");
+        return;
+      }
+
+      const total = calcPayableTotal(cart);
+      if (total <= 0) {
+        alert("Add items to pay.");
+        return;
+      }
+
+      const details = getDeliveryDetailsFromInputs();
+      const token = localStorage.getItem("token");
+      const valid = await validateSessionWithServer(true);
+      if (!token || !valid) {
+        enforceAuthState();
+        alert("Please login before placing an order.");
+        window.location.href = "login.html?next=cart.html";
+        return;
+      }
+
+      if (!window.Razorpay) {
+        showPaymentFailure("Payment service unavailable. Try again.");
+        return;
+      }
+
+      payNowBtn.disabled = true;
+      payNowBtn.textContent = "Opening...";
+
+      try {
+        const createRes = await fetch(`${API_BASE}/payments/create-order`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            items: cart.map(item => ({
+              id: item.id,
+              title: item.title,
+              qty: Number(item.qty),
+              price: Number(item.price)
+            })),
+            total,
+            deliveryDetails: details
+          })
+        });
+
+        const createData = await createRes.json();
+        if (!createRes.ok) {
+          showPaymentFailure(createData.message || "Unable to start payment.");
+          return;
+        }
+
+        const options = {
+          key: createData.keyId,
+          amount: createData.amount,
+          currency: createData.currency || "INR",
+          name: "Natural Milk",
+          description: "Order Payment",
+          order_id: createData.orderId,
+          prefill: {
+            contact: details.phone || ""
+          },
+          notes: {
+            paymentRecordId: createData.paymentRecordId,
+            preferredApp: selectedUpiApp || ""
+          },
+          handler: async function (response) {
+            try {
+              const verifyRes = await fetch(`${API_BASE}/payments/verify`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                  paymentRecordId: createData.paymentRecordId,
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature
+                })
+              });
+
+              const verifyData = await verifyRes.json();
+              if (!verifyRes.ok || !verifyData.verified) {
+                showPaymentFailure(verifyData.message || "Payment verification failed");
+                return;
+              }
+
+              const orderRes = await placeOrderAfterPayment(token, cart, details, {
+                method: "RAZORPAY",
+                status: "PAID",
+                paymentRecordId: createData.paymentRecordId,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id
+              });
+
+              const orderData = await orderRes.json();
+              if (!orderRes.ok) {
+                showPaymentFailure(orderData.message || "Payment successful but order save failed");
+                return;
+              }
+
+              const etaMinutes = (Math.random() < 0.5) ? 5 : 10;
+              localStorage.setItem("last_delivery_eta", String(etaMinutes));
+              localStorage.setItem("post_order_toast", `Order placed! Delivery in ${etaMinutes} mins.`);
+              updateDeliveryEtaBanner(etaMinutes);
+              localStorage.removeItem(CART_KEY);
+              showPaymentSuccess();
+            } catch (_err) {
+              showPaymentFailure("Payment verified but order placement failed");
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              showPaymentFailure("Payment failed");
+            }
+          },
+          theme: {
+            color: "#111827"
+          }
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on("payment.failed", function () {
+          showPaymentFailure("Payment failed");
+        });
+        rzp.open();
+      } catch (_err) {
+        showPaymentFailure("Unable to start payment. Please try again.");
+      } finally {
+        payNowBtn.disabled = false;
+        payNowBtn.textContent = "Pay Now";
+      }
     }
 
     function updatePaymentModeUi() {
@@ -1189,29 +1334,9 @@
     });
 
     payNowBtn?.addEventListener("click", () => {
-      if (!addressReady) {
-        if (addressStatus) addressStatus.textContent = "Complete address first";
-        addressInput?.focus();
-        addressInput?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-
-      const total = calcPayableTotal(getCart());
-      if (total <= 0) {
-        alert("Add items to pay.");
-        return;
-      }
-      const upiLink = selectedUpiApp ? buildAppUpiLink(total, selectedUpiApp) : buildUpiLink(total);
       paymentInitiated = true;
       markPaymentStarted();
-
-      if (isMobileDevice()) {
-        if (selectedUpiApp) {
-          openUpiApp(total, selectedUpiApp);
-        } else {
-          window.location.href = upiLink;
-        }
-      }
+      startRazorpayPayment();
     });
 
     paymentSection?.addEventListener("click", (event) => {
@@ -1238,15 +1363,12 @@
 
       if (isMobileDevice()) {
         markPaymentStarted();
-        openUpiApp(total, app);
+        startRazorpayPayment();
         return;
       }
 
       if (paymentNote) {
-        paymentNote.textContent = "App selected. Tap Pay Now to continue with UPI.";
-      }
-      if (upiQrWrap) {
-        upiQrWrap.scrollIntoView({ behavior: "smooth", block: "center" });
+        paymentNote.textContent = "App selected. Tap Pay Now to continue payment.";
       }
     });
 
@@ -1255,6 +1377,11 @@
         if (addressStatus) addressStatus.textContent = "Complete address first";
         addressInput?.focus();
         addressInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      if (paymentMode === "online") {
+        startRazorpayPayment();
         return;
       }
 
@@ -1281,40 +1408,19 @@
       }
 
       try {
-        const res = await fetch(`${API_BASE}/orders`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            items: cart.map(item => ({
-              id: item.id,
-              title: item.title,
-              qty: Number(item.qty),
-              price: Number(item.price)
-            })),
-            total: calcPayableTotal(cart),
-            deliveryDetails: {
-              address: details.address,
-              landmark: details.landmark,
-              pincode: details.pincode,
-              phone: details.phone
-            }
-          })
+        const res = await placeOrderAfterPayment(token, cart, details, {
+          method: "COD",
+          status: "PENDING"
         });
 
         const data = await res.json();
         if (res.ok) {
           const etaMinutes = (Math.random() < 0.5) ? 5 : 10;
           localStorage.setItem("last_delivery_eta", String(etaMinutes));
-          localStorage.setItem(
-            "post_order_toast",
-            `Order placed! Delivery in ${etaMinutes} mins. You got 10% OFF on your next order.`
-          );
+          localStorage.setItem("post_order_toast", `Order placed! Delivery in ${etaMinutes} mins.`);
           updateDeliveryEtaBanner(etaMinutes);
           localStorage.removeItem(CART_KEY);
-          window.location.href = "index.html#store";
+          showPaymentSuccess();
         } else {
           alert(data.message || "Failed to place order.");
         }
