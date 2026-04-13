@@ -2480,7 +2480,7 @@ body {
 
   .store-card {
     flex: initial;
-    min-height: 306px;
+    min-height: 290px;
     scroll-snap-align: none;
     border-radius: 14px;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
@@ -2522,7 +2522,7 @@ body {
   }
 
   .store-card .card-thumb {
-    height: 152px;
+    height: 142px;
     border-radius: 9px;
   }
 
@@ -2577,24 +2577,27 @@ body {
     color: #111827;
     font-size: 0.9rem;
     line-height: 1;
-    flex: 0 0 auto;
+    justify-self: start;
+    align-self: center;
+    padding-left: 2px;
     white-space: nowrap;
   }
 
   .store-card .add-btn,
   .store-card .store-qty-pill {
     min-width: 0;
-    width: 84px;
-    height: 36px;
+    width: 80px;
+    height: 34px;
     border-radius: 11px;
     box-sizing: border-box;
-    margin-left: auto;
+    justify-self: end;
+    margin-left: 0;
     max-width: 100%;
   }
 
   .store-card .add-btn {
-    font-size: 0.78rem;
-    padding: 0 10px;
+    font-size: 0.74rem;
+    padding: 0 8px;
     letter-spacing: 0.02em;
   }
 
@@ -2645,22 +2648,22 @@ body {
   }
 
   .store-card {
-    min-height: 298px;
+    min-height: 282px;
   }
 
   .store-card .card-thumb {
-    height: 146px;
+    height: 136px;
   }
 
   .store-card .add-btn,
   .store-card .store-qty-pill {
-    width: 80px;
-    height: 34px;
+    width: 76px;
+    height: 32px;
   }
 
   .store-card .add-btn {
-    font-size: 0.74rem;
-    padding: 0 8px;
+    font-size: 0.7rem;
+    padding: 0 7px;
   }
 
   .gallery-item,
