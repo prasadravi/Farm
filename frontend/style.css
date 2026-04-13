@@ -2482,7 +2482,7 @@ body {
 
   .store-card {
     flex: initial;
-    min-height: 276px;
+    min-height: 248px;
     scroll-snap-align: none;
     border-radius: 8px;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
@@ -2524,9 +2524,11 @@ body {
   }
 
   .store-card .card-thumb {
+    width: 86%;
     aspect-ratio: 1 / 1;
     height: auto;
     border-radius: 6px;
+    margin: 0 auto;
   }
 
   .store-card .card-thumb img {
@@ -2650,10 +2652,11 @@ body {
   }
 
   .store-card {
-    min-height: 262px;
+    min-height: 236px;
   }
 
   .store-card .card-thumb {
+    width: 82%;
     aspect-ratio: 1 / 1;
     height: auto;
   }
