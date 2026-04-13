@@ -625,10 +625,6 @@
         <section class="card payment-card" id="paymentSection">
           <div class="section-title">Choose UPI payment method</div>
           <div class="payment-row">
-            <div class="upi-custom-wrap">
-              <label class="upi-custom-label" for="payeeUpiIdInput">Pay to UPI ID (editable)</label>
-              <input id="payeeUpiIdInput" class="upi-custom-input" type="text" value="prasadravi789381@ybl" placeholder="Enter UPI ID" />
-            </div>
             <div class="payment-icons">
               <button class="upi-app-btn" type="button" data-upi-app="gpay">
                 <span class="upi-app-icon gpay">G</span>
@@ -690,7 +686,6 @@
   </div>
 
   <script src="config.js"></script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
     const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE)
       ? window.APP_CONFIG.API_BASE
@@ -718,7 +713,6 @@
     const payNowBtn = document.getElementById("payNowBtn");
     const upiQrWrap = document.getElementById("upiQrWrap");
     const upiQrImage = document.getElementById("upiQrImage");
-    const payeeUpiIdInput = document.getElementById("payeeUpiIdInput");
     const paymentNote = document.getElementById("paymentNote");
     const paymentModeSection = document.getElementById("paymentModeSection");
     const cartContent = document.getElementById("cartContent");
@@ -731,13 +725,11 @@
     const DELIVERY_DETAILS_KEY = "delivery_details";
     const ADDRESS_LIST_KEY = "saved_addresses";
     const HIDDEN_ORDERS_KEY = "hidden_recent_orders";
-    const DEFAULT_PAYEE_UPI_ID = "prasadravi789381@ybl";
-    const DEFAULT_PAYEE_NAME = "RaviPrasad";
+    const UPI_ID = "prasadravi789381@ybl";
+    const UPI_PAYEE_NAME = "RaviPrasad";
     let addressReady = false;
     let paymentInitiated = false;
-    let selectedUpiApp = null;
     let paymentMode = "online";
-    let paymentGatewayMode = "razorpay";
     let lastSavedAddress = "";
     let lastSavedDeliveryFingerprint = "";
     let addressSaveTimer = null;
@@ -902,53 +894,19 @@
       return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     }
 
-    function isAndroidDevice() {
-      return /Android/i.test(navigator.userAgent);
-    }
-
-    function getActivePayeeUpiId() {
-      const value = (payeeUpiIdInput?.value || "").trim();
-      return value || DEFAULT_PAYEE_UPI_ID;
-    }
-
-    function buildUpiLink(amount, payeeUpiId) {
+    function buildUpiLink(amount) {
       const safeAmount = Number(amount || 0).toFixed(2);
-      return `upi://pay?pa=${encodeURIComponent(payeeUpiId)}&pn=${encodeURIComponent(DEFAULT_PAYEE_NAME)}&am=${safeAmount}&cu=INR`;
+      return `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${safeAmount}&cu=INR`;
     }
 
-    function buildAppUpiLink(amount, app, payeeUpiId) {
-      const safeAmount = Number(amount || 0).toFixed(2);
-      const params = `pa=${encodeURIComponent(payeeUpiId)}&pn=${encodeURIComponent(DEFAULT_PAYEE_NAME)}&am=${safeAmount}&cu=INR`;
-      if (app === "gpay") return isAndroidDevice() ? `tez://upi/pay?${params}` : `gpay://upi/pay?${params}`;
-      if (app === "phonepe") return `phonepe://pay?${params}`;
-      if (app === "paytm") return `paytmmp://pay?${params}`;
-      return `upi://pay?${params}`;
-    }
-
-    function openDirectUpiPayment(amount, app) {
-      const payeeUpiId = getActivePayeeUpiId();
-      const appLink = app ? buildAppUpiLink(amount, app, payeeUpiId) : buildUpiLink(amount, payeeUpiId);
-      const fallbackLink = buildUpiLink(amount, payeeUpiId);
-      let movedToApp = false;
-
-      const onHidden = () => {
-        movedToApp = true;
-      };
-
-      document.addEventListener("visibilitychange", onHidden, { once: true });
-      window.location.href = appLink;
-
-      window.setTimeout(() => {
-        if (!movedToApp) {
-          window.location.href = fallbackLink;
-        }
-      }, 900);
+    function openDirectUpiPayment(amount) {
+      const upiLink = buildUpiLink(amount);
+      window.location.href = upiLink;
     }
 
     function showDirectUpiQr(totalAmount) {
-      const payeeUpiId = getActivePayeeUpiId();
-      const upiLink = buildUpiLink(totalAmount, payeeUpiId);
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiLink)}`;
+      const upiLink = buildUpiLink(totalAmount);
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
       if (upiQrImage) upiQrImage.src = qrUrl;
       if (upiQrWrap) upiQrWrap.style.display = isMobileDevice() ? "none" : "flex";
     }
@@ -961,31 +919,18 @@
         return;
       }
 
-      if (paymentGatewayMode === "direct-upi") {
-        showDirectUpiQr(total);
-      } else {
-        if (upiQrWrap) upiQrWrap.style.display = "none";
-        if (upiQrImage) upiQrImage.removeAttribute("src");
-      }
+      showDirectUpiQr(total);
 
       if (paymentNote && !paymentInitiated) {
-        if (paymentGatewayMode === "direct-upi") {
-          paymentNote.textContent = isMobileDevice()
-            ? "Tap Pay Now to open your UPI app."
-            : "Scan QR or tap Pay Now to pay using UPI.";
-        } else {
-          paymentNote.textContent = isMobileDevice()
-            ? "Tap Pay Now to open Razorpay checkout."
-            : "Tap Pay Now to open Razorpay checkout.";
-        }
+        paymentNote.textContent = isMobileDevice()
+          ? "Tap Pay Now to open your UPI app."
+          : "Scan QR or tap Pay Now to pay using UPI.";
       }
     }
 
     function markPaymentStarted() {
       if (paymentNote) {
-        paymentNote.textContent = paymentGatewayMode === "direct-upi"
-          ? "Payment initiated in UPI app. Complete payment and tap Place Order."
-          : "Payment initiated. Complete checkout to place order.";
+        paymentNote.textContent = "Complete payment in your UPI app";
       }
     }
 
@@ -1052,173 +997,7 @@
       paymentInitiated = true;
       markPaymentStarted();
       updatePaymentUi(total);
-
-      if (isMobileDevice()) {
-        openDirectUpiPayment(total, selectedUpiApp || null);
-      }
-    }
-
-    async function startRazorpayPayment() {
-      if (paymentMode === "cod") {
-        return;
-      }
-
-      if (paymentGatewayMode === "direct-upi") {
-        await startDirectUpiFlow();
-        return;
-      }
-
-      if (!addressReady) {
-        if (addressStatus) addressStatus.textContent = "Complete address first";
-        addressInput?.focus();
-        addressInput?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-
-      const cart = getCart();
-      if (!cart.length) {
-        alert("Your cart is empty.");
-        return;
-      }
-
-      const total = calcPayableTotal(cart);
-      if (total <= 0) {
-        alert("Add items to pay.");
-        return;
-      }
-
-      const details = getDeliveryDetailsFromInputs();
-      const token = localStorage.getItem("token");
-      const valid = await validateSessionWithServer(true);
-      if (!token || !valid) {
-        enforceAuthState();
-        alert("Please login before placing an order.");
-        window.location.href = "login.html?next=cart.html";
-        return;
-      }
-
-      if (!window.Razorpay) {
-        showPaymentFailure("Payment service unavailable. Try again.");
-        return;
-      }
-
-      payNowBtn.disabled = true;
-      payNowBtn.textContent = "Opening...";
-
-      try {
-        const createRes = await fetch(`${API_BASE}/payments/create-order`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            items: cart.map(item => ({
-              id: item.id,
-              title: item.title,
-              qty: Number(item.qty),
-              price: Number(item.price)
-            })),
-            total,
-            deliveryDetails: details
-          })
-        });
-
-        const createData = await createRes.json();
-        if (!createRes.ok) {
-          const errorMessage = createData.message || "Unable to start payment.";
-          if (String(errorMessage).toLowerCase().includes("not configured")) {
-            paymentGatewayMode = "direct-upi";
-            paymentInitiated = false;
-            updatePaymentUi(total);
-            showPaymentFailure("Payment service is not configured. Switched to direct UPI payment.");
-            return;
-          }
-          showPaymentFailure(errorMessage);
-          return;
-        }
-
-        const options = {
-          key: createData.keyId,
-          amount: createData.amount,
-          currency: createData.currency || "INR",
-          name: "Natural Milk",
-          description: "Order Payment",
-          order_id: createData.orderId,
-          prefill: {
-            contact: details.phone || ""
-          },
-          notes: {
-            paymentRecordId: createData.paymentRecordId,
-            preferredApp: selectedUpiApp || ""
-          },
-          handler: async function (response) {
-            try {
-              const verifyRes = await fetch(`${API_BASE}/payments/verify`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                  paymentRecordId: createData.paymentRecordId,
-                  razorpayOrderId: response.razorpay_order_id,
-                  razorpayPaymentId: response.razorpay_payment_id,
-                  razorpaySignature: response.razorpay_signature
-                })
-              });
-
-              const verifyData = await verifyRes.json();
-              if (!verifyRes.ok || !verifyData.verified) {
-                showPaymentFailure(verifyData.message || "Payment verification failed");
-                return;
-              }
-
-              const orderRes = await placeOrderAfterPayment(token, cart, details, {
-                method: "RAZORPAY",
-                status: "PAID",
-                paymentRecordId: createData.paymentRecordId,
-                razorpayOrderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id
-              });
-
-              const orderData = await orderRes.json();
-              if (!orderRes.ok) {
-                showPaymentFailure(orderData.message || "Payment successful but order save failed");
-                return;
-              }
-
-              const etaMinutes = (Math.random() < 0.5) ? 5 : 10;
-              localStorage.setItem("last_delivery_eta", String(etaMinutes));
-              localStorage.setItem("post_order_toast", `Order placed! Delivery in ${etaMinutes} mins.`);
-              updateDeliveryEtaBanner(etaMinutes);
-              localStorage.removeItem(CART_KEY);
-              showPaymentSuccess();
-            } catch (_err) {
-              showPaymentFailure("Payment verified but order placement failed");
-            }
-          },
-          modal: {
-            ondismiss: function () {
-              showPaymentFailure("Payment failed");
-            }
-          },
-          theme: {
-            color: "#111827"
-          }
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.on("payment.failed", function () {
-          showPaymentFailure("Payment failed");
-        });
-        rzp.open();
-      } catch (_err) {
-        showPaymentFailure("Unable to start payment. Please try again.");
-      } finally {
-        payNowBtn.disabled = false;
-        payNowBtn.textContent = "Pay Now";
-      }
+      openDirectUpiPayment(total);
     }
 
     function updatePaymentModeUi() {
@@ -1230,11 +1009,7 @@
       } else {
         paymentSection.style.display = "grid";
         paymentInitiated = false;
-        if (paymentNote) {
-          paymentNote.textContent = paymentGatewayMode === "direct-upi"
-            ? "Select app and tap Pay Now (or scan QR on desktop)."
-            : "Select any UPI app and tap Pay Now.";
-        }
+        if (paymentNote) paymentNote.textContent = "Select any UPI app and tap Pay Now.";
         updatePaymentUi(calcPayableTotal(getCart()));
       }
     }
@@ -1461,12 +1236,6 @@
       field?.addEventListener("blur", onDeliveryInputBlur);
     });
 
-    payeeUpiIdInput?.addEventListener("input", () => {
-      if (paymentGatewayMode === "direct-upi") {
-        updatePaymentUi(calcPayableTotal(getCart()));
-      }
-    });
-
     paymentModeSection?.addEventListener("click", (event) => {
       const btn = event.target.closest(".payment-mode-btn");
       if (!btn) return;
@@ -1479,7 +1248,7 @@
     payNowBtn?.addEventListener("click", () => {
       paymentInitiated = true;
       markPaymentStarted();
-      startRazorpayPayment();
+      startDirectUpiFlow();
     });
 
     paymentSection?.addEventListener("click", (event) => {
@@ -1497,27 +1266,12 @@
         alert("Add items to pay.");
         return;
       }
-      const app = btn.dataset.upiApp;
-      selectedUpiApp = app;
       paymentInitiated = true;
       paymentSection.querySelectorAll(".upi-app-btn").forEach(el => el.classList.remove("active"));
       btn.classList.add("active");
       updatePaymentUi(total);
-
-      if (paymentGatewayMode === "direct-upi") {
-        startDirectUpiFlow();
-        return;
-      }
-
-      if (isMobileDevice()) {
-        markPaymentStarted();
-        startRazorpayPayment();
-        return;
-      }
-
-      if (paymentNote) {
-        paymentNote.textContent = "App selected. Tap Pay Now to continue payment.";
-      }
+      markPaymentStarted();
+      startDirectUpiFlow();
     });
 
     checkoutBtn?.addEventListener("click", async () => {
@@ -1529,11 +1283,6 @@
       }
 
       if (paymentMode === "online") {
-        if (paymentGatewayMode === "razorpay") {
-          startRazorpayPayment();
-          return;
-        }
-
         if (!paymentInitiated) {
           startDirectUpiFlow();
           return;
@@ -1574,11 +1323,6 @@
         } catch (_err) {
           alert("Server error while placing the order.");
         }
-        return;
-      }
-
-      if (!paymentInitiated) {
-        alert("Please complete payment first.");
         return;
       }
 
