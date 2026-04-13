@@ -795,6 +795,27 @@ body {
   color: #6b7280;
   text-align: left;
 }
+.store-card .size-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.store-card .size-option-btn {
+  border: 1px solid #eadfc8;
+  background: #fff;
+  color: #6b7280;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.store-card .size-option-btn.active {
+  border-color: #d3b065;
+  background: #fff6df;
+  color: #6f4f16;
+}
 .store-card .card-controls { 
   display: flex; 
   justify-content: space-between; 
@@ -2477,6 +2498,11 @@ body {
     color: #6b7280;
     font-size: 0.74rem;
     margin-top: 2px;
+  }
+
+  .store-card .size-option-btn {
+    font-size: 0.66rem;
+    padding: 3px 7px;
   }
 
   .store-card .card-controls {

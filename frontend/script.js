@@ -313,35 +313,69 @@ document.addEventListener("DOMContentLoaded", () => {
      Product List
   ----------------------------*/
   // Add product IDs here to mark variants out of stock, e.g. ["buffalomilk1000", "cowcurd250"]
-  const OUT_OF_STOCK_IDS =[];
-  
+  const OUT_OF_STOCK_IDS = [];
+
   const outOfStockLookup = new Set(
     OUT_OF_STOCK_IDS.map((id) => String(id).trim().toLowerCase())
   );
 
   const baseProducts = [
-    { key: "cowmilk", title: "Fresh Cow Milk", price500: 28, img: "images/stor-one.jpg", pack: "pouch" },
-    { key: "cowcurd", title: "Cow Curd", price500: 110, img: "images/cow-curd.jpg", pack: "cup" },
-    { key: "buffalocurd", title: "Bufflo Curd", price500: 155, img: "images/buffalo-curd.jpg", pack: "cup" },
-    { key: "buffalomilk", title: "Bufflo Milk", price500: 110, img: "images/store-four.jpg", pack: "pouch" }
+    { key: "cowmilk", title: "Fresh Cow Milk", price500: 28, kind: "liquid", pack: "pouch" },
+    { key: "cowcurd", title: "Cow Curd", price500: 110, kind: "solid", pack: "cup" },
+    { key: "buffalocurd", title: "Bufflo Curd", price500: 155, kind: "solid", pack: "cup" },
+    { key: "buffalomilk", title: "Bufflo Milk", price500: 110, kind: "liquid", pack: "pouch" }
   ];
 
   const sizeOptions = [
-    { ml: 250, factor: 0.5 },
-    { ml: 500, factor: 1 },
-    { ml: 1000, factor: 2 }
+    { value: 250, factor: 0.5 },
+    { value: 500, factor: 1 },
+    { value: 1000, factor: 2 }
   ];
 
-  const products = baseProducts.flatMap((base) => sizeOptions.map((size) => ({
-    id: `${base.key}${size.ml}`,
-    title: base.title,
-    price: Math.round(base.price500 * size.factor),
-    img: base.img,
-    unit: `${size.ml} ml ${base.pack}`
-  }))).map((item) => ({
-    ...item,
-    inStock: !outOfStockLookup.has(String(item.id).trim().toLowerCase())
+  function getUnitLabel(base, sizeValue) {
+    if (base.kind === "solid") {
+      if (sizeValue === 250) return "0.25 kg";
+      if (sizeValue === 500) return "0.5 kg";
+      return "1 kg";
+    }
+
+    return `${sizeValue} ml ${base.pack}`;
+  }
+
+  function getSizeBadgeText(unitText) {
+    const text = String(unitText || "");
+    if (text.includes("kg")) {
+      return text.replace(/\s+/g, " ").toUpperCase();
+    }
+    const match = text.match(/\d+\s*ml/i);
+    return match ? match[0].replace(/\s+/g, " ").toUpperCase() : text.toUpperCase();
+  }
+
+  const selectedSizeByBase = Object.fromEntries(baseProducts.map((b) => [b.key, 500]));
+
+  const productVariantsByBase = Object.fromEntries(baseProducts.map((base) => {
+    const variants = sizeOptions.map((size) => {
+      const unit = getUnitLabel(base, size.value);
+      return {
+        id: `${base.key}${size.value}`,
+        baseKey: base.key,
+        title: `${base.title} (${unit})`,
+        baseTitle: base.title,
+        sizeValue: size.value,
+        unit,
+        price: Math.round(base.price500 * size.factor),
+        inStock: !outOfStockLookup.has(`${base.key}${size.value}`.toLowerCase())
+      };
+    });
+
+    return [base.key, variants];
   }));
+
+  const productById = new Map(
+    Object.values(productVariantsByBase)
+      .flat()
+      .map((item) => [item.id, item])
+  );
 
   const productGrid = byId("productGrid");
   const productDots = byId("productDots");
@@ -386,26 +420,39 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderProducts() {
     if (!productGrid) return;
 
-    const sizeLabel = (unitText) => {
-      const match = String(unitText || "").match(/\d+\s*ml/i);
-      return match ? match[0].replace(/\s+/g, " ").toUpperCase() : "SIZE";
-    };
+    productGrid.innerHTML = baseProducts.map((base, index) => {
+      const selectedSize = selectedSizeByBase[base.key] || 500;
+      const variants = productVariantsByBase[base.key] || [];
+      const selectedVariant = variants.find((v) => v.sizeValue === selectedSize) || variants[0];
+      const qty = getProductQty(selectedVariant?.id || "");
 
-    productGrid.innerHTML = products.map((p, index) => `
-      <article class="store-card" data-index="${index}" data-product-id="${p.id}">
+      return `
+      <article class="store-card" data-index="${index}" data-base-key="${base.key}">
         <div class="card-inner">
-          <div class="size-badge">${sizeLabel(p.unit)}</div>
+          <div class="size-badge">${getSizeBadgeText(selectedVariant?.unit)}</div>
           <div class="card-body">
-            <div class="card-caption">${p.title}</div>
-            <div class="card-subtitle">${p.unit}</div>
+            <div class="card-caption">${base.title}</div>
+            <div class="card-subtitle">${selectedVariant.unit}</div>
+            <div class="size-options">
+              ${variants.map((v) => `
+                <button
+                  class="size-option-btn${v.sizeValue === selectedVariant.sizeValue ? " active" : ""}"
+                  type="button"
+                  data-action="select-size"
+                  data-base="${base.key}"
+                  data-size="${v.sizeValue}"
+                >${v.unit}</button>
+              `).join("")}
+            </div>
             <div class="card-controls">
-              <div class="price">₹${p.price}</div>
-              ${renderProductControl(p.id, p.title, getProductQty(p.id), p.inStock)}
+              <div class="price">₹${selectedVariant.price}</div>
+              ${renderProductControl(selectedVariant.id, selectedVariant.title, qty, selectedVariant.inStock)}
             </div>
           </div>
         </div>
       </article>
-    `).join("");
+    `;
+    }).join("");
 
     productCards = $$("#productGrid .store-card");
     renderProductDots();
@@ -413,7 +460,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderProductDots() {
     if (!productDots) return;
-    productDots.innerHTML = products.map((p, index) => `
+    productDots.innerHTML = baseProducts.map((p, index) => `
       <button class="store-dot${index === 0 ? ' active' : ''}" type="button" aria-label="Show ${p.title}" data-index="${index}"></button>
     `).join("");
     productDotButtons = Array.from(productDots.querySelectorAll(".store-dot"));
@@ -471,7 +518,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   storeNext?.addEventListener("click", () => {
-    scrollProductTo(Math.min(products.length - 1, activeProductIndex() + 1));
+    scrollProductTo(Math.min(productCards.length - 1, activeProductIndex() + 1));
   });
 
   /* ---------------------------
@@ -506,17 +553,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function refreshProductCardControls() {
     if (!productGrid) return;
-    const cards = Array.from(productGrid.querySelectorAll(".store-card[data-product-id]"));
+    const cards = Array.from(productGrid.querySelectorAll(".store-card[data-base-key]"));
     cards.forEach(card => {
-      const productId = card.dataset.productId;
-      const product = products.find(p => p.id === productId);
+      const baseKey = card.dataset.baseKey;
+      const selectedSize = selectedSizeByBase[baseKey] || 500;
+      const variants = productVariantsByBase[baseKey] || [];
+      const product = variants.find((v) => v.sizeValue === selectedSize) || variants[0];
       const controls = card.querySelector(".card-controls");
-      const priceEl = controls?.querySelector(".price");
-      if (!product || !controls || !priceEl) return;
+      const subtitleEl = card.querySelector(".card-subtitle");
+      const badgeEl = card.querySelector(".size-badge");
+      if (!product || !controls) return;
 
-      const qty = getProductQty(productId);
-      const controlHtml = renderProductControl(productId, product.title, qty, product.inStock);
-      controls.innerHTML = `${priceEl.outerHTML}${controlHtml}`;
+      const qty = getProductQty(product.id);
+      const controlHtml = renderProductControl(product.id, product.title, qty, product.inStock);
+      controls.innerHTML = `<div class="price">₹${product.price}</div>${controlHtml}`;
+      if (subtitleEl) subtitleEl.textContent = product.unit;
+      if (badgeEl) badgeEl.textContent = getSizeBadgeText(product.unit);
+
+      const sizeButtons = Array.from(card.querySelectorAll(".size-option-btn"));
+      sizeButtons.forEach((btn) => {
+        const sizeValue = Number(btn.dataset.size || 500);
+        btn.classList.toggle("active", sizeValue === product.sizeValue);
+      });
     });
   }
 
@@ -578,12 +636,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   productGrid?.addEventListener("click", e => {
+    const sizeButton = e.target.closest("button[data-action='select-size'][data-base][data-size]");
+    if (sizeButton) {
+      const baseKey = sizeButton.dataset.base;
+      const sizeValue = Number(sizeButton.dataset.size || 500);
+      if (baseKey && Number.isFinite(sizeValue)) {
+        selectedSizeByBase[baseKey] = sizeValue;
+        refreshProductCardControls();
+      }
+      return;
+    }
+
     const button = e.target.closest("button[data-id]");
     if (!button) return;
 
     const id = button.dataset.id;
     const action = button.dataset.action;
-    const prod = products.find(p => p.id === id);
+    const prod = productById.get(id);
     if (!prod) return;
 
     if (action === "add" || action === "increase") {
