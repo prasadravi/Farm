@@ -379,11 +379,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const productGrid = byId("productGrid");
   const productDots = byId("productDots");
+  const toggleProductLayoutBtn = byId("toggleProductLayout");
   const storePrev = byId("storePrev");
   const storeNext = byId("storeNext");
 
   let productCards = [];
   let productDotButtons = [];
+  let allProductsGridEnabled = false;
+
+  function applyProductLayoutMode() {
+    if (!productGrid) return;
+    productGrid.classList.toggle("all-products-grid", allProductsGridEnabled);
+    productDots?.classList.toggle("hidden-dots", allProductsGridEnabled);
+
+    if (toggleProductLayoutBtn) {
+      toggleProductLayoutBtn.textContent = allProductsGridEnabled ? "Swipe View" : "Grid View";
+      toggleProductLayoutBtn.setAttribute("aria-pressed", String(allProductsGridEnabled));
+    }
+  }
 
   const lazyBgObserver = ("IntersectionObserver" in window)
     ? new IntersectionObserver((entries, observer) => {
@@ -459,6 +472,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     productCards = $$("#productGrid .store-card");
     renderProductDots();
+    applyProductLayoutMode();
   }
 
   function renderProductDots() {
@@ -522,6 +536,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   storeNext?.addEventListener("click", () => {
     scrollProductTo(Math.min(productCards.length - 1, activeProductIndex() + 1));
+  });
+
+  toggleProductLayoutBtn?.addEventListener("click", () => {
+    allProductsGridEnabled = !allProductsGridEnabled;
+    applyProductLayoutMode();
   });
 
   /* ---------------------------
