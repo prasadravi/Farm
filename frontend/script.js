@@ -312,7 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------------------
      Product List
   ----------------------------*/
-  // Add product IDs here to mark variants out of stock, e.g. ["buffalomilk1000", "cowcurd250"]
+  // Add product IDs here to mark variants out of stock, e.g. ["buffalomilk500", "cowcurd250"]
   const OUT_OF_STOCK_IDS = [];
 
   const outOfStockLookup = new Set(
@@ -328,15 +328,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const sizeOptions = [
     { value: 250, factor: 0.5 },
-    { value: 500, factor: 1 },
-    { value: 1000, factor: 2 }
+    { value: 500, factor: 1 }
   ];
 
   function getUnitLabel(base, sizeValue) {
     if (base.kind === "solid") {
       if (sizeValue === 250) return "0.25 kg";
-      if (sizeValue === 500) return "0.5 kg";
-      return "1 kg";
+      return "0.5 kg";
     }
 
     return `${sizeValue} ml ${base.pack}`;
@@ -437,6 +435,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const selectedSize = selectedSizeByBase[base.key] || 500;
       const variants = productVariantsByBase[base.key] || [];
       const selectedVariant = variants.find((v) => v.sizeValue === selectedSize) || variants[0];
+      const sizeRangeLabel = variants.map((v) => v.unit).join(" / ");
       const qty = getProductQty(selectedVariant?.id || "");
 
       return `
@@ -448,7 +447,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="size-badge">${getSizeBadgeText(selectedVariant?.unit)}</div>
           <div class="card-body">
             <div class="card-caption">${base.title}</div>
-            <div class="card-subtitle">${selectedVariant.unit}</div>
+            <div class="card-subtitle">${sizeRangeLabel}</div>
             <div class="size-options">
               ${variants.map((v) => `
                 <button
