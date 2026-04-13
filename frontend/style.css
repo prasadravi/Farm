@@ -2470,23 +2470,18 @@ body {
   }
 
   .store-grid {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
-    overflow-x: auto;
-    padding: 0 2px 6px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .store-grid::-webkit-scrollbar {
-    display: none;
+    overflow: visible;
+    scroll-snap-type: none;
+    padding: 0;
   }
 
   .store-card {
-    flex: 0 0 84%;
-    min-height: 330px;
-    scroll-snap-align: start;
+    flex: initial;
+    min-height: 300px;
+    scroll-snap-align: none;
     border-radius: 16px;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
     background: #fffef8;
@@ -2498,9 +2493,7 @@ body {
   }
 
   .store-dots {
-    display: flex;
-    margin-top: 10px;
-    justify-content: center;
+    display: none;
   }
 
   .store-dot {
@@ -2600,8 +2593,7 @@ body {
   }
 
   .store-card {
-    flex-basis: 88%;
-    min-height: 318px;
+    min-height: 286px;
   }
 
   .store-card .card-thumb {
