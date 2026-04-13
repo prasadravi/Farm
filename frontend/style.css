@@ -342,7 +342,7 @@ body {
   margin-top: 12px;
   border: 1px solid rgba(244, 63, 94, 0.45);
   background: #fff;
-  color: #e11d48;
+  color: hsl(49, 82%, 54%);
   border-radius: 10px;
   padding: 10px;
   font-weight: 600;
