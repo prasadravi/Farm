@@ -385,14 +385,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderProducts() {
     if (!productGrid) return;
+
+    const sizeLabel = (unitText) => {
+      const match = String(unitText || "").match(/\d+\s*ml/i);
+      return match ? match[0].replace(/\s+/g, " ").toUpperCase() : "SIZE";
+    };
+
     productGrid.innerHTML = products.map((p, index) => `
-      <article class="store-card" data-index="${index}" data-product-id="${p.id}" data-bg="${p.img}">
+      <article class="store-card" data-index="${index}" data-product-id="${p.id}">
         <div class="card-inner">
-          <div class="card-caption">${p.title}</div>
-          <div class="card-subtitle">${p.unit}</div>
-          <div class="card-controls">
-            <div class="price">₹${p.price}</div>
-            ${renderProductControl(p.id, p.title, getProductQty(p.id), p.inStock)}
+          <div class="size-badge">${sizeLabel(p.unit)}</div>
+          <div class="card-body">
+            <div class="card-caption">${p.title}</div>
+            <div class="card-subtitle">${p.unit}</div>
+            <div class="card-controls">
+              <div class="price">₹${p.price}</div>
+              ${renderProductControl(p.id, p.title, getProductQty(p.id), p.inStock)}
+            </div>
           </div>
         </div>
       </article>
@@ -400,7 +409,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     productCards = $$("#productGrid .store-card");
     renderProductDots();
-    hydrateLazyBackgrounds(productGrid);
   }
 
   function renderProductDots() {

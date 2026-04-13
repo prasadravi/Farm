@@ -737,44 +737,63 @@ body {
   border-radius: 18px; 
   overflow: hidden; 
   text-decoration: none; 
-  color: var(--white); 
-  background-image: var(--img); 
-  background-size: cover; 
-  background-position: center; 
+  color: #111827; 
+  background: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
+  border: 1px solid #ece7dc;
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
   transition: transform .45s cubic-bezier(.2,.9,.2,1), box-shadow .3s; 
 }
 .store-card::before { 
-  content: ""; 
-  position: absolute; 
-  inset: 0; 
-  background: linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.65) 100%); 
-  z-index: 0; 
+  display: none;
 }
 .store-card .card-inner { 
-  position: absolute; 
-  inset: 0; 
+  position: relative;
+  height: 100%;
   display: flex; 
   flex-direction: column; 
-  justify-content: flex-end; 
+  justify-content: space-between;
   padding: clamp(16px, 2.2vw, 24px); 
   z-index: 2; 
+}
+.store-card .size-badge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid #e4d8bd;
+  background: #fff6df;
+  color: #6f4f16;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.store-card .card-body {
+  display: grid;
+  gap: 6px;
 }
 .store-card .card-caption { 
   font-family: 'Playfair Display', serif; 
   font-size: clamp(1.05rem, 2vw, 1.35rem); 
   font-weight: 500; 
-  color: var(--white); 
-  text-align: center; 
+  color: #111827;
+  text-align: left; 
 }
 .store-card .card-caption::after { 
   content: ""; 
   display: block; 
-  width: 72px; 
-  height: 4px; 
-  background: var(--gold); 
-  margin: 10px auto 0; 
+  width: 56px; 
+  height: 3px; 
+  background: #e8c46b; 
+  margin: 8px 0 0; 
   border-radius: 2px; 
   box-shadow: 0 2px 8px rgba(232,196,107,0.12); 
+}
+.store-card .card-subtitle {
+  color: #6b7280;
+  text-align: left;
 }
 .store-card .card-controls { 
   display: flex; 
@@ -782,6 +801,11 @@ body {
   align-items: center;
   margin-top: 12px; 
   gap: 10px; 
+}
+.store-card .price {
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 700;
 }
 .add-btn { 
   min-width: 96px;
@@ -2428,15 +2452,16 @@ body {
 
   .store-card .card-inner {
     padding: 10px;
-    background: linear-gradient(
-      to top,
-      rgba(255, 255, 255, 0.98) 0%,
-      rgba(255, 255, 255, 0.98) 42%,
-      rgba(255, 255, 255, 0) 70%
-    );
-    border-top: 1px solid #eceff4;
-    border-radius: 0 0 14px 14px;
-    min-height: 96px;
+    background: transparent;
+    border-top: none;
+    border-radius: 0;
+    min-height: 100%;
+  }
+
+  .store-card .size-badge {
+    min-height: 24px;
+    padding: 4px 8px;
+    font-size: 0.68rem;
   }
 
   .store-card .card-caption {
