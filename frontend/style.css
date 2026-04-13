@@ -734,41 +734,46 @@ body {
   display: block; 
   aspect-ratio: 4 / 5; 
   min-height: 320px; 
-  border-radius: 10px; 
+  border-radius: 24px; 
   overflow: hidden; 
   text-decoration: none; 
-  color: #111827; 
-  background: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
-  border: 1px solid #ece7dc;
-  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
+  color: #f8fafc; 
+  background: #0f172a;
+  border: none;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.24);
   transition: transform .45s cubic-bezier(.2,.9,.2,1), box-shadow .3s; 
 }
 .store-card::before { 
-  display: none;
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0) 30%, rgba(2, 6, 23, 0.78) 100%);
+  z-index: 1;
 }
 .store-card .card-inner { 
   position: relative;
   height: 100%;
   display: flex; 
   flex-direction: column; 
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: clamp(16px, 2.2vw, 24px); 
-  z-index: 2; 
+  z-index: 2;
 }
 .store-card .card-thumb {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  aspect-ratio: 1 / 1;
-  height: auto;
-  border-radius: 7px;
+  height: 100%;
+  border-radius: 0;
   overflow: hidden;
-  border: 1px solid #ece7dc;
-  background: #faf7ef;
+  border: none;
+  background: #0f172a;
 }
 .store-card .card-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: none;
+  display: block;
 }
 .store-card .size-badge {
   align-self: flex-start;
@@ -778,22 +783,23 @@ body {
   min-height: 28px;
   padding: 5px 10px;
   border-radius: 999px;
-  border: 1px solid #e4d8bd;
-  background: #fff6df;
-  color: #6f4f16;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
   font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.03em;
+  margin-bottom: auto;
 }
 .store-card .card-body {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 .store-card .card-caption { 
   font-family: 'Playfair Display', serif; 
   font-size: clamp(1.05rem, 2vw, 1.35rem); 
   font-weight: 500; 
-  color: #111827;
+  color: #f8fafc;
   text-align: left; 
 }
 .store-card .card-caption::after { 
@@ -807,7 +813,7 @@ body {
   box-shadow: 0 2px 8px rgba(232,196,107,0.12); 
 }
 .store-card .card-subtitle {
-  color: #6b7280;
+  color: rgba(248, 250, 252, 0.9);
   text-align: left;
 }
 .store-card .size-options {
@@ -817,9 +823,9 @@ body {
   margin-top: 4px;
 }
 .store-card .size-option-btn {
-  border: 1px solid #eadfc8;
-  background: #fff;
-  color: #6b7280;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.88);
+  color: #1f2937;
   border-radius: 999px;
   padding: 4px 9px;
   font-size: 0.72rem;
@@ -827,40 +833,44 @@ body {
   cursor: pointer;
 }
 .store-card .size-option-btn.active {
-  border-color: #d3b065;
+  border-color: #f3d171;
   background: #fff6df;
   color: #6f4f16;
 }
 .store-card .card-controls { 
   display: flex; 
-  justify-content: space-between; 
+  justify-content: flex-start; 
   align-items: center;
   margin-top: 12px; 
   gap: 10px; 
 }
 .store-card .price {
   color: #111827;
-  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 999px;
+  font-size: 1.2rem;
   font-weight: 700;
+  padding: 10px 16px;
+  line-height: 1;
 }
 .add-btn { 
-  min-width: 86px;
-  height: 36px;
+  min-width: 126px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
-  color: #ff2b72;
-  border-radius: 16px;
-  border: 2px solid #ff2b72;
+  background: rgba(255, 255, 255, 0.95);
+  color: #111827;
+  border-radius: 999px;
+  border: none;
   cursor: pointer; 
   font-weight: 700; 
-  font-size: 0.88rem;
-  letter-spacing: 0.04em;
+  font-size: 1.1rem;
+  letter-spacing: 0;
   line-height: 1;
 }
 .add-btn:hover {
-  background: #fff5f8;
+  background: #ffffff;
 }
 .add-btn.out-of-stock {
   color: #6b7280;
@@ -870,11 +880,11 @@ body {
 }
 .store-qty-pill {
   min-width: 120px;
-  height: 40px;
+  height: 48px;
   padding: 0 8px;
-  border-radius: 14px;
-  background: #ff2b72;
-  color: #fff;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #111827;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
@@ -885,8 +895,8 @@ body {
   height: 26px;
   border: none;
   background: transparent;
-  color: #fff;
-  font-size: 1.45rem;
+  color: #111827;
+  font-size: 1.35rem;
   line-height: 1;
   cursor: pointer;
 }
@@ -2017,7 +2027,7 @@ body {
 
 /* Product cards and gallery fluid cleanup */
 .store-card .card-controls {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .store-card .card-controls .add-btn,
@@ -2473,7 +2483,7 @@ body {
   .store-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 10px;
     overflow: visible;
     scroll-snap-type: none;
     padding: 0;
@@ -2482,11 +2492,11 @@ body {
 
   .store-card {
     flex: initial;
-    min-height: 248px;
+    min-height: 292px;
     scroll-snap-align: none;
-    border-radius: 8px;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
-    background: #fffef8;
+    border-radius: 16px;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.2);
+    background: #0f172a;
     min-width: 0;
   }
 
@@ -2509,37 +2519,41 @@ body {
   }
 
   .store-card .card-inner {
-    padding: 7px;
+    padding: 10px;
     background: transparent;
     border-top: none;
     border-radius: 0;
     min-height: 100%;
-    gap: 5px;
+    gap: 6px;
+    justify-content: flex-end;
   }
 
   .store-card .size-badge {
-    min-height: 24px;
-    padding: 3px 7px;
-    font-size: 0.68rem;
+    min-height: 22px;
+    padding: 2px 8px;
+    font-size: 0.62rem;
+    margin-bottom: auto;
   }
 
   .store-card .card-thumb {
-    width: 86%;
-    aspect-ratio: 1 / 1;
-    height: auto;
-    border-radius: 6px;
-    margin: 0 auto;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    margin: 0;
   }
 
   .store-card .card-thumb img {
     object-fit: cover;
     object-position: center;
+    display: block;
   }
 
   .store-card .card-caption {
-    color: #1f2937;
-    font-size: 0.82rem;
-    line-height: 1.12;
+    color: #f8fafc;
+    font-size: 0.96rem;
+    line-height: 1.1;
   }
 
   .store-card .card-caption::after {
@@ -2547,77 +2561,81 @@ body {
   }
 
   .store-card .card-subtitle {
-    color: #6b7280;
-    font-size: 0.64rem;
+    color: rgba(248, 250, 252, 0.9);
+    font-size: 0.72rem;
     margin-top: 1px;
-    line-height: 1.14;
+    line-height: 1.16;
   }
 
   .store-card .card-body {
-    gap: 3px;
+    gap: 5px;
     min-width: 0;
   }
 
   .store-card .size-options {
-    margin-top: 1px;
-    gap: 4px;
+    margin-top: 2px;
+    gap: 5px;
   }
 
   .store-card .size-option-btn {
-    font-size: 0.56rem;
-    padding: 2px 6px;
+    font-size: 0.62rem;
+    padding: 3px 7px;
   }
 
   .store-card .card-controls {
-    margin-top: 3px;
-    gap: 5px;
-    justify-content: normal;
-    align-items: stretch;
+    margin-top: 6px;
+    gap: 8px;
+    justify-content: flex-start;
+    align-items: center;
     min-width: 0;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .store-card .price {
     color: #111827;
-    font-size: 0.78rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 6px 10px;
     line-height: 1;
-    align-self: flex-start;
-    padding-left: 1px;
+    align-self: center;
     white-space: nowrap;
   }
 
   .store-card .add-btn,
   .store-card .store-qty-pill {
     min-width: 0;
-    width: 100%;
-    height: 32px;
-    border-radius: 10px;
+    width: auto;
+    height: 38px;
+    border-radius: 999px;
     box-sizing: border-box;
-    justify-self: stretch;
     margin-left: 0;
     max-width: 100%;
   }
 
   .store-card .add-btn {
-    font-size: 0.68rem;
-    padding: 0 6px;
-    letter-spacing: 0.02em;
+    min-width: 98px;
+    font-size: 0.9rem;
+    padding: 0 12px;
+    letter-spacing: 0;
   }
 
   .store-card .store-qty-pill {
-    padding: 0 5px;
+    min-width: 98px;
+    padding: 0 6px;
   }
 
   .store-card .store-qty-btn {
-    width: 20px;
-    height: 20px;
-    font-size: 1.05rem;
+    width: 22px;
+    height: 22px;
+    font-size: 1.2rem;
   }
 
   .store-card .store-qty-count {
-    font-size: 0.78rem;
-    min-width: 12px;
+    font-size: 0.92rem;
+    min-width: 14px;
   }
 
   .gallery-item,
@@ -2652,23 +2670,25 @@ body {
   }
 
   .store-card {
-    min-height: 236px;
+    min-height: 268px;
   }
 
   .store-card .card-thumb {
-    width: 82%;
-    aspect-ratio: 1 / 1;
-    height: auto;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .store-card .add-btn,
   .store-card .store-qty-pill {
-    height: 30px;
+    height: 34px;
   }
 
   .store-card .add-btn {
-    font-size: 0.64rem;
-    padding: 0 6px;
+    min-width: 90px;
+    font-size: 0.82rem;
+    padding: 0 10px;
   }
 
   .gallery-item,
