@@ -312,19 +312,33 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------------------
      Product List
   ----------------------------*/
-  // Add product IDs here to mark them as out of stock, e.g. ["buffalomilk500"]
+  // Add product IDs here to mark variants out of stock, e.g. ["buffalomilk1000", "cowcurd250"]
   const OUT_OF_STOCK_IDS =[];
   
   const outOfStockLookup = new Set(
     OUT_OF_STOCK_IDS.map((id) => String(id).trim().toLowerCase())
   );
 
-  const products = [
-    { id: "milk500", title: "Fresh Cow Milk", price: 28, img: "images/stor-one.jpg", unit: "500 ml pouch" },
-    { id: "cowcurd500", title: "Cow Curd", price: 110, img: "images/cow-curd.jpg", unit: "500 ml cup" },
-    { id: "buffalocurd500", title: "Bufflo Curd", price: 155, img: "images/buffalo-curd.jpg", unit: "500 ml cup" },
-    { id: "buffalomilk500", title: "Bufflo Milk", price: 110, img: "images/store-four.jpg", unit: "500 ml pouch" }
-  ].map((item) => ({
+  const baseProducts = [
+    { key: "cowmilk", title: "Fresh Cow Milk", price500: 28, img: "images/stor-one.jpg", pack: "pouch" },
+    { key: "cowcurd", title: "Cow Curd", price500: 110, img: "images/cow-curd.jpg", pack: "cup" },
+    { key: "buffalocurd", title: "Bufflo Curd", price500: 155, img: "images/buffalo-curd.jpg", pack: "cup" },
+    { key: "buffalomilk", title: "Bufflo Milk", price500: 110, img: "images/store-four.jpg", pack: "pouch" }
+  ];
+
+  const sizeOptions = [
+    { ml: 250, factor: 0.5 },
+    { ml: 500, factor: 1 },
+    { ml: 1000, factor: 2 }
+  ];
+
+  const products = baseProducts.flatMap((base) => sizeOptions.map((size) => ({
+    id: `${base.key}${size.ml}`,
+    title: base.title,
+    price: Math.round(base.price500 * size.factor),
+    img: base.img,
+    unit: `${size.ml} ml ${base.pack}`
+  }))).map((item) => ({
     ...item,
     inStock: !outOfStockLookup.has(String(item.id).trim().toLowerCase())
   }));

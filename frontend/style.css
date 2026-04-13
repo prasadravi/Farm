@@ -2332,8 +2332,8 @@ body {
     display: block;
   }
 
-  .nav-signup-link {
-    display: none !important;
+  .navbar.menu-open .nav-signup-link {
+    display: inline-flex !important;
   }
 
   .nav-action {

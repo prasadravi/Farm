@@ -39,7 +39,7 @@
     const params = new URLSearchParams(window.location.search);
     const nextPage = params.get("next");
 
-    async function fetchWithTimeout(url, options = {}, timeoutMs = 7000) {
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 14000) {
       const controller = new AbortController();
       const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -65,11 +65,11 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
-          }, 6500);
+          }, 12000);
         } catch (err) {
           lastError = err;
           if (attempt < maxAttempts) {
-            await wait(350);
+            await wait(700);
             continue;
           }
         }
@@ -77,6 +77,9 @@
 
       throw lastError || new Error("Login failed");
     }
+
+    // Warm up backend once to reduce first-login failures on cold start hosts.
+    fetchWithTimeout(`${API_BASE}/auth/me`, { method: "GET" }, 5000).catch(() => {});
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();

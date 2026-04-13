@@ -38,7 +38,7 @@
     const form = document.getElementById("signupForm");
     const submitBtn = document.getElementById("signupSubmitBtn");
 
-    async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 14000) {
       const controller = new AbortController();
       const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -47,6 +47,9 @@
         window.clearTimeout(timeoutId);
       }
     }
+
+    // Warm up backend once to reduce first-signup failures on cold start hosts.
+    fetchWithTimeout(`${API_BASE}/auth/me`, { method: "GET" }, 5000).catch(() => {});
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -67,7 +70,7 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password }),
-        }, 7500);
+        }, 12000);
 
         const data = await res.json();
 

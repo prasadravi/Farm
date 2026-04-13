@@ -225,6 +225,30 @@
       display: grid;
       gap: 10px;
     }
+    .upi-custom-wrap {
+      display: grid;
+      gap: 6px;
+    }
+    .upi-custom-label {
+      font-size: 0.78rem;
+      color: #6b7280;
+      font-weight: 600;
+    }
+    .upi-custom-input {
+      width: 100%;
+      border: 1px solid #d7c9a7;
+      background: #fffdf7;
+      color: #1f2937;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.84rem;
+      outline: none;
+      font-family: inherit;
+    }
+    .upi-custom-input:focus {
+      border-color: #c9ac67;
+      box-shadow: 0 0 0 3px rgba(201, 172, 103, 0.16);
+    }
     .payment-icons {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -601,6 +625,10 @@
         <section class="card payment-card" id="paymentSection">
           <div class="section-title">Choose UPI payment method</div>
           <div class="payment-row">
+            <div class="upi-custom-wrap">
+              <label class="upi-custom-label" for="payeeUpiIdInput">Pay to UPI ID (editable)</label>
+              <input id="payeeUpiIdInput" class="upi-custom-input" type="text" value="prasadravi789381@ybl" placeholder="Enter UPI ID" />
+            </div>
             <div class="payment-icons">
               <button class="upi-app-btn" type="button" data-upi-app="gpay">
                 <span class="upi-app-icon gpay">G</span>
@@ -690,6 +718,7 @@
     const payNowBtn = document.getElementById("payNowBtn");
     const upiQrWrap = document.getElementById("upiQrWrap");
     const upiQrImage = document.getElementById("upiQrImage");
+    const payeeUpiIdInput = document.getElementById("payeeUpiIdInput");
     const paymentNote = document.getElementById("paymentNote");
     const paymentModeSection = document.getElementById("paymentModeSection");
     const cartContent = document.getElementById("cartContent");
@@ -702,10 +731,13 @@
     const DELIVERY_DETAILS_KEY = "delivery_details";
     const ADDRESS_LIST_KEY = "saved_addresses";
     const HIDDEN_ORDERS_KEY = "hidden_recent_orders";
+    const DEFAULT_PAYEE_UPI_ID = "prasadravi789381@ybl";
+    const DEFAULT_PAYEE_NAME = "RaviPrasad";
     let addressReady = false;
     let paymentInitiated = false;
     let selectedUpiApp = null;
     let paymentMode = "online";
+    let paymentGatewayMode = "razorpay";
     let lastSavedAddress = "";
     let lastSavedDeliveryFingerprint = "";
     let addressSaveTimer = null;
@@ -870,6 +902,57 @@
       return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     }
 
+    function isAndroidDevice() {
+      return /Android/i.test(navigator.userAgent);
+    }
+
+    function getActivePayeeUpiId() {
+      const value = (payeeUpiIdInput?.value || "").trim();
+      return value || DEFAULT_PAYEE_UPI_ID;
+    }
+
+    function buildUpiLink(amount, payeeUpiId) {
+      const safeAmount = Number(amount || 0).toFixed(2);
+      return `upi://pay?pa=${encodeURIComponent(payeeUpiId)}&pn=${encodeURIComponent(DEFAULT_PAYEE_NAME)}&am=${safeAmount}&cu=INR`;
+    }
+
+    function buildAppUpiLink(amount, app, payeeUpiId) {
+      const safeAmount = Number(amount || 0).toFixed(2);
+      const params = `pa=${encodeURIComponent(payeeUpiId)}&pn=${encodeURIComponent(DEFAULT_PAYEE_NAME)}&am=${safeAmount}&cu=INR`;
+      if (app === "gpay") return isAndroidDevice() ? `tez://upi/pay?${params}` : `gpay://upi/pay?${params}`;
+      if (app === "phonepe") return `phonepe://pay?${params}`;
+      if (app === "paytm") return `paytmmp://pay?${params}`;
+      return `upi://pay?${params}`;
+    }
+
+    function openDirectUpiPayment(amount, app) {
+      const payeeUpiId = getActivePayeeUpiId();
+      const appLink = app ? buildAppUpiLink(amount, app, payeeUpiId) : buildUpiLink(amount, payeeUpiId);
+      const fallbackLink = buildUpiLink(amount, payeeUpiId);
+      let movedToApp = false;
+
+      const onHidden = () => {
+        movedToApp = true;
+      };
+
+      document.addEventListener("visibilitychange", onHidden, { once: true });
+      window.location.href = appLink;
+
+      window.setTimeout(() => {
+        if (!movedToApp) {
+          window.location.href = fallbackLink;
+        }
+      }, 900);
+    }
+
+    function showDirectUpiQr(totalAmount) {
+      const payeeUpiId = getActivePayeeUpiId();
+      const upiLink = buildUpiLink(totalAmount, payeeUpiId);
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiLink)}`;
+      if (upiQrImage) upiQrImage.src = qrUrl;
+      if (upiQrWrap) upiQrWrap.style.display = isMobileDevice() ? "none" : "flex";
+    }
+
     function updatePaymentUi(totalAmount) {
       const total = Number(totalAmount || 0);
       if (total <= 0) {
@@ -878,18 +961,32 @@
         return;
       }
 
-      if (upiQrWrap) upiQrWrap.style.display = "none";
-      if (upiQrImage) upiQrImage.removeAttribute("src");
+      if (paymentGatewayMode === "direct-upi") {
+        showDirectUpiQr(total);
+      } else {
+        if (upiQrWrap) upiQrWrap.style.display = "none";
+        if (upiQrImage) upiQrImage.removeAttribute("src");
+      }
 
       if (paymentNote && !paymentInitiated) {
-        paymentNote.textContent = isMobileDevice()
-          ? "Tap Pay Now to open Razorpay checkout."
-          : "Tap Pay Now to open Razorpay checkout.";
+        if (paymentGatewayMode === "direct-upi") {
+          paymentNote.textContent = isMobileDevice()
+            ? "Tap Pay Now to open your UPI app."
+            : "Scan QR or tap Pay Now to pay using UPI.";
+        } else {
+          paymentNote.textContent = isMobileDevice()
+            ? "Tap Pay Now to open Razorpay checkout."
+            : "Tap Pay Now to open Razorpay checkout.";
+        }
       }
     }
 
     function markPaymentStarted() {
-      if (paymentNote) paymentNote.textContent = "Payment initiated. Complete checkout to place order.";
+      if (paymentNote) {
+        paymentNote.textContent = paymentGatewayMode === "direct-upi"
+          ? "Payment initiated in UPI app. Complete payment and tap Place Order."
+          : "Payment initiated. Complete checkout to place order.";
+      }
     }
 
     async function placeOrderAfterPayment(token, cart, details, paymentData = null) {
@@ -938,8 +1035,36 @@
       alert(message);
     }
 
+    async function startDirectUpiFlow() {
+      if (!addressReady) {
+        if (addressStatus) addressStatus.textContent = "Complete address first";
+        addressInput?.focus();
+        addressInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      const total = calcPayableTotal(getCart());
+      if (total <= 0) {
+        alert("Add items to pay.");
+        return;
+      }
+
+      paymentInitiated = true;
+      markPaymentStarted();
+      updatePaymentUi(total);
+
+      if (isMobileDevice()) {
+        openDirectUpiPayment(total, selectedUpiApp || null);
+      }
+    }
+
     async function startRazorpayPayment() {
       if (paymentMode === "cod") {
+        return;
+      }
+
+      if (paymentGatewayMode === "direct-upi") {
+        await startDirectUpiFlow();
         return;
       }
 
@@ -1001,7 +1126,15 @@
 
         const createData = await createRes.json();
         if (!createRes.ok) {
-          showPaymentFailure(createData.message || "Unable to start payment.");
+          const errorMessage = createData.message || "Unable to start payment.";
+          if (String(errorMessage).toLowerCase().includes("not configured")) {
+            paymentGatewayMode = "direct-upi";
+            paymentInitiated = false;
+            updatePaymentUi(total);
+            showPaymentFailure("Payment service is not configured. Switched to direct UPI payment.");
+            return;
+          }
+          showPaymentFailure(errorMessage);
           return;
         }
 
@@ -1097,7 +1230,11 @@
       } else {
         paymentSection.style.display = "grid";
         paymentInitiated = false;
-        if (paymentNote) paymentNote.textContent = "Select any UPI app and tap Pay Now.";
+        if (paymentNote) {
+          paymentNote.textContent = paymentGatewayMode === "direct-upi"
+            ? "Select app and tap Pay Now (or scan QR on desktop)."
+            : "Select any UPI app and tap Pay Now.";
+        }
         updatePaymentUi(calcPayableTotal(getCart()));
       }
     }
@@ -1324,6 +1461,12 @@
       field?.addEventListener("blur", onDeliveryInputBlur);
     });
 
+    payeeUpiIdInput?.addEventListener("input", () => {
+      if (paymentGatewayMode === "direct-upi") {
+        updatePaymentUi(calcPayableTotal(getCart()));
+      }
+    });
+
     paymentModeSection?.addEventListener("click", (event) => {
       const btn = event.target.closest(".payment-mode-btn");
       if (!btn) return;
@@ -1361,6 +1504,11 @@
       btn.classList.add("active");
       updatePaymentUi(total);
 
+      if (paymentGatewayMode === "direct-upi") {
+        startDirectUpiFlow();
+        return;
+      }
+
       if (isMobileDevice()) {
         markPaymentStarted();
         startRazorpayPayment();
@@ -1381,7 +1529,51 @@
       }
 
       if (paymentMode === "online") {
-        startRazorpayPayment();
+        if (paymentGatewayMode === "razorpay") {
+          startRazorpayPayment();
+          return;
+        }
+
+        if (!paymentInitiated) {
+          startDirectUpiFlow();
+          return;
+        }
+
+        const cart = getCart();
+        if (!cart.length) {
+          alert("Your cart is empty.");
+          return;
+        }
+
+        const details = getDeliveryDetailsFromInputs();
+        const token = localStorage.getItem("token");
+        const valid = await validateSessionWithServer(true);
+        if (!token || !valid) {
+          enforceAuthState();
+          alert("Please login before placing an order.");
+          window.location.href = "login.html?next=cart.html";
+          return;
+        }
+
+        try {
+          const res = await placeOrderAfterPayment(token, cart, details, {
+            method: "UPI_DIRECT",
+            status: "PENDING"
+          });
+          const data = await res.json();
+          if (res.ok) {
+            const etaMinutes = (Math.random() < 0.5) ? 5 : 10;
+            localStorage.setItem("last_delivery_eta", String(etaMinutes));
+            localStorage.setItem("post_order_toast", `Order placed! Delivery in ${etaMinutes} mins.`);
+            updateDeliveryEtaBanner(etaMinutes);
+            localStorage.removeItem(CART_KEY);
+            showPaymentSuccess();
+          } else {
+            alert(data.message || "Failed to place order.");
+          }
+        } catch (_err) {
+          alert("Server error while placing the order.");
+        }
         return;
       }
 
