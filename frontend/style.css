@@ -2472,7 +2472,7 @@ body {
   .store-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    gap: 10px;
     overflow: visible;
     scroll-snap-type: none;
     padding: 0;
@@ -2480,11 +2480,12 @@ body {
 
   .store-card {
     flex: initial;
-    min-height: 300px;
+    min-height: 272px;
     scroll-snap-align: none;
     border-radius: 16px;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
     background: #fffef8;
+    min-width: 0;
   }
 
   .store-controls,
@@ -2506,7 +2507,7 @@ body {
   }
 
   .store-card .card-inner {
-    padding: 12px;
+    padding: 10px;
     background: transparent;
     border-top: none;
     border-radius: 0;
@@ -2520,13 +2521,19 @@ body {
   }
 
   .store-card .card-thumb {
-    height: 132px;
+    height: 106px;
     border-radius: 13px;
+  }
+
+  .store-card .card-thumb img {
+    object-fit: cover;
+    object-position: center;
   }
 
   .store-card .card-caption {
     color: #1f2937;
-    font-size: 1.18rem;
+    font-size: 0.86rem;
+    line-height: 1.15;
   }
 
   .store-card .card-caption::after {
@@ -2535,30 +2542,56 @@ body {
 
   .store-card .card-subtitle {
     color: #6b7280;
-    font-size: 0.92rem;
+    font-size: 0.68rem;
     margin-top: 2px;
+    line-height: 1.2;
   }
 
   .store-card .size-option-btn {
-    font-size: 0.78rem;
-    padding: 5px 11px;
+    font-size: 0.58rem;
+    padding: 3px 6px;
   }
 
   .store-card .card-controls {
-    margin-top: 8px;
+    margin-top: 6px;
+    gap: 6px;
     align-items: center;
+  }
+
+  .store-card .card-body {
+    min-width: 0;
   }
 
   .store-card .price {
     color: #111827;
-    font-size: 1.28rem;
+    font-size: 0.78rem;
   }
 
   .store-card .add-btn,
   .store-card .store-qty-pill {
-    min-width: 140px;
-    height: 44px;
-    border-radius: 18px;
+    min-width: 88px;
+    height: 34px;
+    border-radius: 14px;
+  }
+
+  .store-card .add-btn {
+    font-size: 0.74rem;
+    padding: 0 10px;
+  }
+
+  .store-card .store-qty-pill {
+    padding: 0 6px;
+  }
+
+  .store-card .store-qty-btn {
+    width: 22px;
+    height: 22px;
+    font-size: 1.2rem;
+  }
+
+  .store-card .store-qty-count {
+    font-size: 0.86rem;
+    min-width: 14px;
   }
 
   .gallery-item,
@@ -2593,11 +2626,11 @@ body {
   }
 
   .store-card {
-    min-height: 286px;
+    min-height: 254px;
   }
 
   .store-card .card-thumb {
-    height: 118px;
+    height: 94px;
   }
 
   .gallery-item,
