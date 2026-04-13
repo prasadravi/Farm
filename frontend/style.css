@@ -2438,7 +2438,12 @@ body {
   .store-section,
   .gallery-section {
     min-height: auto;
-    padding: 76px 0;
+    padding: 72px 0;
+  }
+
+  .store-section {
+    background: linear-gradient(180deg, #f7f5ea 0%, #f3f0e3 100%);
+    padding-bottom: 112px;
   }
 
   .order-cta {
@@ -2465,24 +2470,46 @@ body {
   }
 
   .store-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-    overflow: visible;
-    scroll-snap-type: none;
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 0 2px 6px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .store-grid::-webkit-scrollbar {
+    display: none;
   }
 
   .store-card {
-    flex: initial;
-    min-height: 290px;
-    scroll-snap-align: none;
-    border-radius: 14px;
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+    flex: 0 0 84%;
+    min-height: 330px;
+    scroll-snap-align: start;
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
+    background: #fffef8;
   }
 
   .store-controls,
-  .store-dots {
+  .store-controls {
     display: none;
+  }
+
+  .store-dots {
+    display: flex;
+    margin-top: 10px;
+    justify-content: center;
+  }
+
+  .store-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .store-dot.active {
+    width: 16px;
   }
 
   .store-card .card-inner {
@@ -2494,18 +2521,19 @@ body {
   }
 
   .store-card .size-badge {
-    min-height: 24px;
+    min-height: 26px;
     padding: 4px 8px;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
   }
 
   .store-card .card-thumb {
-    height: 120px;
+    height: 132px;
+    border-radius: 13px;
   }
 
   .store-card .card-caption {
     color: #1f2937;
-    font-size: 1.06rem;
+    font-size: 1.18rem;
   }
 
   .store-card .card-caption::after {
@@ -2514,13 +2542,13 @@ body {
 
   .store-card .card-subtitle {
     color: #6b7280;
-    font-size: 0.84rem;
+    font-size: 0.92rem;
     margin-top: 2px;
   }
 
   .store-card .size-option-btn {
-    font-size: 0.74rem;
-    padding: 4px 9px;
+    font-size: 0.78rem;
+    padding: 5px 11px;
   }
 
   .store-card .card-controls {
@@ -2530,12 +2558,14 @@ body {
 
   .store-card .price {
     color: #111827;
-    font-size: 1.15rem;
+    font-size: 1.28rem;
   }
 
   .store-card .add-btn,
   .store-card .store-qty-pill {
-    min-width: 132px;
+    min-width: 140px;
+    height: 44px;
+    border-radius: 18px;
   }
 
   .gallery-item,
@@ -2570,7 +2600,12 @@ body {
   }
 
   .store-card {
-    min-height: 278px;
+    flex-basis: 88%;
+    min-height: 318px;
+  }
+
+  .store-card .card-thumb {
+    height: 118px;
   }
 
   .gallery-item,
