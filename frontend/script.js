@@ -320,10 +320,10 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   const baseProducts = [
-    { key: "cowmilk", title: "Fresh Cow Milk", price500: 28, kind: "liquid", pack: "pouch" },
-    { key: "cowcurd", title: "Cow Curd", price500: 110, kind: "solid", pack: "cup" },
-    { key: "buffalocurd", title: "Bufflo Curd", price500: 155, kind: "solid", pack: "cup" },
-    { key: "buffalomilk", title: "Bufflo Milk", price500: 110, kind: "liquid", pack: "pouch" }
+    { key: "cowmilk", title: "Fresh Cow Milk", price500: 28, kind: "liquid", pack: "pouch", img: "images/stor-one.jpg" },
+    { key: "cowcurd", title: "Cow Curd", price500: 110, kind: "solid", pack: "cup", img: "images/cow-curd.jpg" },
+    { key: "buffalocurd", title: "Bufflo Curd", price500: 155, kind: "solid", pack: "cup", img: "images/buffalo-curd.jpg" },
+    { key: "buffalomilk", title: "Bufflo Milk", price500: 110, kind: "liquid", pack: "pouch", img: "images/store-four.jpg" }
   ];
 
   const sizeOptions = [
@@ -429,6 +429,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return `
       <article class="store-card" data-index="${index}" data-base-key="${base.key}">
         <div class="card-inner">
+          <div class="card-thumb">
+            <img src="${base.img}" alt="${base.title}" loading="lazy" decoding="async" />
+          </div>
           <div class="size-badge">${getSizeBadgeText(selectedVariant?.unit)}</div>
           <div class="card-body">
             <div class="card-caption">${base.title}</div>
