@@ -9,6 +9,10 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------------------
      Utilities
   ----------------------------*/
+    // --- KEEP-ALIVE PING (prevents backend cold start) ---
+    setInterval(() => {
+      fetch("/api/auth/health").catch(() => {});
+    }, 180000); // every 3 minutes
   function byId(id) { return document.getElementById(id); }
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
