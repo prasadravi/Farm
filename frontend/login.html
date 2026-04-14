@@ -39,7 +39,7 @@
     const params = new URLSearchParams(window.location.search);
     const nextPage = params.get("next");
 
-    async function fetchWithTimeout(url, options = {}, timeoutMs = 14000) {
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
       const controller = new AbortController();
       const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -49,48 +49,34 @@
       }
     }
 
-    const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
-
-    async function loginWithRetry(payload) {
-      const maxAttempts = 2;
-      let lastError = null;
-
-      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-        try {
-          if (attempt > 1) {
-            submitBtn.textContent = `Retrying (${attempt}/${maxAttempts})...`;
-          }
-
-          return await fetchWithTimeout(`${API_BASE}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          }, 12000);
-        } catch (err) {
-          lastError = err;
-          if (attempt < maxAttempts) {
-            await wait(700);
-            continue;
-          }
-        }
-      }
-
-      throw lastError || new Error("Login failed");
-    }
-
-    // Warm up backend once to reduce first-login failures on cold start hosts.
-    fetchWithTimeout(`${API_BASE}/auth/me`, { method: "GET" }, 5000).catch(() => {});
+    // Warm up backend once using a public lightweight endpoint.
+    fetchWithTimeout(`${API_BASE}/auth/health`, {
+      method: "GET",
+      cache: "no-store",
+      keepalive: true
+    }, 4000).catch(() => {});
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (submitBtn.disabled) return;
 
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
 
+      if (!email || !password) {
+        alert("Please enter email and password");
+        return;
+      }
+
       try {
         submitBtn.disabled = true;
         submitBtn.textContent = "Signing in...";
-        const res = await loginWithRetry({ email, password });
+        const res = await fetchWithTimeout(`${API_BASE}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+          cache: "no-store"
+        }, 10000);
 
         const data = await res.json();
         if (res.ok) {
