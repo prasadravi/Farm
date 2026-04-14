@@ -21,7 +21,6 @@ public class UserService {
         user.setPassword(hashPassword(user.getPassword()));
 
         firestore.collection("users").document(user.getEmail()).set(user).get();
-        System.out.println("User created: " + user.getEmail());
         return user;
     }
 
@@ -44,7 +43,6 @@ public class UserService {
     public User updateUser(String email, User user) throws ExecutionException, InterruptedException {
         user.setUpdatedAt(System.currentTimeMillis());
         firestore.collection("users").document(email).set(user).get();
-        System.out.println("User updated: " + email);
         return user;
     }
 

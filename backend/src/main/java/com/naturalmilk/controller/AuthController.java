@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.concurrent.ExecutionException;
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -97,9 +95,17 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/health")
+    public ResponseEntity<?> health() {
+        return ResponseEntity.ok("ok");
+    }
+
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getCurrentUser(@RequestHeader(value = "Authorization", required = false) String token) {
         try {
+            if (token == null || token.isBlank() || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Unauthorized");
+            }
             String userId = jwtTokenProvider.getUserIdFromToken(token.replace("Bearer ", ""));
             User user = userService.getUserByEmail(userId);
             if (user != null) {
@@ -107,8 +113,7 @@ public class AuthController {
             }
             return ResponseEntity.ok(user);
         } catch (Exception e) {
-            System.err.println("Get user error: " + e.getMessage());
-            return ResponseEntity.internalServerError().body("Failed to get user");
+            return ResponseEntity.status(401).body("Unauthorized");
         }
     }
 
