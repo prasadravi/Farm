@@ -337,7 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return "0.5 kg";
     }
 
-    return `${sizeValue} ml ${base.pack}`;
+    return `${sizeValue}ml`;
   }
 
   function getSizeBadgeText(unitText) {
