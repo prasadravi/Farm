@@ -758,13 +758,14 @@ body {
   z-index: 2; 
 }
 .store-card .card-thumb {
-  width: 100%;
+  width: 90%;
   aspect-ratio: 4 / 3;
   height: auto;
   border-radius: 7px;
   overflow: hidden;
   border: 1px solid #ece7dc;
   background: #faf7ef;
+  margin: 0 auto;
 }
 .store-card .card-thumb img {
   width: 100%;
@@ -2527,10 +2528,11 @@ body {
   }
 
   .store-card .card-thumb {
-    width: 100%;
+    width: 90%;
     aspect-ratio: 4 / 3;
     height: auto;
     border-radius: 6px;
+    margin: 0 auto;
   }
 
   .store-card .card-thumb img {
@@ -2659,9 +2661,10 @@ body {
   }
 
   .store-card .card-thumb {
-    width: 100%;
+    width: 88%;
     aspect-ratio: 4 / 3;
     height: auto;
+    margin: 0 auto;
   }
 
   .store-card .add-btn,
