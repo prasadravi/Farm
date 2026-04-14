@@ -728,7 +728,7 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
   gap: clamp(18px, 3vw, 36px); 
   align-items: stretch; 
-  justify-items: center;
+  justify-items: stretch;
 }
 .store-card { 
   position: relative; 
@@ -743,7 +743,7 @@ body {
   border: 1px solid #ece7dc;
   box-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
   transition: transform .45s cubic-bezier(.2,.9,.2,1), box-shadow .3s; 
-  width: 92%;
+  width: 100%;
 }
 .store-card::before { 
   display: none;
@@ -758,13 +758,13 @@ body {
   z-index: 2; 
 }
 .store-card .card-thumb {
-  width: 92%;
-  height: 120px;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  height: auto;
   border-radius: 7px;
   overflow: hidden;
   border: 1px solid #ece7dc;
   background: #faf7ef;
-  margin: 0 auto;
 }
 .store-card .card-thumb img {
   width: 100%;
@@ -2474,8 +2474,8 @@ body {
 
   .store-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    gap: 12px;
     overflow: visible;
     scroll-snap-type: none;
     padding: 0;
@@ -2484,13 +2484,13 @@ body {
 
   .store-card {
     flex: initial;
-    min-height: 250px;
+    min-height: 274px;
     scroll-snap-align: none;
     border-radius: 8px;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
     background: #fffef8;
     min-width: 0;
-    width: 94%;
+    width: 100%;
   }
 
   .store-controls,
@@ -2512,12 +2512,12 @@ body {
   }
 
   .store-card .card-inner {
-    padding: 5px;
+    padding: 8px;
     background: transparent;
     border-top: none;
     border-radius: 0;
     min-height: 100%;
-    gap: 3px;
+    gap: 5px;
   }
 
   .store-card .size-badge {
@@ -2527,10 +2527,10 @@ body {
   }
 
   .store-card .card-thumb {
-    width: 90%;
-    height: 100px;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    height: auto;
     border-radius: 6px;
-    margin: 0 auto;
   }
 
   .store-card .card-thumb img {
@@ -2541,7 +2541,7 @@ body {
 
   .store-card .card-caption {
     color: #1f2937;
-    font-size: 0.82rem;
+    font-size: 0.92rem;
     line-height: 1.12;
   }
 
@@ -2551,13 +2551,13 @@ body {
 
   .store-card .card-subtitle {
     color: #6b7280;
-    font-size: 0.64rem;
+    font-size: 0.78rem;
     margin-top: 1px;
     line-height: 1.14;
   }
 
   .store-card .card-body {
-    gap: 3px;
+    gap: 5px;
     min-width: 0;
   }
 
@@ -2567,13 +2567,13 @@ body {
   }
 
   .store-card .size-option-btn {
-    font-size: 0.56rem;
-    padding: 2px 6px;
+    font-size: 0.66rem;
+    padding: 3px 7px;
   }
 
   .store-card .card-controls {
-    margin-top: 3px;
-    gap: 5px;
+    margin-top: 4px;
+    gap: 6px;
     justify-content: normal;
     align-items: stretch;
     min-width: 0;
@@ -2583,7 +2583,7 @@ body {
 
   .store-card .price {
     color: #111827;
-    font-size: 0.78rem;
+    font-size: 0.98rem;
     line-height: 1;
     align-self: flex-start;
     padding-left: 1px;
@@ -2593,8 +2593,8 @@ body {
   .store-card .add-btn,
   .store-card .store-qty-pill {
     min-width: 0;
-    width: 92%;
-    height: 25px;
+    width: 100%;
+    height: 36px;
     border-radius: 10px;
     box-sizing: border-box;
     margin-left: 0;
@@ -2602,8 +2602,8 @@ body {
   }
 
   .store-card .add-btn {
-    font-size: 0.68rem;
-    padding: 0 6px;
+    font-size: 0.84rem;
+    padding: 0 8px;
     letter-spacing: 0.02em;
   }
 
@@ -2612,14 +2612,14 @@ body {
   }
 
   .store-card .store-qty-btn {
-    width: 20px;
-    height: 20px;
-    font-size: 1.05rem;
+    width: 22px;
+    height: 22px;
+    font-size: 1.2rem;
   }
 
   .store-card .store-qty-count {
-    font-size: 0.78rem;
-    min-width: 12px;
+    font-size: 0.9rem;
+    min-width: 14px;
   }
 
   .gallery-item,
@@ -2654,24 +2654,25 @@ body {
   }
 
   .store-card {
-    min-height: 236px;
-    width: 96%;
+    min-height: 256px;
+    width: 100%;
   }
 
   .store-card .card-thumb {
-    width: 88%;
-    height: 136px;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    height: auto;
   }
 
   .store-card .add-btn,
   .store-card .store-qty-pill {
-    width: 90%;
-    height: 30px;
+    width: 100%;
+    height: 34px;
   }
 
   .store-card .add-btn {
-    font-size: 0.64rem;
-    padding: 0 6px;
+    font-size: 0.76rem;
+    padding: 0 7px;
   }
 
   .gallery-item,
