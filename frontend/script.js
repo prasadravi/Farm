@@ -422,7 +422,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const selectedSize = selectedSizeByBase[base.key] || 500;
       const variants = productVariantsByBase[base.key] || [];
       const selectedVariant = variants.find((v) => v.sizeValue === selectedSize) || variants[0];
-      const sizeRangeLabel = variants.map((v) => v.unit).join(" / ");
       const qty = getProductQty(selectedVariant?.id || "");
 
       return `
@@ -431,10 +430,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="card-thumb">
             <img src="${base.img}" alt="${base.title}" loading="lazy" decoding="async" />
           </div>
-          <div class="size-badge">${getSizeBadgeText(selectedVariant?.unit)}</div>
           <div class="card-body">
             <div class="card-caption">${base.title}</div>
-            <div class="card-subtitle">${sizeRangeLabel}</div>
             <div class="size-options">
               ${variants.map((v) => `
                 <button
@@ -562,15 +559,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const variants = productVariantsByBase[baseKey] || [];
       const product = variants.find((v) => v.sizeValue === selectedSize) || variants[0];
       const controls = card.querySelector(".card-controls");
-      const subtitleEl = card.querySelector(".card-subtitle");
-      const badgeEl = card.querySelector(".size-badge");
       if (!product || !controls) return;
 
       const qty = getProductQty(product.id);
       const controlHtml = renderProductControl(product.id, product.title, qty, product.inStock);
       controls.innerHTML = `<div class="price">₹${product.price}</div>${controlHtml}`;
-      if (subtitleEl) subtitleEl.textContent = product.unit;
-      if (badgeEl) badgeEl.textContent = getSizeBadgeText(product.unit);
 
       const sizeButtons = Array.from(card.querySelectorAll(".size-option-btn"));
       sizeButtons.forEach((btn) => {
