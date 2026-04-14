@@ -2481,17 +2481,20 @@ body {
     scroll-snap-type: none;
     padding: 0;
     width: 100%;
+    align-items: start;
   }
 
   .store-card {
     flex: initial;
-    min-height: 306px;
+    min-height: 0;
+    height: auto;
     scroll-snap-align: none;
     border-radius: 8px;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
     background: #fffef8;
     min-width: 0;
     width: 100%;
+    align-self: start;
   }
 
   .store-controls,
@@ -2517,7 +2520,8 @@ body {
     background: transparent;
     border-top: none;
     border-radius: 0;
-    min-height: 100%;
+    min-height: 0;
+    height: auto;
     gap: 6px;
   }
 
@@ -2655,7 +2659,8 @@ body {
   }
 
   .store-card {
-    min-height: 290px;
+    min-height: 0;
+    height: auto;
     width: 100%;
   }
 
