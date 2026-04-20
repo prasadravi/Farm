@@ -37,12 +37,6 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- Firebase Admin SDK -->
-        <dependency>
-            <groupId>com.google.firebase</groupId>
-            <artifactId>firebase-admin</artifactId>
-            <version>${firebase-admin.version}</version>
-        </dependency>
 
         <!-- JWT -->
         <dependency>
