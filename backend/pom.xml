@@ -16,12 +16,11 @@
     <artifactId>natural-milk-backend</artifactId>
     <version>1.0.0</version>
     <name>Natural Milk Backend</name>
-    <description>Spring Boot backend with Firebase Firestore</description>
+    <description>Spring Boot backend</description>
 
     <properties>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <firebase-admin.version>9.2.0</firebase-admin.version>
         <jjwt.version>0.12.3</jjwt.version>
     </properties>
 
@@ -35,6 +34,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
 
@@ -64,11 +68,10 @@
             <version>1.4.8</version>
         </dependency>
 
-        <!-- Lombok -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- Testing -->

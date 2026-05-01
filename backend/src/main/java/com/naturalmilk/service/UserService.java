@@ -1,48 +1,39 @@
 package com.naturalmilk.service;
 
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QuerySnapshot;
-import com.naturalmilk.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.springframework.stereotype.Service;
 
-import java.security.MessageDigest;
-import java.util.concurrent.ExecutionException;
+import com.naturalmilk.model.User;
 
 @Service
 public class UserService {
+    // Add service methods here as needed
 
-    @Autowired
-    private Firestore firestore;
+    // TODO: Inject UserRepository (JPA) and implement DB logic for PostgreSQL
 
-    public User createUser(User user) throws ExecutionException, InterruptedException {
+    public User createUser(User user) {
         user.setCreatedAt(System.currentTimeMillis());
         user.setUpdatedAt(System.currentTimeMillis());
         user.setPassword(hashPassword(user.getPassword()));
-
-        firestore.collection("users").document(user.getEmail()).set(user).get();
+        // TODO: Save user to PostgreSQL
         return user;
     }
 
-    public User getUserByEmail(String email) throws ExecutionException, InterruptedException {
-        return firestore.collection("users").document(email).get().get().toObject(User.class);
+    public User getUserByEmail(String email) {
+        // TODO: Fetch user by email from PostgreSQL
+        return null;
     }
 
-    public User getUserById(String userId) throws ExecutionException, InterruptedException {
-        QuerySnapshot query = firestore.collection("users")
-                .whereEqualTo("id", userId)
-                .get()
-                .get();
-
-        if (query.getDocuments().isEmpty()) {
-            return null;
-        }
-        return query.getDocuments().get(0).toObject(User.class);
+    public User getUserById(String userId) {
+        // TODO: Fetch user by ID from PostgreSQL
+        return null;
     }
 
-    public User updateUser(String email, User user) throws ExecutionException, InterruptedException {
+    public User updateUser(String email, User user) {
         user.setUpdatedAt(System.currentTimeMillis());
-        firestore.collection("users").document(email).set(user).get();
+        // TODO: Update user in PostgreSQL
         return user;
     }
 
@@ -59,7 +50,7 @@ public class UserService {
                 sb.append(String.format("%02x", b));
             }
             return sb.toString();
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException e) {
             System.err.println("Error hashing password: " + e.getMessage());
             return null;
         }

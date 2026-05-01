@@ -1,11 +1,20 @@
 package com.naturalmilk.controller;
 
-import com.naturalmilk.model.*;
-import com.naturalmilk.security.JwtTokenProvider;
-import com.naturalmilk.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.naturalmilk.model.AuthRequest;
+import com.naturalmilk.model.AuthResponse;
+import com.naturalmilk.model.User;
+import com.naturalmilk.security.JwtTokenProvider;
+import com.naturalmilk.service.UserService;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,34 +32,25 @@ public class AuthController {
             User existingUser = userService.getUserByEmail(request.getEmail());
             if (existingUser != null) {
                 return ResponseEntity.badRequest().body(
-                    AuthResponse.builder()
-                        .message("Email already registered")
-                        .build()
+                    new AuthResponse(null, null, "Email already registered")
                 );
             }
 
-            User user = User.builder()
-                    .name(request.getName())
-                    .email(request.getEmail())
-                    .password(request.getPassword())
-                    .build();
+            User user = new User();
+            user.setName(request.getName());
+            user.setEmail(request.getEmail());
+            user.setPassword(request.getPassword());
 
             User createdUser = userService.createUser(user);
             String token = jwtTokenProvider.generateToken(createdUser.getEmail());
 
             return ResponseEntity.ok(
-                AuthResponse.builder()
-                    .token(token)
-                    .user(createdUser)
-                    .message("Registration successful")
-                    .build()
+                new AuthResponse(token, createdUser, "Registration successful")
             );
         } catch (Exception e) {
             System.err.println("Registration error: " + e.getMessage());
             return ResponseEntity.internalServerError().body(
-                AuthResponse.builder()
-                    .message("Registration failed: " + e.getMessage())
-                    .build()
+                new AuthResponse(null, null, "Registration failed: " + e.getMessage())
             );
         }
     }
@@ -61,17 +61,13 @@ public class AuthController {
             User user = userService.getUserByEmail(request.getEmail());
             if (user == null) {
                 return ResponseEntity.badRequest().body(
-                    AuthResponse.builder()
-                        .message("Invalid email or password")
-                        .build()
+                    new AuthResponse(null, null, "Invalid email or password")
                 );
             }
 
             if (!userService.verifyPassword(request.getPassword(), user.getPassword())) {
                 return ResponseEntity.badRequest().body(
-                    AuthResponse.builder()
-                        .message("Invalid email or password")
-                        .build()
+                    new AuthResponse(null, null, "Invalid email or password")
                 );
             }
 
@@ -79,18 +75,12 @@ public class AuthController {
             user.setPassword(null); // Don't send password in response
 
             return ResponseEntity.ok(
-                AuthResponse.builder()
-                    .token(token)
-                    .user(user)
-                    .message("Login successful")
-                    .build()
+                new AuthResponse(token, user, "Login successful")
             );
         } catch (Exception e) {
             System.err.println("Login error: " + e.getMessage());
             return ResponseEntity.internalServerError().body(
-                AuthResponse.builder()
-                    .message("Login failed: " + e.getMessage())
-                    .build()
+                new AuthResponse(null, null, "Login failed: " + e.getMessage())
             );
         }
     }

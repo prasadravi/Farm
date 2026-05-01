@@ -1,7 +1,5 @@
 package com.naturalmilk.controller;
 
-import com.naturalmilk.model.ContactMessage;
-import com.naturalmilk.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,7 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.concurrent.ExecutionException;
+import com.naturalmilk.model.ContactMessage;
+import com.naturalmilk.service.ContactService;
+
 
 @RestController
 @RequestMapping("/contact")
@@ -33,7 +33,7 @@ public class ContactController {
 
             ContactMessage saved = contactService.createContactMessage(payload);
             return ResponseEntity.ok(saved);
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to submit contact message: " + e.getMessage());
         }
     }

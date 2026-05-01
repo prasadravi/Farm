@@ -1,9 +1,6 @@
 package com.naturalmilk.model;
 
-import com.google.cloud.firestore.annotation.DocumentId;
-
 public class ContactMessage {
-    @DocumentId
     private String id;
     private String firstName;
     private String lastName;
@@ -11,6 +8,18 @@ public class ContactMessage {
     private String subject;
     private String message;
     private long createdAt;
+
+    public ContactMessage() {}
+
+    public ContactMessage(String id, String firstName, String lastName, String email, String subject, String message, long createdAt) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.subject = subject;
+        this.message = message;
+        this.createdAt = createdAt;
+    }
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }

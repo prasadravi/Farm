@@ -1,19 +1,11 @@
 package com.naturalmilk.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import com.google.cloud.firestore.annotation.DocumentId;
 import java.util.List;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Order {
-    @DocumentId
     private String id;
     private String userId;
-    private java.util.List<OrderItem> items;
+    private List<OrderItem> items;
     private double total;
     private DeliveryDetails deliveryDetails;
     private String address;
@@ -24,143 +16,48 @@ public class Order {
     private String status;
     private long createdAt;
     private long updatedAt;
-    
-    // Getters
+
+    public Order() {}
+
     public String getId() { return id; }
-    public String getUserId() { return userId; }
-    public List<OrderItem> getItems() { return items; }
-    public double getTotal() { return total; }
-    public DeliveryDetails getDeliveryDetails() { return deliveryDetails; }
-    public String getAddress() { return address; }
-    public String getLandmark() { return landmark; }
-    public String getPincode() { return pincode; }
-    public String getPhone() { return phone; }
-    public PaymentDetails getPayment() { return payment; }
-    public String getStatus() { return status; }
-    public long getCreatedAt() { return createdAt; }
-    public long getUpdatedAt() { return updatedAt; }
-    
-    // Setters
     public void setId(String id) { this.id = id; }
+
+    public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
+
+    public List<OrderItem> getItems() { return items; }
     public void setItems(List<OrderItem> items) { this.items = items; }
+
+    public double getTotal() { return total; }
     public void setTotal(double total) { this.total = total; }
+
+    public DeliveryDetails getDeliveryDetails() { return deliveryDetails; }
     public void setDeliveryDetails(DeliveryDetails deliveryDetails) { this.deliveryDetails = deliveryDetails; }
+
+    public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
+
+    public String getLandmark() { return landmark; }
     public void setLandmark(String landmark) { this.landmark = landmark; }
+
+    public String getPincode() { return pincode; }
     public void setPincode(String pincode) { this.pincode = pincode; }
+
+    public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+
+    public PaymentDetails getPayment() { return payment; }
     public void setPayment(PaymentDetails payment) { this.payment = payment; }
+
+    public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+
+    public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
-    
-    // Builder pattern
-    public static Builder builder() {
-        return new Builder();
-    }
-    
-    public static class Builder {
-        private String id;
-        private String userId;
-        private List<OrderItem> items;
-        private double total;
-        private DeliveryDetails deliveryDetails;
-        private String address;
-        private String landmark;
-        private String pincode;
-        private String phone;
-        private PaymentDetails payment;
-        private String status;
-        private long createdAt;
-        private long updatedAt;
-        
-        public Builder id(String id) {
-            this.id = id;
-            return this;
-        }
-        
-        public Builder userId(String userId) {
-            this.userId = userId;
-            return this;
-        }
-        
-        public Builder items(List<OrderItem> items) {
-            this.items = items;
-            return this;
-        }
-        
-        public Builder total(double total) {
-            this.total = total;
-            return this;
-        }
 
-        public Builder deliveryDetails(DeliveryDetails deliveryDetails) {
-            this.deliveryDetails = deliveryDetails;
-            return this;
-        }
-
-        public Builder address(String address) {
-            this.address = address;
-            return this;
-        }
-
-        public Builder landmark(String landmark) {
-            this.landmark = landmark;
-            return this;
-        }
-
-        public Builder pincode(String pincode) {
-            this.pincode = pincode;
-            return this;
-        }
-
-        public Builder phone(String phone) {
-            this.phone = phone;
-            return this;
-        }
-
-        public Builder payment(PaymentDetails payment) {
-            this.payment = payment;
-            return this;
-        }
-        
-        public Builder status(String status) {
-            this.status = status;
-            return this;
-        }
-        
-        public Builder createdAt(long createdAt) {
-            this.createdAt = createdAt;
-            return this;
-        }
-        
-        public Builder updatedAt(long updatedAt) {
-            this.updatedAt = updatedAt;
-            return this;
-        }
-        
-        public Order build() {
-            Order order = new Order();
-            order.id = this.id;
-            order.userId = this.userId;
-            order.items = this.items;
-            order.total = this.total;
-            order.deliveryDetails = this.deliveryDetails;
-            order.address = this.address;
-            order.landmark = this.landmark;
-            order.pincode = this.pincode;
-            order.phone = this.phone;
-            order.payment = this.payment;
-            order.status = this.status;
-            order.createdAt = this.createdAt;
-            order.updatedAt = this.updatedAt;
-            return order;
-        }
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class PaymentDetails {
         private String method;
         private String status;
@@ -168,97 +65,85 @@ public class Order {
         private String razorpayOrderId;
         private String razorpayPaymentId;
 
-        public String getMethod() { return method; }
-        public String getStatus() { return status; }
-        public String getPaymentRecordId() { return paymentRecordId; }
-        public String getRazorpayOrderId() { return razorpayOrderId; }
-        public String getRazorpayPaymentId() { return razorpayPaymentId; }
+        public PaymentDetails() {}
 
+        public PaymentDetails(String method, String status, String paymentRecordId, String razorpayOrderId, String razorpayPaymentId) {
+            this.method = method;
+            this.status = status;
+            this.paymentRecordId = paymentRecordId;
+            this.razorpayOrderId = razorpayOrderId;
+            this.razorpayPaymentId = razorpayPaymentId;
+        }
+
+        public String getMethod() { return method; }
         public void setMethod(String method) { this.method = method; }
+
+        public String getStatus() { return status; }
         public void setStatus(String status) { this.status = status; }
+
+        public String getPaymentRecordId() { return paymentRecordId; }
         public void setPaymentRecordId(String paymentRecordId) { this.paymentRecordId = paymentRecordId; }
+
+        public String getRazorpayOrderId() { return razorpayOrderId; }
         public void setRazorpayOrderId(String razorpayOrderId) { this.razorpayOrderId = razorpayOrderId; }
+
+        public String getRazorpayPaymentId() { return razorpayPaymentId; }
         public void setRazorpayPaymentId(String razorpayPaymentId) { this.razorpayPaymentId = razorpayPaymentId; }
     }
 
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class DeliveryDetails {
         private String address;
         private String landmark;
         private String pincode;
         private String phone;
 
-        public String getAddress() { return address; }
-        public String getLandmark() { return landmark; }
-        public String getPincode() { return pincode; }
-        public String getPhone() { return phone; }
+        public DeliveryDetails() {}
 
+        public DeliveryDetails(String address, String landmark, String pincode, String phone) {
+            this.address = address;
+            this.landmark = landmark;
+            this.pincode = pincode;
+            this.phone = phone;
+        }
+
+        public String getAddress() { return address; }
         public void setAddress(String address) { this.address = address; }
+
+        public String getLandmark() { return landmark; }
         public void setLandmark(String landmark) { this.landmark = landmark; }
+
+        public String getPincode() { return pincode; }
         public void setPincode(String pincode) { this.pincode = pincode; }
+
+        public String getPhone() { return phone; }
         public void setPhone(String phone) { this.phone = phone; }
     }
 
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class OrderItem {
         private String id;
         private String title;
         private int qty;
         private double price;
-        
-        // Getters
+
+        public OrderItem() {}
+
+        public OrderItem(String id, String title, int qty, double price) {
+            this.id = id;
+            this.title = title;
+            this.qty = qty;
+            this.price = price;
+        }
+
         public String getId() { return id; }
-        public String getTitle() { return title; }
-        public int getQty() { return qty; }
-        public double getPrice() { return price; }
-        
-        // Setters
         public void setId(String id) { this.id = id; }
+
+        public String getTitle() { return title; }
         public void setTitle(String title) { this.title = title; }
+
+        public int getQty() { return qty; }
         public void setQty(int qty) { this.qty = qty; }
+
+        public double getPrice() { return price; }
         public void setPrice(double price) { this.price = price; }
-        
-        // Builder pattern
-        public static Builder builder() {
-            return new Builder();
-        }
-        
-        public static class Builder {
-            private String id;
-            private String title;
-            private int qty;
-            private double price;
-            
-            public Builder id(String id) {
-                this.id = id;
-                return this;
-            }
-            
-            public Builder title(String title) {
-                this.title = title;
-                return this;
-            }
-            
-            public Builder qty(int qty) {
-                this.qty = qty;
-                return this;
-            }
-            
-            public Builder price(double price) {
-                this.price = price;
-                return this;
-            }
-            
-            public OrderItem build() {
-                OrderItem item = new OrderItem();
-                item.id = this.id;
-                item.title = this.title;
-                item.qty = this.qty;
-                item.price = this.price;
-                return item;
-            }
-        }
     }
 }

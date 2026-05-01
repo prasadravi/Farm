@@ -6,8 +6,7 @@ public class VerifyPaymentRequest {
     private String razorpayPaymentId;
     private String razorpaySignature;
 
-    public VerifyPaymentRequest() {
-    }
+    public VerifyPaymentRequest() {}
 
     public VerifyPaymentRequest(String paymentRecordId, String razorpayOrderId, String razorpayPaymentId, String razorpaySignature) {
         this.paymentRecordId = paymentRecordId;
@@ -16,13 +15,8 @@ public class VerifyPaymentRequest {
         this.razorpaySignature = razorpaySignature;
     }
 
-    public String getPaymentRecordId() {
-        return paymentRecordId;
-    }
-
-    public void setPaymentRecordId(String paymentRecordId) {
-        this.paymentRecordId = paymentRecordId;
-    }
+    public String getPaymentRecordId() { return paymentRecordId; }
+    public void setPaymentRecordId(String paymentRecordId) { this.paymentRecordId = paymentRecordId; }
 
     public String getRazorpayOrderId() {
         return razorpayOrderId;

@@ -1,20 +1,26 @@
 package com.naturalmilk.controller;
 
-import com.google.cloud.firestore.Firestore;
-import com.naturalmilk.model.payment.CreatePaymentOrderRequest;
-import com.naturalmilk.model.payment.VerifyPaymentRequest;
-import com.naturalmilk.security.JwtTokenProvider;
-import com.naturalmilk.service.RazorpayService;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+// import com.google.cloud.firestore.Firestore; // Removed Firestore import
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.naturalmilk.model.payment.CreatePaymentOrderRequest;
+import com.naturalmilk.model.payment.VerifyPaymentRequest;
+import com.naturalmilk.security.JwtTokenProvider;
+import com.naturalmilk.service.RazorpayService;
+import com.razorpay.RazorpayException;
 
 @RestController
 @RequestMapping("/payments")
@@ -26,8 +32,7 @@ public class PaymentController {
     @Autowired
     private RazorpayService razorpayService;
 
-    @Autowired
-    private Firestore firestore;
+
 
     private String extractUserId(String authorizationHeader) {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
@@ -66,29 +71,9 @@ public class PaymentController {
             long amountInPaise = Math.round(request.getTotal() * 100);
             String paymentRecordId = UUID.randomUUID().toString();
             String receipt = "nm_" + System.currentTimeMillis();
-            long now = System.currentTimeMillis();
-
-            Map<String, Object> paymentRecord = new HashMap<>();
-            paymentRecord.put("id", paymentRecordId);
-            paymentRecord.put("userId", userId);
-            paymentRecord.put("receipt", receipt);
-            paymentRecord.put("amount", request.getTotal());
-            paymentRecord.put("amountInPaise", amountInPaise);
-            paymentRecord.put("currency", "INR");
-            paymentRecord.put("status", "created");
-            paymentRecord.put("items", request.getItems());
-            paymentRecord.put("deliveryDetails", request.getDeliveryDetails());
-            paymentRecord.put("createdAt", now);
-            paymentRecord.put("updatedAt", now);
-
-            firestore.collection("payment_orders").document(paymentRecordId).set(paymentRecord).get();
-
             JSONObject order = razorpayService.createOrder(amountInPaise, receipt, paymentRecordId);
 
-            firestore.collection("payment_orders").document(paymentRecordId).update(
-                    "razorpayOrderId", order.getString("id"),
-                    "updatedAt", System.currentTimeMillis()
-            ).get();
+
 
             Map<String, Object> response = new HashMap<>();
             response.put("paymentRecordId", paymentRecordId);
@@ -98,7 +83,7 @@ public class PaymentController {
             response.put("keyId", razorpayService.getKeyId());
 
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (RazorpayException | IllegalStateException e) {
             System.err.println("Create payment order error: " + e.getMessage());
             return ResponseEntity.internalServerError().body(Map.of("message", "Failed to create payment order."));
         }
@@ -125,19 +110,10 @@ public class PaymentController {
                 return ResponseEntity.badRequest().body(Map.of("message", "Payment verification failed."));
             }
 
-            if (request.getPaymentRecordId() != null && !request.getPaymentRecordId().isBlank()) {
-                firestore.collection("payment_orders").document(request.getPaymentRecordId()).update(
-                        "status", "paid",
-                        "razorpayOrderId", request.getRazorpayOrderId(),
-                        "razorpayPaymentId", request.getRazorpayPaymentId(),
-                        "razorpaySignature", request.getRazorpaySignature(),
-                        "verifiedAt", System.currentTimeMillis(),
-                        "updatedAt", System.currentTimeMillis()
-                ).get();
-            }
+            // Firestore update removed. Implement DB update here if needed.
 
             return ResponseEntity.ok(Map.of("verified", true, "message", "Payment verified"));
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.err.println("Verify payment error: " + e.getMessage());
             return ResponseEntity.internalServerError().body(Map.of("message", "Failed to verify payment."));
         }

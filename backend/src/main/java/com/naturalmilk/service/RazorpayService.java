@@ -1,19 +1,21 @@
 package com.naturalmilk.service;
 
-import com.razorpay.Order;
-import com.razorpay.RazorpayClient;
-import com.razorpay.RazorpayException;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+import com.razorpay.Order;
+import com.razorpay.RazorpayClient;
+import com.razorpay.RazorpayException;
 
 @Service
 public class RazorpayService {
-
     @Value("${razorpay.key.id:}")
     private String keyId;
 
@@ -58,7 +60,7 @@ public class RazorpayService {
             byte[] hash = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
             String expected = bytesToHex(hash);
             return expected.equals(razorpaySignature);
-        } catch (Exception e) {
+        } catch (GeneralSecurityException e) {
             return false;
         }
     }
