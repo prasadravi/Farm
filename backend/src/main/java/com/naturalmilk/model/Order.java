@@ -2,19 +2,62 @@ package com.naturalmilk.model;
 
 import java.util.List;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
+@Entity
+@Table(name = "orders")
 public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
+    @Column(nullable = false)
     private String userId;
+
+    @ElementCollection
+    @CollectionTable(name = "order_items", joinColumns = @JoinColumn(name = "order_id"))
     private List<OrderItem> items;
+
+    @Column(nullable = false)
     private double total;
+
+    @Transient
     private DeliveryDetails deliveryDetails;
+
     private String address;
     private String landmark;
     private String pincode;
     private String phone;
+
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "method", column = @Column(name = "payment_method")),
+        @AttributeOverride(name = "status", column = @Column(name = "payment_status")),
+        @AttributeOverride(name = "paymentRecordId", column = @Column(name = "payment_record_id")),
+        @AttributeOverride(name = "razorpayOrderId", column = @Column(name = "razorpay_order_id")),
+        @AttributeOverride(name = "razorpayPaymentId", column = @Column(name = "razorpay_payment_id"))
+    })
     private PaymentDetails payment;
+
     private String status;
+
+    @Column(nullable = false)
     private long createdAt;
+
+    @Column(nullable = false)
     private long updatedAt;
 
     public Order() {}
@@ -31,8 +74,25 @@ public class Order {
     public double getTotal() { return total; }
     public void setTotal(double total) { this.total = total; }
 
-    public DeliveryDetails getDeliveryDetails() { return deliveryDetails; }
-    public void setDeliveryDetails(DeliveryDetails deliveryDetails) { this.deliveryDetails = deliveryDetails; }
+    public DeliveryDetails getDeliveryDetails() {
+        if (deliveryDetails != null) {
+            return deliveryDetails;
+        }
+        if (address == null && landmark == null && pincode == null && phone == null) {
+            return null;
+        }
+        return new DeliveryDetails(address, landmark, pincode, phone);
+    }
+
+    public void setDeliveryDetails(DeliveryDetails deliveryDetails) {
+        this.deliveryDetails = deliveryDetails;
+        if (deliveryDetails != null) {
+            this.address = deliveryDetails.getAddress();
+            this.landmark = deliveryDetails.getLandmark();
+            this.pincode = deliveryDetails.getPincode();
+            this.phone = deliveryDetails.getPhone();
+        }
+    }
 
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
@@ -58,6 +118,7 @@ public class Order {
     public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
 
+    @Embeddable
     public static class PaymentDetails {
         private String method;
         private String status;
@@ -119,6 +180,7 @@ public class Order {
         public void setPhone(String phone) { this.phone = phone; }
     }
 
+    @Embeddable
     public static class OrderItem {
         private String id;
         private String title;

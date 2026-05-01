@@ -1,28 +1,42 @@
 package com.naturalmilk.service;
 
-import com.naturalmilk.model.Order;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Collections;
+import com.naturalmilk.model.Order;
+import com.naturalmilk.repository.OrderRepository;
 
 @Service
 public class OrderService {
-    // TODO: Replace with JPA repository implementation for PostgreSQL
+    private final OrderRepository orderRepository;
+
+    public OrderService(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
 
     public Order createOrder(Order order) {
-        return order;
+        order.setStatus(order.getStatus() == null ? "pending" : order.getStatus());
+        order.setCreatedAt(System.currentTimeMillis());
+        order.setUpdatedAt(System.currentTimeMillis());
+        return orderRepository.save(order);
     }
 
     public Order getOrderById(String orderId) {
-        return null;
+        return orderRepository.findById(orderId).orElse(null);
     }
 
     public List<Order> getUserOrders(String userId) {
-        return Collections.emptyList();
+        return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
     public Order updateOrderStatus(String orderId, String status) {
-        return null;
+        Order order = getOrderById(orderId);
+        if (order == null) {
+            return null;
+        }
+        order.setStatus(status);
+        order.setUpdatedAt(System.currentTimeMillis());
+        return orderRepository.save(order);
     }
 }
