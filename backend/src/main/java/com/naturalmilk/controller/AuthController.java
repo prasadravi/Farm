@@ -85,11 +85,6 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/health")
-    public ResponseEntity<?> health() {
-        return ResponseEntity.ok("ok");
-    }
-
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@RequestHeader(value = "Authorization", required = false) String token) {
         try {
