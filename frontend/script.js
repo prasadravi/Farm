@@ -9,10 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------------------------
      Utilities
   ----------------------------*/
-    // --- KEEP-ALIVE PING (prevents backend cold start) ---
-    setInterval(() => {
-      fetch("/api/auth/health").catch(() => {});
-    }, 180000); // every 3 minutes
   function byId(id) { return document.getElementById(id); }
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
@@ -77,6 +73,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE)
     ? window.APP_CONFIG.API_BASE
     : "http://localhost:4000/api";
+
+  // --- KEEP-ALIVE PING (prevents backend cold start) ---
+  setInterval(() => {
+    fetch(`${API_BASE}/health`).catch(() => {});
+  }, 180000); // every 3 minutes
 
   function isLoggedIn() {
     const token = getToken();
