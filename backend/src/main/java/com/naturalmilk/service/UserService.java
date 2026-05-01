@@ -6,39 +6,39 @@ import java.security.NoSuchAlgorithmException;
 import org.springframework.stereotype.Service;
 
 import com.naturalmilk.model.User;
+import com.naturalmilk.repository.UserRepository;
 
 @Service
 public class UserService {
-    // Add service methods here as needed
+    private final UserRepository userRepository;
 
-    // TODO: Inject UserRepository (JPA) and implement DB logic for PostgreSQL
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public User createUser(User user) {
         user.setCreatedAt(System.currentTimeMillis());
         user.setUpdatedAt(System.currentTimeMillis());
         user.setPassword(hashPassword(user.getPassword()));
-        // TODO: Save user to PostgreSQL
-        return user;
+        return userRepository.save(user);
     }
 
     public User getUserByEmail(String email) {
-        // TODO: Fetch user by email from PostgreSQL
-        return null;
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     public User getUserById(String userId) {
-        // TODO: Fetch user by ID from PostgreSQL
-        return null;
+        return userRepository.findById(userId).orElse(null);
     }
 
     public User updateUser(String email, User user) {
         user.setUpdatedAt(System.currentTimeMillis());
-        // TODO: Update user in PostgreSQL
-        return user;
+        return userRepository.save(user);
     }
 
     public boolean verifyPassword(String rawPassword, String hashedPassword) {
-        return hashPassword(rawPassword).equals(hashedPassword);
+        String hashed = hashPassword(rawPassword);
+        return hashed != null && hashed.equals(hashedPassword);
     }
 
     private String hashPassword(String password) {
