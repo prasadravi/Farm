@@ -529,8 +529,106 @@ document.addEventListener("DOMContentLoaded", () => {
      CART + LocalStorage
   ----------------------------*/
   const CART_KEY = "cart";
-  const getCart = () => JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-  const setCart = c => localStorage.setItem(CART_KEY, JSON.stringify(c));
+  const CART_SYNC_DELAY = 800;
+
+  const getCart = () => {
+    try {
+      return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+    } catch (_err) {
+      return [];
+    }
+  };
+
+  const saveCartLocal = (cart) => localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+  let cartSyncTimer = null;
+  let cartSyncInitialized = false;
+
+  function mergeCartItems(localItems, serverItems) {
+    const merged = new Map();
+    const addItems = (items) => {
+      (items || []).forEach((item) => {
+        if (!item || !item.id) return;
+        const qty = Number(item.qty || 0);
+        if (qty <= 0) return;
+        if (merged.has(item.id)) {
+          const existing = merged.get(item.id);
+          existing.qty = Number(existing.qty || 0) + qty;
+          merged.set(item.id, existing);
+        } else {
+          merged.set(item.id, { ...item, qty });
+        }
+      });
+    };
+
+    addItems(serverItems);
+    addItems(localItems);
+    return Array.from(merged.values());
+  }
+
+  async function pushCartToServer(cart) {
+    if (!isLoggedIn()) return;
+    const token = getToken();
+    if (!token) return;
+    try {
+      await fetchWithTimeout(`${API_BASE}/cart`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ items: cart })
+      }, 7000);
+    } catch (_err) {
+      // ignore sync errors
+    }
+  }
+
+  function scheduleCartSync(cart) {
+    if (!isLoggedIn()) return;
+    if (cartSyncTimer) window.clearTimeout(cartSyncTimer);
+    cartSyncTimer = window.setTimeout(() => {
+      pushCartToServer(cart);
+    }, CART_SYNC_DELAY);
+  }
+
+  function setCart(cart, options = {}) {
+    saveCartLocal(cart);
+    if (!options.skipSync) scheduleCartSync(cart);
+  }
+
+  async function loadCartFromServer() {
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/cart`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      }, 7000);
+      if (!res.ok) return;
+      const payload = await res.json();
+      const serverItems = Array.isArray(payload?.items)
+        ? payload.items
+        : (Array.isArray(payload) ? payload : []);
+      const merged = mergeCartItems(getCart(), serverItems);
+      setCart(merged, { skipSync: true });
+      updateCartCount();
+      renderDrawer();
+      refreshProductCardControls();
+      await pushCartToServer(merged);
+    } catch (_err) {
+      // ignore load errors
+    }
+  }
+
+  async function initCartSync() {
+    if (cartSyncInitialized) return;
+    cartSyncInitialized = true;
+    if (!isLoggedIn()) return;
+    const ok = await validateSessionWithServer(true);
+    if (!ok) return;
+    await loadCartFromServer();
+  }
   const logoutBtn = byId("logoutBtn");
 
   function getProductQty(productId) {
@@ -598,6 +696,7 @@ document.addEventListener("DOMContentLoaded", () => {
     el.textContent = items.reduce((sum, i) => sum + (i.qty || 0), 0);
   };
   updateCartCount();
+  initCartSync();
 
   async function changeCartQty(item, delta) {
     const canUseCart = await validateSessionWithServer();

@@ -60,6 +60,10 @@
               <span class="profile-side-icon">◉</span>
               <span>Profile</span>
             </button>
+            <button class="profile-tab profile-side-item" type="button" data-tab="orders">
+              <span class="profile-side-icon">◷</span>
+              <span>My Orders</span>
+            </button>
           </div>
 
           <button class="profile-logout" id="sideLogoutBtn" type="button">Log Out</button>
@@ -103,6 +107,17 @@
               <div class="profile-info-row"><span>Email</span><strong id="infoEmail">-</strong></div>
             </div>
           </div>
+
+          <div class="profile-panel" data-panel="orders">
+            <div class="profile-panel-head">
+              <div>
+                <div class="profile-panel-title">My Orders</div>
+                <div class="profile-panel-sub">Recent purchases from your account</div>
+              </div>
+            </div>
+            <div id="ordersStatus" class="profile-note"></div>
+            <div id="ordersList" class="profile-list"></div>
+          </div>
         </section>
       </div>
 
@@ -134,6 +149,8 @@
     const profileAvatar = document.getElementById("profileAvatar");
     const infoName = document.getElementById("infoName");
     const infoEmail = document.getElementById("infoEmail");
+    const ordersList = document.getElementById("ordersList");
+    const ordersStatus = document.getElementById("ordersStatus");
 
     const addressList = document.getElementById("addressList");
     const newAddress = document.getElementById("newAddress");
@@ -146,6 +163,7 @@
     const ADDRESS_LIST_KEY = "saved_addresses";
     const DELIVERY_ADDRESS_KEY = "delivery_address";
     const DELIVERY_DETAILS_KEY = "delivery_details";
+    let serverAddressDetails = null;
 
     function getDeliveryDetailsFromInputs() {
       return {
@@ -264,11 +282,11 @@
       window.location.href = "contact.html";
     });
 
-    function setUserInfo() {
+    function setUserInfo(user) {
       const token = localStorage.getItem("token");
       const payload = token ? parseJwtPayload(token) : null;
-      const email = payload?.email || payload?.sub || "";
-      const name = payload?.name || payload?.fullName || (email ? email.split("@")[0] : "Customer");
+      const email = user?.email || payload?.email || payload?.sub || "";
+      const name = user?.name || payload?.name || payload?.fullName || (email ? email.split("@")[0] : "Customer");
       const safeName = (name || "Customer").trim();
       const initials = safeName.split(" ").map(part => part[0]).slice(0, 2).join("").toUpperCase();
 
@@ -328,7 +346,7 @@
 
     function renderAddressList() {
       const list = getAddressList();
-      const defaultDetails = getSavedDeliveryDetails() || {
+      const defaultDetails = serverAddressDetails || getSavedDeliveryDetails() || {
         address: (localStorage.getItem(DELIVERY_ADDRESS_KEY) || "").trim(),
         landmark: "",
         pincode: "",
@@ -361,7 +379,30 @@
       }).join("");
     }
 
-    saveAddressBtn?.addEventListener("click", () => {
+    async function saveAddressToServer(details) {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const res = await fetch(`${API_BASE}/auth/update-profile`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            address: details.address,
+            landmark: details.landmark,
+            pincode: details.pincode,
+            phone: details.phone
+          })
+        });
+        if (!res.ok) throw new Error("Failed to save address");
+      } catch (_err) {
+        if (addressStatus) addressStatus.textContent = "Saved locally. Server sync failed.";
+      }
+    }
+
+    saveAddressBtn?.addEventListener("click", async () => {
       const details = getDeliveryDetailsFromInputs();
       const errorText = validateDeliveryDetails(details);
       if (errorText) {
@@ -381,8 +422,10 @@
       }
       saveAddressList(list.slice(0, 8));
       setDefaultAddress(details);
+      serverAddressDetails = details;
       renderAddressList();
       if (addressStatus) addressStatus.textContent = "Address saved.";
+      await saveAddressToServer(details);
     });
 
     addressList?.addEventListener("click", (event) => {
@@ -431,6 +474,88 @@
       });
     }
 
+    async function loadProfileFromServer() {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (!res.ok) return null;
+        return await res.json();
+      } catch (_err) {
+        return null;
+      }
+    }
+
+    function applyServerAddress(user) {
+      if (!user) return;
+      const details = normalizeDeliveryDetails({
+        address: user.address,
+        landmark: user.landmark,
+        pincode: user.pincode,
+        phone: user.phone
+      });
+      if (!details.address) return;
+
+      serverAddressDetails = details;
+      const list = getAddressList();
+      const fingerprint = detailsFingerprint(details);
+      if (!list.some(item => detailsFingerprint(normalizeDeliveryDetails(item)) === fingerprint)) {
+        list.unshift({ id: "server", text: buildAddressLabel(details), ...details });
+        saveAddressList(list.slice(0, 8));
+      }
+      setDefaultAddress(details);
+    }
+
+    function formatOrderMeta(order) {
+      const created = order?.createdAt ? new Date(order.createdAt).toLocaleString() : "-";
+      const status = order?.status || "pending";
+      const total = Number(order?.total || 0).toFixed(2);
+      const paymentStatus = order?.payment?.status || "-";
+      return { created, status, total, paymentStatus };
+    }
+
+    function renderOrdersList(orders) {
+      if (!ordersList) return;
+      if (!orders || !orders.length) {
+        ordersList.innerHTML = '<div class="profile-empty">No orders yet.</div>';
+        return;
+      }
+
+      ordersList.innerHTML = orders.map(order => {
+        const meta = formatOrderMeta(order);
+        return `
+          <div class="profile-card-list">
+            <div class="profile-address-text">
+              <strong>Order #${order.id || "-"}</strong><br>
+              Total: ₹${meta.total} · Status: ${meta.status}
+              <div class="profile-note">Placed: ${meta.created} · Payment: ${meta.paymentStatus}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function fetchOrders() {
+      const token = localStorage.getItem("token");
+      if (!token || !ordersList) return;
+
+      if (ordersStatus) ordersStatus.textContent = "Loading orders...";
+      try {
+        const res = await fetch(`${API_BASE}/orders/myorders`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error("Failed to load orders");
+        const orders = await res.json();
+        renderOrdersList(Array.isArray(orders) ? orders : []);
+        if (ordersStatus) ordersStatus.textContent = "";
+      } catch (_err) {
+        if (ordersStatus) ordersStatus.textContent = "Unable to load orders right now.";
+      }
+    }
+
     (async function initProfilePage() {
       syncNavAuthUi();
       const ok = await validateSessionWithServer();
@@ -439,9 +564,12 @@
         return;
       }
       showProfile();
-      setUserInfo();
+      const user = await loadProfileFromServer();
+      setUserInfo(user);
+      applyServerAddress(user);
       initTabs();
       renderAddressList();
+      fetchOrders();
     })();
   </script>
 </body>
