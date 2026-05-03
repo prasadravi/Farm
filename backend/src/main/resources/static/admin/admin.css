@@ -1,10 +1,11 @@
 :root {
-  --bg: #f8fafc;
+  --gold: #e8c46b;
+  --text: #111111;
+  --muted: #6b7280;
   --card: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --accent: #d97706;
-  --border: #e2e8f0;
+  --border: #e5e7eb;
+  --bg: #f6f5f0;
+  --shadow: rgba(15, 23, 42, 0.06);
 }
 
 * { box-sizing: border-box; }
@@ -23,16 +24,18 @@ body.admin-body {
 }
 
 .admin-sidebar {
-  background: #0f172a;
-  color: #fff;
+  background: #111111;
+  color: #ffffff;
   padding: 24px 18px;
 }
 
 .admin-brand {
+  font-family: "Playfair Display", serif;
   font-weight: 700;
   letter-spacing: 0.05em;
   margin-bottom: 26px;
   font-size: 1.1rem;
+  text-transform: uppercase;
 }
 
 .admin-sidebar nav {
@@ -42,7 +45,7 @@ body.admin-body {
 
 .admin-sidebar a {
   text-decoration: none;
-  color: #e2e8f0;
+  color: #f9fafb;
   padding: 10px 12px;
   border-radius: 8px;
   font-weight: 600;
@@ -50,8 +53,8 @@ body.admin-body {
 
 .admin-sidebar a.active,
 .admin-sidebar a:hover {
-  background: rgba(217, 119, 6, 0.2);
-  color: #fff;
+  background: rgba(232, 196, 107, 0.18);
+  color: #ffffff;
 }
 
 .admin-sidebar a.logout {
@@ -83,7 +86,7 @@ body.admin-body {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 18px;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 24px var(--shadow);
 }
 
 .admin-card h2 {
@@ -124,8 +127,8 @@ body.admin-body {
 
 .admin-form button,
 .admin-search button {
-  background: var(--accent);
-  color: #fff;
+  background: var(--gold);
+  color: #111111;
   border: none;
   font-weight: 700;
   cursor: pointer;
@@ -139,7 +142,7 @@ body.admin-body {
 
 .admin-form button:hover,
 .admin-search button:hover {
-  filter: brightness(0.95);
+  filter: brightness(0.98);
 }
 
 .admin-row {
@@ -200,8 +203,8 @@ body.admin-body {
   display: inline-block;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(217, 119, 6, 0.15);
-  color: #92400e;
+  background: rgba(232, 196, 107, 0.35);
+  color: #7a5a14;
   font-weight: 600;
 }
 
@@ -236,6 +239,11 @@ body.admin-body {
   padding: 8px 12px;
   border-radius: 8px;
   margin-bottom: 12px;
+}
+
+.admin-subtitle {
+  color: var(--muted);
+  margin-bottom: 16px;
 }
 
 .admin-alert.success {
