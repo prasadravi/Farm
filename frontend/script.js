@@ -511,6 +511,23 @@ document.addEventListener("DOMContentLoaded", () => {
     productDotButtons = Array.from(productDots.querySelectorAll(".store-dot"));
   }
 
+  async function loadProductsFromApi() {
+    if (!productGrid) return;
+    try {
+      const res = await fetchWithTimeout(`${API_BASE}/products`, {}, 7000);
+      if (!res.ok) return;
+      const data = await res.json();
+      const normalized = normalizeApiProducts(data);
+      if (!normalized.length) return;
+      buildProductState(normalized);
+      renderProducts();
+      refreshProductCardControls();
+      updateProductDots(0);
+    } catch (_err) {
+      // Ignore fetch errors and keep static products.
+    }
+  }
+
   function updateProductDots(activeIndex = 0) {
     productDotButtons.forEach((dot, index) => {
       dot.classList.toggle("active", index === activeIndex);
@@ -526,22 +543,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function activeProductIndex() {
     if (!productGrid || !productCards.length) return 0;
-      async function loadProductsFromApi() {
-        if (!productGrid) return;
-        try {
-          const res = await fetchWithTimeout(`${API_BASE}/products`, {}, 7000);
-          if (!res.ok) return;
-          const data = await res.json();
-          const normalized = normalizeApiProducts(data);
-          if (!normalized.length) return;
-          buildProductState(normalized);
-          renderProducts();
-          refreshProductCardControls();
-          updateProductDots(0);
-        } catch (_err) {
-          // Ignore fetch errors and keep static products.
-        }
-      }
     const gridRect = productGrid.getBoundingClientRect();
     let closest = 0;
     let minDistance = Infinity;
