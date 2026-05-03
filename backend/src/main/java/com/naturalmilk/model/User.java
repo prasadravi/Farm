@@ -26,6 +26,8 @@ public class User {
 
     private String phone;
     private String address;
+    private String landmark;
+    private String pincode;
 
     @Column(nullable = false)
     private long createdAt;
@@ -63,6 +65,10 @@ public class User {
 
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
+    public String getLandmark() { return landmark; }
+    public void setLandmark(String landmark) { this.landmark = landmark; }
+    public String getPincode() { return pincode; }
+    public void setPincode(String pincode) { this.pincode = pincode; }
 
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }

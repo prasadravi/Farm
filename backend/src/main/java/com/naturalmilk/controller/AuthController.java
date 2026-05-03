@@ -111,6 +111,8 @@ public class AuthController {
             if (updateData.getName() != null) user.setName(updateData.getName());
             if (updateData.getPhone() != null) user.setPhone(updateData.getPhone());
             if (updateData.getAddress() != null) user.setAddress(updateData.getAddress());
+            if (updateData.getLandmark() != null) user.setLandmark(updateData.getLandmark());
+            if (updateData.getPincode() != null) user.setPincode(updateData.getPincode());
 
             User updated = userService.updateUser(email, user);
             updated.setPassword(null);
