@@ -751,20 +751,29 @@
       return "";
     }
 
+    function normalizeDeliveryDetails(raw = {}) {
+      return {
+        address: (raw.address || "").trim(),
+        landmark: (raw.landmark || "").trim(),
+        pincode: String(raw.pincode || "").replace(/\D/g, "").trim(),
+        phone: String(raw.phone || "").replace(/\D/g, "").trim()
+      };
+    }
+
     function getDeliveryFingerprint(details) {
       return JSON.stringify(details);
+    }
+
+    function hasAnyDeliveryDetails(details) {
+      if (!details) return false;
+      return Boolean(details.address || details.landmark || details.pincode || details.phone);
     }
 
     function getDeliveryDetailsFromStorage() {
       try {
         const raw = JSON.parse(localStorage.getItem(DELIVERY_DETAILS_KEY) || "null");
         if (!raw || typeof raw !== "object") return null;
-        return {
-          address: (raw.address || "").trim(),
-          landmark: (raw.landmark || "").trim(),
-          pincode: (raw.pincode || "").replace(/\D/g, "").trim(),
-          phone: (raw.phone || "").replace(/\D/g, "").trim()
-        };
+        return normalizeDeliveryDetails(raw);
       } catch (_err) {
         return null;
       }
@@ -842,6 +851,30 @@
         localStorage.removeItem("token");
         localStorage.removeItem(CART_KEY);
         return false;
+      }
+    }
+
+    async function loadAddressFromServer() {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        if (!res.ok) return;
+        const user = await res.json();
+        const details = normalizeDeliveryDetails({
+          address: user?.address,
+          landmark: user?.landmark,
+          pincode: user?.pincode,
+          phone: user?.phone
+        });
+        if (!hasAnyDeliveryDetails(details)) return;
+        saveAddressValue(details, "Address loaded");
+      } catch (_err) {
+        // ignore server address fetch errors
       }
     }
 
@@ -1055,14 +1088,44 @@
     }
 
     function saveAddressValue(details, statusText = "Address saved") {
-      localStorage.setItem(DELIVERY_DETAILS_KEY, JSON.stringify(details));
-      localStorage.setItem(ADDRESS_KEY, details.address);
-      addressReady = true;
-      lastSavedAddress = details.address;
-      lastSavedDeliveryFingerprint = getDeliveryFingerprint(details);
-      persistAddressToList(buildAddressLabel(details));
+      const normalized = normalizeDeliveryDetails(details);
+      const errorText = validateDeliveryDetails(normalized);
+      localStorage.setItem(DELIVERY_DETAILS_KEY, JSON.stringify(normalized));
+      if (normalized.address) {
+        localStorage.setItem(ADDRESS_KEY, normalized.address);
+      }
+      addressReady = !errorText;
+      lastSavedAddress = normalized.address;
+      lastSavedDeliveryFingerprint = addressReady ? getDeliveryFingerprint(normalized) : "";
+      if (addressReady) {
+        persistAddressToList(buildAddressLabel(normalized));
+        saveAddressToServer(normalized);
+      }
       updateCheckoutState();
-      refreshDeliverySection(statusText);
+      refreshDeliverySection(addressReady ? statusText : "");
+    }
+
+    async function saveAddressToServer(details) {
+      if (!isLoggedIn()) return;
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        await fetch(`${API_BASE}/auth/update-profile`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            address: details.address,
+            landmark: details.landmark,
+            pincode: details.pincode,
+            phone: details.phone
+          })
+        });
+      } catch (_err) {
+        // ignore update errors
+      }
     }
 
     function getCart() {
@@ -1453,6 +1516,7 @@
         return;
       }
       showCartContent();
+      await loadAddressFromServer();
       initAddressState();
       if (paymentNote) paymentNote.textContent = "Select any UPI app and tap Pay Now.";
       updatePaymentModeUi();
