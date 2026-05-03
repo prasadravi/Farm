@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login - Natural Milk</title>
+  <link rel="stylesheet" th:href="@{/admin/admin.css}" />
+</head>
+<body class="admin-body">
+  <div class="admin-login">
+    <div class="admin-card">
+      <h1>Admin Login</h1>
+      <p class="admin-subtitle">Natural Milk dashboard access</p>
+      <div class="admin-alert" th:if="${error}" th:text="${error}"></div>
+      <div class="admin-alert success" th:if="${message}" th:text="${message}"></div>
+      <form th:action="@{/admin/login}" method="post">
+        <label>Username</label>
+        <input type="text" name="username" required />
+        <label>Password</label>
+        <input type="password" name="password" required />
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

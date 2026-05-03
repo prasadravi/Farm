@@ -30,6 +30,15 @@ public class OrderService {
         return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
+    public List<Order> getAllOrders() {
+        return orderRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    public double getTotalRevenue() {
+        Double total = orderRepository.sumTotal();
+        return total == null ? 0 : total;
+    }
+
     public Order updateOrderStatus(String orderId, String status) {
         Order order = getOrderById(orderId);
         if (order == null) {

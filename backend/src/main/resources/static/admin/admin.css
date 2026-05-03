@@ -1,0 +1,255 @@
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #d97706;
+  --border: #e2e8f0;
+}
+
+* { box-sizing: border-box; }
+
+body.admin-body {
+  margin: 0;
+  font-family: "Poppins", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  background: #0f172a;
+  color: #fff;
+  padding: 24px 18px;
+}
+
+.admin-brand {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 26px;
+  font-size: 1.1rem;
+}
+
+.admin-sidebar nav {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-sidebar a {
+  text-decoration: none;
+  color: #e2e8f0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.admin-sidebar a.active,
+.admin-sidebar a:hover {
+  background: rgba(217, 119, 6, 0.2);
+  color: #fff;
+}
+
+.admin-sidebar a.logout {
+  margin-top: 20px;
+  color: #fca5a5;
+}
+
+.admin-main {
+  padding: 28px 32px 40px;
+}
+
+.admin-header h1 {
+  margin: 0 0 6px;
+}
+
+.admin-header p {
+  margin: 0 0 24px;
+  color: var(--muted);
+}
+
+.admin-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.admin-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.admin-card h2 {
+  margin-top: 0;
+}
+
+.admin-card-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.admin-form .form-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.admin-form label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form button,
+.admin-search input,
+.admin-search button {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.admin-form button,
+.admin-search button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-form button.danger,
+.admin-search button.danger,
+.admin-table .danger {
+  background: #ef4444;
+}
+
+.admin-form button:hover,
+.admin-search button:hover {
+  filter: brightness(0.95);
+}
+
+.admin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-search {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+
+.admin-table .actions {
+  display: grid;
+  gap: 6px;
+}
+
+.inline-form {
+  display: grid;
+  gap: 6px;
+}
+
+.table-thumb {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(217, 119, 6, 0.15);
+  color: #92400e;
+  font-weight: 600;
+}
+
+.image-preview img {
+  width: 100%;
+  max-width: 180px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+}
+
+.admin-login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.admin-login .admin-card {
+  max-width: 380px;
+  width: 100%;
+}
+
+.admin-login form {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-alert {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.admin-alert.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+@media (max-width: 900px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+  .admin-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+}

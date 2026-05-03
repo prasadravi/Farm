@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Products - Natural Milk</title>
+  <link rel="stylesheet" th:href="@{/admin/admin.css}" />
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">Natural Milk</div>
+      <nav>
+        <a th:href="@{/admin/dashboard}">Dashboard</a>
+        <a class="active" th:href="@{/admin/products}">Products</a>
+        <a th:href="@{/admin/orders}">Orders</a>
+        <a class="logout" th:href="@{/admin/logout}">Logout</a>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Products</h1>
+        <p>Manage your dairy catalog</p>
+      </header>
+
+      <section class="admin-card">
+        <h2>Add Product</h2>
+        <form class="admin-form" th:action="@{/admin/products}" method="post">
+          <div class="form-grid">
+            <div>
+              <label>Name</label>
+              <input type="text" name="name" required />
+            </div>
+            <div>
+              <label>Price</label>
+              <input type="number" name="price" step="0.01" min="0" required />
+            </div>
+            <div>
+              <label>Image URL</label>
+              <input type="url" name="imageUrl" id="imageUrlInput" required />
+            </div>
+            <div>
+              <label>Quantity</label>
+              <input type="number" name="quantity" min="0" required />
+            </div>
+            <div>
+              <label>Category</label>
+              <input type="text" name="category" required placeholder="milk / curd / ghee" />
+            </div>
+            <div class="image-preview">
+              <label>Preview</label>
+              <img id="imagePreview" alt="Preview" src="" />
+            </div>
+          </div>
+          <button type="submit">Add Product</button>
+        </form>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-row">
+          <h2>All Products</h2>
+          <form class="admin-search" th:action="@{/admin/products}" method="get">
+            <input type="text" name="q" placeholder="Search by name" th:value="${query}" />
+            <button type="submit">Search</button>
+          </form>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="product : ${products}" th:with="formId=${'update-' + product.id}">
+                <td>
+                  <img class="table-thumb" th:src="${product.imageUrl}" alt="Product" />
+                </td>
+                <td>
+                  <input type="text" name="name" th:value="${product.name}" th:attr="form=${formId}" required />
+                </td>
+                <td>
+                  <input type="text" name="category" th:value="${product.category}" th:attr="form=${formId}" required />
+                </td>
+                <td>
+                  <input type="number" name="price" step="0.01" min="0" th:value="${product.price}" th:attr="form=${formId}" required />
+                </td>
+                <td>
+                  <input type="number" name="quantity" min="0" th:value="${product.quantity}" th:attr="form=${formId}" required />
+                </td>
+                <td class="actions">
+                  <form th:id="${formId}" th:action="@{'/admin/products/' + ${product.id}}" method="post"></form>
+                  <input type="url" name="imageUrl" th:value="${product.imageUrl}" th:attr="form=${formId}" required />
+                  <button type="submit" th:attr="form=${formId}">Update</button>
+                  <form th:action="@{'/admin/products/' + ${product.id} + '/delete'}" method="post">
+                    <button class="danger" type="submit">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(products)}">
+                <td colspan="6" class="empty">No products found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const input = document.getElementById("imageUrlInput");
+    const preview = document.getElementById("imagePreview");
+    if (input && preview) {
+      input.addEventListener("input", () => {
+        preview.src = input.value.trim();
+      });
+    }
+  </script>
+</body>
+</html>
