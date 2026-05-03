@@ -324,7 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
     OUT_OF_STOCK_IDS.map((id) => String(id).trim().toLowerCase())
   );
 
-  const baseProducts = [
+  let baseProducts = [
     { key: "cowmilk", title: "Fresh Cow Milk", price500: 28, kind: "liquid", pack: "pouch", img: "images/stor-one.jpg" },
     { key: "cowcurd", title: "Cow Curd", price500: 110, kind: "solid", pack: "cup", img: "images/cow-curd.jpg" },
     { key: "buffalocurd", title: "Bufflo Curd", price500: 155, kind: "solid", pack: "cup", img: "images/buffalo-curd.jpg" },
@@ -354,31 +354,72 @@ document.addEventListener("DOMContentLoaded", () => {
     return match ? match[0].replace(/\s+/g, " ").toUpperCase() : text.toUpperCase();
   }
 
-  const selectedSizeByBase = Object.fromEntries(baseProducts.map((b) => [b.key, 500]));
+  let selectedSizeByBase = {};
+  let productVariantsByBase = {};
+  let productById = new Map();
 
-  const productVariantsByBase = Object.fromEntries(baseProducts.map((base) => {
-    const variants = sizeOptions.map((size) => {
-      const unit = getUnitLabel(base, size.value);
+  function slugify(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function inferKind(category, name) {
+    const haystack = `${category || ""} ${name || ""}`.toLowerCase();
+    if (haystack.includes("curd") || haystack.includes("paneer") || haystack.includes("cheese")) {
+      return "solid";
+    }
+    return "liquid";
+  }
+
+  function normalizeApiProducts(items) {
+    if (!Array.isArray(items)) return [];
+    return items.map((item) => {
+      const key = item.id || slugify(item.name);
       return {
-        id: `${base.key}${size.value}`,
-        baseKey: base.key,
-        title: `${base.title} (${unit})`,
-        baseTitle: base.title,
-        sizeValue: size.value,
-        unit,
-        price: Math.round(base.price500 * size.factor),
-        inStock: !outOfStockLookup.has(`${base.key}${size.value}`.toLowerCase())
+        key: String(key || slugify(item.name || "product")),
+        title: item.name || "Product",
+        price500: Number(item.price || 0),
+        kind: inferKind(item.category, item.name),
+        pack: "pack",
+        img: item.imageUrl || "images/stor-one.jpg",
+        quantity: Number(item.quantity || 0)
       };
     });
+  }
 
-    return [base.key, variants];
-  }));
+  function buildProductState(products) {
+    baseProducts = products;
+    selectedSizeByBase = Object.fromEntries(baseProducts.map((b) => [b.key, 500]));
 
-  const productById = new Map(
-    Object.values(productVariantsByBase)
-      .flat()
-      .map((item) => [item.id, item])
-  );
+    productVariantsByBase = Object.fromEntries(baseProducts.map((base) => {
+      const isInStock = base.quantity == null ? true : base.quantity > 0;
+      const variants = sizeOptions.map((size) => {
+        const unit = getUnitLabel(base, size.value);
+        return {
+          id: `${base.key}${size.value}`,
+          baseKey: base.key,
+          title: `${base.title} (${unit})`,
+          baseTitle: base.title,
+          sizeValue: size.value,
+          unit,
+          price: Math.round(base.price500 * size.factor),
+          inStock: isInStock && !outOfStockLookup.has(`${base.key}${size.value}`.toLowerCase())
+        };
+      });
+
+      return [base.key, variants];
+    }));
+
+    productById = new Map(
+      Object.values(productVariantsByBase)
+        .flat()
+        .map((item) => [item.id, item])
+    );
+  }
+
+  buildProductState(baseProducts);
 
   const productGrid = byId("productGrid");
   const productDots = byId("productDots");
@@ -485,6 +526,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function activeProductIndex() {
     if (!productGrid || !productCards.length) return 0;
+      async function loadProductsFromApi() {
+        if (!productGrid) return;
+        try {
+          const res = await fetchWithTimeout(`${API_BASE}/products`, {}, 7000);
+          if (!res.ok) return;
+          const data = await res.json();
+          const normalized = normalizeApiProducts(data);
+          if (!normalized.length) return;
+          buildProductState(normalized);
+          renderProducts();
+          refreshProductCardControls();
+          updateProductDots(0);
+        } catch (_err) {
+          // Ignore fetch errors and keep static products.
+        }
+      }
     const gridRect = productGrid.getBoundingClientRect();
     let closest = 0;
     let minDistance = Infinity;
@@ -934,4 +991,5 @@ document.addEventListener("DOMContentLoaded", () => {
   syncAuthUi();
   renderProducts();
   updateProductDots(0);
+  loadProductsFromApi();
 });
