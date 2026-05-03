@@ -101,6 +101,9 @@
                   <form th:id="${formId}" th:action="@{'/admin/products/' + ${product.id}}" method="post"></form>
                   <input type="url" name="imageUrl" th:value="${product.imageUrl}" th:attr="form=${formId}" required />
                   <button type="submit" th:attr="form=${formId}">Update</button>
+                  <form th:action="@{'/admin/products/' + ${product.id} + '/out-of-stock'}" method="post">
+                    <button class="warning" type="submit" th:disabled="${product.quantity == 0}">Out of Stock</button>
+                  </form>
                   <form th:action="@{'/admin/products/' + ${product.id} + '/delete'}" method="post">
                     <button class="danger" type="submit">Delete</button>
                   </form>

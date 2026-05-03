@@ -140,6 +140,13 @@ body.admin-body {
   background: #ef4444;
 }
 
+.admin-form button.warning,
+.admin-search button.warning,
+.admin-table .warning {
+  background: #f59e0b;
+  color: #111111;
+}
+
 .admin-form button:hover,
 .admin-search button:hover {
   filter: brightness(0.98);

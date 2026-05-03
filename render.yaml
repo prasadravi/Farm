@@ -10,11 +10,13 @@ services:
         value: 17
       - key: JWT_SECRET
         sync: false
-      - key: FIREBASE_CREDENTIALS_JSON
-        sync: false
-      - key: FIREBASE_DATABASE_URL
-        value: https://fram-bc35f.firebaseio.com
       - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
         sync: false
 
   - type: web

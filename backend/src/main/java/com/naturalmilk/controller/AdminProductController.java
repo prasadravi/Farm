@@ -54,4 +54,14 @@ public class AdminProductController {
         productService.deleteById(id);
         return "redirect:/admin/products";
     }
+
+    @PostMapping("/admin/products/{id}/out-of-stock")
+    public String markOutOfStock(@PathVariable String id) {
+        Product existing = productService.getById(id);
+        if (existing != null) {
+            existing.setQuantity(0);
+            productService.update(existing);
+        }
+        return "redirect:/admin/products";
+    }
 }
