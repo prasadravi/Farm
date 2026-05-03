@@ -383,10 +383,28 @@ document.addEventListener("DOMContentLoaded", () => {
         price500: Number(item.price || 0),
         kind: inferKind(item.category, item.name),
         pack: "pack",
-        img: item.imageUrl || "images/stor-one.jpg",
+        img: resolveProductImageUrl(item.imageUrl),
         quantity: Number(item.quantity || 0)
       };
     });
+  }
+
+  function resolveProductImageUrl(src) {
+    if (!src) return "images/stor-one.jpg";
+    const match = String(src).match(/\/images\/[^?#]+/i);
+    if (match && match[0]) {
+      return `${window.location.origin}${match[0]}`;
+    }
+    return src;
+  }
+
+  function getImageFallback(src) {
+    if (!src) return "images/stor-one.jpg";
+    const match = String(src).match(/\/images\/(.+)$/i);
+    if (match && match[1]) {
+      return `${window.location.origin}/images/${match[1]}`;
+    }
+    return "images/stor-one.jpg";
   }
 
   function buildProductState(products) {
@@ -474,7 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <article class="store-card" data-index="${index}" data-base-key="${base.key}">
         <div class="card-inner">
           <div class="card-thumb">
-            <img src="${base.img}" alt="${base.title}" loading="lazy" decoding="async" />
+            <img src="${base.img}" data-fallback="${getImageFallback(base.img)}" alt="${base.title}" loading="lazy" decoding="async" />
           </div>
           <div class="card-body">
             <div class="card-caption">${base.title}</div>
@@ -501,6 +519,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     productCards = $$("#productGrid .store-card");
     renderProductDots();
+    applyImageFallbacks();
+  }
+
+  function applyImageFallbacks() {
+    const images = Array.from(document.querySelectorAll(".store-card img[data-fallback]"));
+    images.forEach((img) => {
+      const fallback = img.getAttribute("data-fallback");
+      if (!fallback) return;
+      img.addEventListener("error", () => {
+        if (img.src === fallback) return;
+        img.src = fallback;
+      }, { once: true });
+    });
   }
 
   function renderProductDots() {
