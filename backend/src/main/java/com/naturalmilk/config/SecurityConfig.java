@@ -1,6 +1,5 @@
 package com.naturalmilk.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -8,22 +7,18 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import com.naturalmilk.model.AdminUser;
+import com.naturalmilk.repository.AdminUserRepository;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    @Value("${admin.username:admin}")
-    private String adminUsername;
-
-    @Value("${admin.password:admin123}")
-    private String adminPassword;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -31,12 +26,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        UserDetails admin = User.withUsername(adminUsername)
-            .password(encoder.encode(adminPassword))
-            .roles("ADMIN")
-            .build();
-        return new InMemoryUserDetailsManager(admin);
+    public UserDetailsService userDetailsService(AdminUserRepository adminUserRepository) {
+        return username -> {
+            AdminUser admin = adminUserRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Admin user not found"));
+            return User.withUsername(admin.getUsername())
+                .password(admin.getPasswordHash())
+                .roles("ADMIN")
+                .build();
+        };
     }
 
     @Bean
