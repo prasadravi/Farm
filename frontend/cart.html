@@ -170,6 +170,24 @@
       gap: 8px;
       flex-wrap: wrap;
     }
+    .address-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #fff8e7;
+      border: 1px solid #e7d3a7;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .address-summary-text {
+      font-size: 0.84rem;
+      color: #1f2937;
+      line-height: 1.4;
+      flex: 1 1 220px;
+    }
     .address-status {
       font-size: 0.76rem;
       color: #6f4f16;
@@ -602,13 +620,17 @@
 
         <section class="card" id="deliveryAddressSection">
           <div class="section-title">Delivery address</div>
+          <div class="address-summary" id="deliveryAddressSummary" style="display:none;">
+            <div class="address-summary-text" id="deliveryAddressSummaryText"></div>
+            <button class="mini-btn" type="button" id="changeAddressBtn">Change Address</button>
+          </div>
           <textarea id="addressInput" class="address-input" rows="3" placeholder="Enter your full address"></textarea>
-          <div class="address-grid">
+          <div class="address-grid" id="addressGrid">
             <input id="landmarkInput" class="address-field full" type="text" placeholder="Landmark" />
             <input id="pincodeInput" class="address-field" type="text" inputmode="numeric" maxlength="6" placeholder="Pin code" />
             <input id="phoneInput" class="address-field" type="tel" inputmode="numeric" maxlength="10" placeholder="Phone number" />
           </div>
-          <div class="address-row">
+          <div class="address-row" id="addressRow">
             <button class="mini-btn" type="button" id="saveAddressBtn">Add Address</button>
             <div class="address-status" id="addressStatus"></div>
           </div>
@@ -703,6 +725,11 @@
     const deliveryEtaText = document.getElementById("deliveryEtaText");
     const deliveryAddressSection = document.getElementById("deliveryAddressSection");
     const addressInput = document.getElementById("addressInput");
+    const addressGrid = document.getElementById("addressGrid");
+    const addressRow = document.getElementById("addressRow");
+    const deliveryAddressSummary = document.getElementById("deliveryAddressSummary");
+    const deliveryAddressSummaryText = document.getElementById("deliveryAddressSummaryText");
+    const changeAddressBtn = document.getElementById("changeAddressBtn");
     const landmarkInput = document.getElementById("landmarkInput");
     const pincodeInput = document.getElementById("pincodeInput");
     const phoneInput = document.getElementById("phoneInput");
@@ -733,6 +760,7 @@
     let lastSavedAddress = "";
     let lastSavedDeliveryFingerprint = "";
     let addressSaveTimer = null;
+    let addressEditing = false;
 
     function getDeliveryDetailsFromInputs() {
       return {
@@ -797,6 +825,23 @@
         void deliveryAddressSection.offsetWidth;
         deliveryAddressSection.classList.add("section-refresh");
       }
+
+      updateAddressVisibility(savedDetails);
+    }
+
+    function updateAddressVisibility(details) {
+      const hasValid = details && !validateDeliveryDetails(details);
+      if (deliveryAddressSummaryText) {
+        deliveryAddressSummaryText.textContent = hasValid ? buildAddressLabel(details) : "";
+      }
+      const showSummary = hasValid && !addressEditing;
+      if (deliveryAddressSummary) {
+        deliveryAddressSummary.style.display = showSummary ? "flex" : "none";
+      }
+      const showForm = !showSummary;
+      if (addressInput) addressInput.style.display = showForm ? "block" : "none";
+      if (addressGrid) addressGrid.style.display = showForm ? "grid" : "none";
+      if (addressRow) addressRow.style.display = showForm ? "flex" : "none";
     }
 
     function buildAddressLabel(details) {
@@ -1068,6 +1113,8 @@
       if (addressStatus) {
         addressStatus.textContent = addressReady ? "Address added" : "";
       }
+      addressEditing = false;
+      updateAddressVisibility(details);
       updateCheckoutState();
     }
 
@@ -1100,6 +1147,7 @@
       if (addressReady) {
         persistAddressToList(buildAddressLabel(normalized));
         saveAddressToServer(normalized);
+        addressEditing = false;
       }
       updateCheckoutState();
       refreshDeliverySection(addressReady ? statusText : "");
@@ -1241,6 +1289,13 @@
       }
       saveAddressValue(details, "Address added");
       if (paymentModeSection) paymentModeSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    changeAddressBtn?.addEventListener("click", () => {
+      addressEditing = true;
+      updateAddressVisibility(getDeliveryDetailsFromStorage() || getDeliveryDetailsFromInputs());
+      addressInput?.focus();
+      addressInput?.scrollIntoView({ behavior: "smooth", block: "center" });
     });
 
     function onDeliveryInputChange() {
