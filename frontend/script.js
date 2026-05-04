@@ -820,20 +820,19 @@ document.addEventListener("DOMContentLoaded", () => {
   async function changeCartQty(item, delta) {
     const canUseCart = await validateSessionWithServer();
     if (!canUseCart) {
-        const serverItems = Array.isArray(payload?.items) ? payload.items : [];
-        const localItems = Array.isArray(getCart()) ? getCart() : [];
+      alert("Please login first to add items to cart.");
+      window.location.href = "login.html?next=index.html";
+      return;
+    }
 
     if (!item.inStock && delta > 0) {
-        const localLen = Array.isArray(localItems) ? localItems.length : 0;
-        const serverLen = Array.isArray(serverItems) ? serverItems.length : 0;
-        } else if (localLen === 0 && serverLen === 0) {
-          merged = [];
-        } else if (localLen === 0 && serverLen > 0) {
-          merged = serverItems;
-        } else if (localLen > 0 && serverLen === 0) {
-          merged = localItems;
-        } else {
-          merged = mergeCartItems(localItems, serverItems);
+      showToast(`${item.title} is out of stock`);
+      return;
+    }
+
+    const cart = getCart();
+    const existing = cart.find((x) => x.id === item.id);
+
     if (delta > 0) {
       if (existing) existing.qty += 1;
       else cart.push({ ...item, qty: 1 });
@@ -843,7 +842,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (delta < 0 && existing) {
       existing.qty -= 1;
       if (existing.qty <= 0) {
-        const idx = cart.findIndex(x => x.id === item.id);
+        const idx = cart.findIndex((x) => x.id === item.id);
         if (idx >= 0) cart.splice(idx, 1);
       }
     }
@@ -1025,7 +1024,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (res.ok) {
         alert("✅ Order placed successfully!");
         console.log("Order:", data.order);
-        localStorage.removeItem("cart");
+        setCart([], { skipSync: true });
         // Clear server cart as well
         try {
           await fetchWithTimeout(`${API_BASE}/cart`, {
