@@ -183,6 +183,12 @@ body.admin-body {
   font-size: 0.88rem;
 }
 
+.admin-subtext {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-top: 4px;
+}
+
 .admin-table .actions {
   display: grid;
   gap: 6px;

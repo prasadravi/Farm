@@ -34,6 +34,7 @@
               <tr>
                 <th>Order ID</th>
                 <th>Customer</th>
+                <th>Address</th>
                 <th>Amount</th>
                 <th>Payment</th>
                 <th>Status</th>
@@ -44,6 +45,10 @@
               <tr th:each="order : ${orders}">
                 <td th:text="${order.id}">-</td>
                 <td th:text="${order.userId}">-</td>
+                <td>
+                  <div th:text="${order.address}">-</div>
+                  <div class="admin-subtext" th:text="${'Landmark: ' + (order.landmark ?: '-') + ' | Pin: ' + (order.pincode ?: '-') + ' | Phone: ' + (order.phone ?: '-')}"></div>
+                </td>
                 <td>₹<span th:text="${#numbers.formatDecimal(order.total, 0, 'COMMA', 2, 'POINT')}">0.00</span></td>
                 <td th:text="${order.payment != null ? order.payment.status : 'NA'}">NA</td>
                 <td>
@@ -61,7 +66,7 @@
                 </td>
               </tr>
               <tr th:if="${#lists.isEmpty(orders)}">
-                <td colspan="6" class="empty">No orders found.</td>
+                <td colspan="7" class="empty">No orders found.</td>
               </tr>
             </tbody>
           </table>
