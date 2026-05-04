@@ -333,15 +333,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const sizeOptions = [
     { value: 250, factor: 0.5 },
-    { value: 500, factor: 1 }
+    { value: 500, factor: 1 },
+    { value: 1000, factor: 2 }
   ];
 
   function getUnitLabel(base, sizeValue) {
     if (base.kind === "solid") {
       if (sizeValue === 250) return "0.25 kg";
-      return "0.5 kg";
+      if (sizeValue === 500) return "0.5 kg";
+      return "1 kg";
     }
-
+    if (sizeValue === 1000) return "1 L";
     return `${sizeValue}ml`;
   }
 
@@ -377,6 +379,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!Array.isArray(items)) return [];
     return items.map((item) => {
       const key = item.id || slugify(item.name);
+      const sizeStock = {
+        250: parseQuantityValue(item.quantity250),
+        500: parseQuantityValue(item.quantity500),
+        1000: parseQuantityValue(item.quantity1000)
+      };
       return {
         key: String(key || slugify(item.name || "product")),
         title: item.name || "Product",
@@ -384,9 +391,16 @@ document.addEventListener("DOMContentLoaded", () => {
         kind: inferKind(item.category, item.name),
         pack: "pack",
         img: resolveProductImageUrl(item.imageUrl),
-        quantity: Number(item.quantity || 0)
+        quantity: Number(item.quantity || 0),
+        sizeStock
       };
     });
+  }
+
+  function parseQuantityValue(value) {
+    if (value === null || value === undefined || value === "") return null;
+    const num = Number(value);
+    return Number.isFinite(num) ? num : null;
   }
 
   function resolveProductImageUrl(src) {
@@ -412,8 +426,13 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedSizeByBase = Object.fromEntries(baseProducts.map((b) => [b.key, 500]));
 
     productVariantsByBase = Object.fromEntries(baseProducts.map((base) => {
-      const isInStock = base.quantity == null ? true : base.quantity > 0;
+      const hasSizeStock = base.sizeStock && Object.values(base.sizeStock)
+        .some((value) => value !== null && value !== undefined);
       const variants = sizeOptions.map((size) => {
+        const sizeQty = hasSizeStock
+          ? base.sizeStock?.[size.value]
+          : base.quantity;
+        const inStock = (sizeQty == null ? true : sizeQty > 0);
         const unit = getUnitLabel(base, size.value);
         return {
           id: `${base.key}${size.value}`,
@@ -423,7 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
           sizeValue: size.value,
           unit,
           price: Math.round(base.price500 * size.factor),
-          inStock: isInStock && !outOfStockLookup.has(`${base.key}${size.value}`.toLowerCase())
+          inStock: inStock && !outOfStockLookup.has(`${base.key}${size.value}`.toLowerCase())
         };
       });
 
