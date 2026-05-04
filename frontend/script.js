@@ -718,7 +718,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const serverItems = Array.isArray(payload?.items)
         ? payload.items
         : (Array.isArray(payload) ? payload : []);
-      const merged = mergeCartItems(getCart(), serverItems);
+      const localItems = getCart();
+      // If both carts are empty, keep empty. If only one has items, use that. If both have items, merge.
+      let merged = [];
+      if ((!localItems || localItems.length === 0) && (!serverItems || serverItems.length === 0)) {
+        merged = [];
+      } else if ((!localItems || localItems.length === 0) && serverItems.length > 0) {
+        merged = serverItems;
+      } else if (localItems.length > 0 && (!serverItems || serverItems.length === 0)) {
+        merged = localItems;
+      } else {
+        merged = mergeCartItems(localItems, serverItems);
+      }
       setCart(merged, { skipSync: true });
       updateCartCount();
       renderDrawer();
@@ -1014,6 +1025,17 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("✅ Order placed successfully!");
         console.log("Order:", data.order);
         localStorage.removeItem("cart");
+        // Clear server cart as well
+        try {
+          await fetchWithTimeout(`${API_BASE}/cart`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ items: [] })
+          }, 7000);
+        } catch (_err) {}
         renderDrawer();
         updateCartCount();
       } else {
