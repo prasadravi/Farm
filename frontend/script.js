@@ -715,21 +715,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 7000);
       if (!res.ok) return;
       const payload = await res.json();
-      const serverItems = Array.isArray(payload?.items)
-        ? payload.items
-        : (Array.isArray(payload) ? payload : []);
       const localItems = getCart();
-      // If both carts are empty, keep empty. If only one has items, use that. If both have items, merge.
-      let merged = [];
-      if ((!localItems || localItems.length === 0) && (!serverItems || serverItems.length === 0)) {
-        merged = [];
-      } else if ((!localItems || localItems.length === 0) && serverItems.length > 0) {
-        merged = serverItems;
-      } else if (localItems.length > 0 && (!serverItems || serverItems.length === 0)) {
-        merged = localItems;
-      } else {
-        merged = mergeCartItems(localItems, serverItems);
-      }
+      const merged = Array.isArray(localItems) ? localItems : [];
+      // Do not pull server cart items into the visible cart on page load.
+      // This prevents stale server state from auto-adding items without user action.
       setCart(merged, { skipSync: true });
       updateCartCount();
       renderDrawer();
