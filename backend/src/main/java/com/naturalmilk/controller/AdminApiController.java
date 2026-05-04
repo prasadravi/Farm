@@ -48,6 +48,9 @@ public class AdminApiController {
         existing.setImageUrl(product.getImageUrl());
         existing.setQuantity(product.getQuantity());
         existing.setCategory(product.getCategory());
+        existing.setQuantity250(product.getQuantity250());
+        existing.setQuantity500(product.getQuantity500());
+        existing.setQuantity1000(product.getQuantity1000());
         return ResponseEntity.ok(productService.update(existing));
     }
 

@@ -47,6 +47,9 @@ public class ProductSeeder implements ApplicationRunner {
         product.setName(name);
         product.setPrice(price);
         product.setQuantity(quantity);
+        product.setQuantity250(quantity);
+        product.setQuantity500(quantity);
+        product.setQuantity1000(quantity);
         product.setCategory(category);
         product.setImageUrl(imageUrl);
         return product;

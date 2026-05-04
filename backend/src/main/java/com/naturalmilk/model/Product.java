@@ -26,6 +26,15 @@ public class Product {
     @Column(nullable = false)
     private int quantity;
 
+    @Column
+    private Integer quantity250;
+
+    @Column
+    private Integer quantity500;
+
+    @Column
+    private Integer quantity1000;
+
     @Column(nullable = false)
     private String category;
 
@@ -51,6 +60,15 @@ public class Product {
 
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
+
+    public Integer getQuantity250() { return quantity250; }
+    public void setQuantity250(Integer quantity250) { this.quantity250 = quantity250; }
+
+    public Integer getQuantity500() { return quantity500; }
+    public void setQuantity500(Integer quantity500) { this.quantity500 = quantity500; }
+
+    public Integer getQuantity1000() { return quantity1000; }
+    public void setQuantity1000(Integer quantity1000) { this.quantity1000 = quantity1000; }
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }

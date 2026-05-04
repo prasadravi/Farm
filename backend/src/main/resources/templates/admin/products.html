@@ -44,8 +44,16 @@
               <input type="url" name="imageUrl" id="imageUrlInput" required />
             </div>
             <div>
-              <label>Quantity</label>
-              <input type="number" name="quantity" min="0" required />
+              <label>Qty 250ml</label>
+              <input type="number" name="quantity250" min="0" required />
+            </div>
+            <div>
+              <label>Qty 500ml</label>
+              <input type="number" name="quantity500" min="0" required />
+            </div>
+            <div>
+              <label>Qty 1000ml</label>
+              <input type="number" name="quantity1000" min="0" required />
             </div>
             <div>
               <label>Category</label>
@@ -76,7 +84,9 @@
                 <th>Name</th>
                 <th>Category</th>
                 <th>Price</th>
-                <th>Qty</th>
+                <th>250ml</th>
+                <th>500ml</th>
+                <th>1000ml</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -95,14 +105,26 @@
                   <input type="number" name="price" step="0.01" min="0" th:value="${product.price}" th:attr="form=${formId}" required />
                 </td>
                 <td>
-                  <input type="number" name="quantity" min="0" th:value="${product.quantity}" th:attr="form=${formId}" required />
+                  <input type="number" name="quantity250" min="0" th:value="${product.quantity250}" th:attr="form=${formId}" required />
+                </td>
+                <td>
+                  <input type="number" name="quantity500" min="0" th:value="${product.quantity500}" th:attr="form=${formId}" required />
+                </td>
+                <td>
+                  <input type="number" name="quantity1000" min="0" th:value="${product.quantity1000}" th:attr="form=${formId}" required />
                 </td>
                 <td class="actions">
                   <form th:id="${formId}" th:action="@{'/admin/products/' + ${product.id}}" method="post"></form>
                   <input type="url" name="imageUrl" th:value="${product.imageUrl}" th:attr="form=${formId}" required />
                   <button type="submit" th:attr="form=${formId}">Update</button>
-                  <form th:action="@{'/admin/products/' + ${product.id} + '/out-of-stock'}" method="post">
-                    <button class="warning" type="submit" th:disabled="${product.quantity == 0}">Out of Stock</button>
+                  <form th:action="@{'/admin/products/' + ${product.id} + '/out-of-stock/250'}" method="post">
+                    <button class="warning" type="submit" th:disabled="${product.quantity250 == 0}">Out 250ml</button>
+                  </form>
+                  <form th:action="@{'/admin/products/' + ${product.id} + '/out-of-stock/500'}" method="post">
+                    <button class="warning" type="submit" th:disabled="${product.quantity500 == 0}">Out 500ml</button>
+                  </form>
+                  <form th:action="@{'/admin/products/' + ${product.id} + '/out-of-stock/1000'}" method="post">
+                    <button class="warning" type="submit" th:disabled="${product.quantity1000 == 0}">Out 1000ml</button>
                   </form>
                   <form th:action="@{'/admin/products/' + ${product.id} + '/delete'}" method="post">
                     <button class="danger" type="submit">Delete</button>
@@ -110,7 +132,7 @@
                 </td>
               </tr>
               <tr th:if="${#lists.isEmpty(products)}">
-                <td colspan="6" class="empty">No products found.</td>
+                <td colspan="8" class="empty">No products found.</td>
               </tr>
             </tbody>
           </table>
