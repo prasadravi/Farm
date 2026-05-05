@@ -55,6 +55,43 @@
       keepalive: true
     }, 4000).catch(() => {});
 
+    async function signupWithRetry(name, email, password, maxAttempts = 3) {
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          // Exponential backoff timeout: 15s, 20s, 25s for retries
+          const baseTimeout = 15000;
+          const timeoutMs = baseTimeout + (attempt - 1) * 5000;
+          
+          const res = await fetchWithTimeout(`${API_BASE}/auth/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password }),
+            cache: "no-store"
+          }, timeoutMs);
+
+          const data = await res.json();
+          if (res.ok) {
+            alert("Signup successful! Please log in.");
+            window.location.href = "login.html";
+            return true;
+          } else {
+            // Non-timeout error, don't retry
+            alert(data.message || "Signup failed");
+            return false;
+          }
+        } catch (err) {
+          if (attempt === maxAttempts) {
+            // Last attempt failed
+            alert("Unable to sign up right now. Please check your connection and try again.");
+            return false;
+          }
+          // Retry with increased timeout
+          submitBtn.textContent = `Creating (Attempt ${attempt + 1}/${maxAttempts})...`;
+        }
+      }
+      return false;
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (submitBtn.disabled) return;
@@ -71,24 +108,7 @@
       try {
         submitBtn.disabled = true;
         submitBtn.textContent = "Creating...";
-        const res = await fetchWithTimeout(`${API_BASE}/auth/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
-          cache: "no-store"
-        }, 10000);
-
-        const data = await res.json();
-
-        if (res.ok) {
-          alert("Signup successful! Please log in.");
-          window.location.href = "login.html";
-        } else {
-          alert(data.message || "Signup failed");
-        }
-      } catch (err) {
-        console.error("Error:", err);
-        alert("Unable to sign up right now. Please try again.");
+        await signupWithRetry(name, email, password);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Sign Up";
