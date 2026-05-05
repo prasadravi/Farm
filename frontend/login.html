@@ -69,40 +69,22 @@
       togglePassword.setAttribute("aria-pressed", String(isHidden));
     });
 
-    async function loginWithRetry(email, password, maxAttempts = 3) {
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-          // Exponential backoff timeout: 15s, 20s, 25s for retries
-          const baseTimeout = 15000;
-          const timeoutMs = baseTimeout + (attempt - 1) * 5000;
-          
-          const res = await fetchWithTimeout(`${API_BASE}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-            cache: "no-store"
-          }, timeoutMs);
+    async function loginOnce(email, password) {
+      const res = await fetchWithTimeout(`${API_BASE}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+        cache: "no-store"
+      }, 20000);
 
-          const data = await res.json();
-          if (res.ok) {
-            localStorage.setItem("token", data.token);
-            window.location.href = (nextPage && !nextPage.startsWith("http")) ? nextPage : "index.html";
-            return true;
-          } else {
-            // Non-timeout error, don't retry
-            alert(data.message || "Login failed");
-            return false;
-          }
-        } catch (err) {
-          if (attempt === maxAttempts) {
-            // Last attempt failed
-            alert("Unable to sign in right now. Please check your connection and try again.");
-            return false;
-          }
-          // Retry with increased timeout
-          submitBtn.textContent = `Signing in (Attempt ${attempt + 1}/${maxAttempts})...`;
-        }
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem("token", data.token);
+        window.location.href = (nextPage && !nextPage.startsWith("http")) ? nextPage : "index.html";
+        return true;
       }
+
+      alert(data.message || "Login failed");
       return false;
     }
 
@@ -121,7 +103,7 @@
       try {
         submitBtn.disabled = true;
         submitBtn.textContent = "Signing in...";
-        await loginWithRetry(email, password);
+        await loginOnce(email, password);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Login";
