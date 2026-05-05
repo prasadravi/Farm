@@ -1,5 +1,6 @@
 package com.naturalmilk.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,9 @@ import com.naturalmilk.service.ProductService;
 
 @Controller
 public class AdminController {
+    @Value("${app.frontend.base-url:https://natural-milk-frontend.onrender.com}")
+    private String frontendBaseUrl;
+
     private final ProductService productService;
     private final OrderService orderService;
     private final AdminUserService adminUserService;
@@ -33,6 +37,7 @@ public class AdminController {
         if (logout != null) {
             model.addAttribute("message", "Logged out successfully");
         }
+        model.addAttribute("frontendBaseUrl", frontendBaseUrl);
         return "admin/login";
     }
 

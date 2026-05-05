@@ -23,6 +23,10 @@
         <input type="password" name="password" required />
         <button type="submit">Login</button>
       </form>
+      <div class="admin-login-actions">
+        <a class="admin-btn-link admin-btn-secondary" th:href="${frontendBaseUrl + '/signup.html'}">Sign Up</a>
+        <a class="admin-btn-link" th:href="${frontendBaseUrl}">Open Site</a>
+      </div>
     </div>
   </div>
 </body>

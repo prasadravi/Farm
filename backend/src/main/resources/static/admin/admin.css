@@ -259,6 +259,18 @@ body.admin-body {
   gap: 12px;
 }
 
+.admin-login-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.admin-btn-secondary {
+  background: #fff;
+  border: 1px solid var(--border);
+}
+
 .admin-alert {
   background: #fee2e2;
   color: #991b1b;
@@ -285,5 +297,35 @@ body.admin-body {
     position: sticky;
     top: 0;
     z-index: 10;
+    padding: 18px 16px;
+  }
+  .admin-main {
+    padding: 20px 16px 28px;
+  }
+  .admin-table {
+    min-width: 640px;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-login {
+    padding: 16px;
+  }
+
+  .admin-login .admin-card {
+    padding: 20px 16px;
+    border-radius: 14px;
+  }
+
+  .admin-login-actions {
+    flex-direction: column;
+  }
+
+  .admin-login-actions .admin-btn-link {
+    width: 100%;
+  }
+
+  .admin-row {
+    align-items: flex-start;
   }
 }
