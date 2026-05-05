@@ -1960,11 +1960,35 @@ body {
   flex-direction: column; 
   gap: 16px; 
 }
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
 .auth-form input { 
   padding: 12px; 
   border-radius: 8px; 
   border: 1px solid #ddd; 
   font-size: 0.95rem; 
+}
+.password-field input {
+  width: 100%;
+  padding-right: 48px;
+}
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 4px;
+}
+.password-toggle:hover {
+  color: #111;
 }
 .auth-form input:focus { 
   border-color: #e8c46b; 
@@ -1983,6 +2007,25 @@ body {
 }
 .auth-footer a:hover { 
   text-decoration: underline; 
+}
+@media (max-width: 640px) {
+  .auth-body {
+    padding: 18px;
+  }
+
+  .auth-container {
+    margin: 24px auto;
+    padding: 28px 20px;
+    border-radius: 14px;
+  }
+
+  .auth-title {
+    font-size: 1.4rem;
+  }
+
+  .password-toggle {
+    right: 8px;
+  }
 }
 /* Cart icon in store section */
 .store-head {
