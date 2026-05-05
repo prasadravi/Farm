@@ -325,6 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   let baseProducts = [
+    { key: "watermilk", title: "Water Milk", price500: 123, kind: "liquid", pack: "pouch", img: "images/new-image.jpg" },
     { key: "cowmilk", title: "Fresh Cow Milk", price500: 28, kind: "liquid", pack: "pouch", img: "images/stor-one.jpg" },
     { key: "cowcurd", title: "Cow Curd", price500: 110, kind: "solid", pack: "cup", img: "images/cow-curd.jpg" },
     { key: "buffalocurd", title: "Bufflo Curd", price500: 155, kind: "solid", pack: "cup", img: "images/buffalo-curd.jpg" },
