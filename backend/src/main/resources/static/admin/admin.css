@@ -75,6 +75,19 @@ body.admin-body {
   color: var(--muted);
 }
 
+.admin-btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--gold);
+  color: #111111;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 .admin-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

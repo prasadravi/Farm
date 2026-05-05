@@ -48,4 +48,8 @@ public class OrderService {
         order.setUpdatedAt(System.currentTimeMillis());
         return orderRepository.save(order);
     }
+
+    public void deleteOrder(String orderId) {
+        orderRepository.deleteById(orderId);
+    }
 }

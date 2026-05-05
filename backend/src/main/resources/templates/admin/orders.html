@@ -23,8 +23,13 @@
     </aside>
     <main class="admin-main">
       <header class="admin-header">
-        <h1>Orders</h1>
-        <p>Track and update order status</p>
+        <div class="admin-row">
+          <div>
+            <h1>Orders</h1>
+            <p>Track, update, delete, and export customer orders</p>
+          </div>
+          <a class="admin-btn-link" th:href="@{/admin/orders/download-pdf}">Download PDF</a>
+        </div>
       </header>
 
       <section class="admin-card">
@@ -62,6 +67,9 @@
                       <option value="delivered" th:selected="${order.status == 'delivered'}">Delivered</option>
                     </select>
                     <button type="submit">Save</button>
+                  </form>
+                  <form th:action="@{'/admin/orders/' + ${order.id} + '/delete'}" method="post" class="inline-form" onsubmit="return confirm('Delete this order?');">
+                    <button type="submit" class="danger">Delete</button>
                   </form>
                 </td>
               </tr>
