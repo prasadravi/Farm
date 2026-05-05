@@ -71,6 +71,11 @@ public class AuthController {
                 );
             }
 
+            if (userService.isLegacyPasswordHash(user.getPassword())) {
+                user.setPassword(userService.upgradePasswordHash(request.getPassword()));
+                user = userService.updateUser(user.getEmail(), user);
+            }
+
             String token = jwtTokenProvider.generateToken(user.getEmail());
             user.setPassword(null); // Don't send password in response
 

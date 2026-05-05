@@ -20,8 +20,20 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
+    private volatile SecretKey signingKey;
+
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        SecretKey key = signingKey;
+        if (key == null) {
+            synchronized (this) {
+                key = signingKey;
+                if (key == null) {
+                    key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+                    signingKey = key;
+                }
+            }
+        }
+        return key;
     }
 
     public String generateToken(String userId) {
