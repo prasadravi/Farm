@@ -1,23 +1,26 @@
+# OS
 .DS_Store
-.vscode/
 
-# Node / frontend
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Java / Spring
-backend/target/
-*.class
-
-# Secrets and local env
-.env
-.env.*
-backend/src/main/resources/firebase-service-account.json
-
-# Runtime logs
+# Logs
 *.log
 
-# Local deployment values
-render-env-values.txtrender-env-values.txt
+# Java
+target/
+*.jar
+*.war
+
+# Python
+.venv/
+__pycache__/
+
+# Env files
+.env
+.env.*
+render-env-values.txt
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+*.swp
