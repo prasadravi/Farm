@@ -20,4 +20,4 @@ backend/src/main/resources/firebase-service-account.json
 *.log
 
 # Local deployment values
-render-env-values.txt
+render-env-values.txtrender-env-values.txt
