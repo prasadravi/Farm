@@ -54,13 +54,6 @@
       }
     }
 
-    // Warm up backend once using a public lightweight endpoint.
-    fetchWithTimeout(`${API_BASE}/auth/health`, {
-      method: "GET",
-      cache: "no-store",
-      keepalive: true
-    }, 4000).catch(() => {});
-
     togglePassword.addEventListener("click", () => {
       const isHidden = passwordInput.type === "password";
       passwordInput.type = isHidden ? "text" : "password";

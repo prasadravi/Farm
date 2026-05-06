@@ -48,13 +48,6 @@
       }
     }
 
-    // Warm up backend once using a public lightweight endpoint.
-    fetchWithTimeout(`${API_BASE}/auth/health`, {
-      method: "GET",
-      cache: "no-store",
-      keepalive: true
-    }, 4000).catch(() => {});
-
     async function signupWithRetry(name, email, password, maxAttempts = 3) {
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         try {

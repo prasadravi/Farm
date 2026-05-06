@@ -74,11 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ? window.APP_CONFIG.API_BASE
     : "http://localhost:4000/api";
 
-  // --- KEEP-ALIVE PING (prevents backend cold start) ---
-  setInterval(() => {
-    fetch(`${API_BASE}/health`).catch(() => {});
-  }, 180000); // every 3 minutes
-
   function isLoggedIn() {
     const token = getToken();
     if (!token) return false;
