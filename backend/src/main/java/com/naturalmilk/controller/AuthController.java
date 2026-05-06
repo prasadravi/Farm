@@ -71,9 +71,9 @@ public class AuthController {
                 );
             }
 
+            // Upgrade legacy password hash in background (non-blocking)
             if (userService.isLegacyPasswordHash(user.getPassword())) {
-                user.setPassword(userService.upgradePasswordHash(request.getPassword()));
-                user = userService.updateUser(user.getEmail(), user);
+                new Thread(() -> userService.upgradePasswordForUser(user.getEmail(), request.getPassword())).start();
             }
 
             String token = jwtTokenProvider.generateToken(user.getEmail());

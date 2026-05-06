@@ -57,8 +57,13 @@ public class UserService {
         return passwordHash != null && !passwordHash.startsWith("$2a$") && !passwordHash.startsWith("$2b$") && !passwordHash.startsWith("$2y$");
     }
 
-    public String upgradePasswordHash(String rawPassword) {
-        return passwordEncoder.encode(rawPassword);
+    public synchronized void upgradePasswordForUser(String email, String rawPassword) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user != null && isLegacyPasswordHash(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(rawPassword));
+            user.setUpdatedAt(System.currentTimeMillis());
+            userRepository.save(user);
+        }
     }
 
     private String hashLegacyPassword(String password) {
