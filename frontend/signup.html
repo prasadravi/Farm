@@ -15,6 +15,8 @@
     <h1 class="logo">NATURAL MILK</h1>
     <h2 class="auth-title">Create an Account</h2>
 
+    <div id="errorMessage" class="error-message" style="display:none;"></div>
+
     <form id="signupForm" class="auth-form">
       <input type="text" id="name" placeholder="Full Name" required />
       <input type="email" id="email" placeholder="Email" required />
@@ -37,6 +39,16 @@
 
     const form = document.getElementById("signupForm");
     const submitBtn = document.getElementById("signupSubmitBtn");
+    const errorMessage = document.getElementById("errorMessage");
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = "block";
+    }
+
+    function hideError() {
+      errorMessage.style.display = "none";
+    }
 
     async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
       const controller = new AbortController();
@@ -48,41 +60,30 @@
       }
     }
 
-    async function signupWithRetry(name, email, password, maxAttempts = 3) {
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-          // Exponential backoff timeout: 15s, 20s, 25s for retries
-          const baseTimeout = 15000;
-          const timeoutMs = baseTimeout + (attempt - 1) * 5000;
-          
-          const res = await fetchWithTimeout(`${API_BASE}/auth/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, password }),
-            cache: "no-store"
-          }, timeoutMs);
+    async function signupOnce(name, email, password) {
+      try {
+        const res = await fetchWithTimeout(`${API_BASE}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+          cache: "no-store"
+        }, 20000);
 
-          const data = await res.json();
-          if (res.ok) {
-            alert("Signup successful! Please log in.");
+        const data = await res.json();
+        if (res.ok) {
+          // Show success message and redirect
+          setTimeout(() => {
             window.location.href = "login.html";
-            return true;
-          } else {
-            // Non-timeout error, don't retry
-            alert(data.message || "Signup failed");
-            return false;
-          }
-        } catch (err) {
-          if (attempt === maxAttempts) {
-            // Last attempt failed
-            alert("Unable to sign up right now. Please check your connection and try again.");
-            return false;
-          }
-          // Retry with increased timeout
-          submitBtn.textContent = `Creating (Attempt ${attempt + 1}/${maxAttempts})...`;
+          }, 500);
+          return true;
         }
+
+        showError(data.message || "Signup failed");
+        return false;
+      } catch (err) {
+        showError("Unable to sign up. Please check your connection.");
+        return false;
       }
-      return false;
     }
 
     form.addEventListener("submit", async (e) => {
@@ -94,14 +95,15 @@
       const password = document.getElementById("password").value.trim();
 
       if (!name || !email || !password) {
-        alert("Please fill all fields");
+        showError("Please fill all fields");
         return;
       }
 
+      hideError();
       try {
         submitBtn.disabled = true;
         submitBtn.textContent = "Creating...";
-        await signupWithRetry(name, email, password);
+        await signupOnce(name, email, password);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Sign Up";
