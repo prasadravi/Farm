@@ -23,6 +23,9 @@ import jakarta.persistence.Transient;
 @Entity
 @Table(name = "orders")
 public class Order {
+    private static final ZoneId ORDER_TIME_ZONE = ZoneId.of("Asia/Kolkata");
+    private static final DateTimeFormatter ORDER_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -123,8 +126,8 @@ public class Order {
             return "-";
         }
         return Instant.ofEpochMilli(createdAt)
-            .atZone(ZoneId.systemDefault())
-            .format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
+            .atZone(ORDER_TIME_ZONE)
+            .format(ORDER_TIME_FORMAT);
     }
 
     public long getUpdatedAt() { return updatedAt; }
