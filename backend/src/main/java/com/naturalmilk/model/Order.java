@@ -1,5 +1,6 @@
 package com.naturalmilk.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.AttributeOverride;
@@ -41,6 +42,8 @@ public class Order {
     private String landmark;
     private String pincode;
     private String phone;
+
+    private java.time.LocalDateTime createdAt;
 
     @Embedded
     @AttributeOverrides({
