@@ -17,7 +17,7 @@ public class OrderService {
 
     public Order createOrder(Order order) {
         order.setStatus(order.getStatus() == null ? "pending" : order.getStatus());
-        order.setCreatedAt(java.time.LocalDateTime.now());
+        order.setCreatedAt(System.currentTimeMillis());
         return orderRepository.save(order);
     }
 
