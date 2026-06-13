@@ -1,6 +1,8 @@
 package com.naturalmilk.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import jakarta.persistence.AttributeOverride;
@@ -42,8 +44,6 @@ public class Order {
     private String landmark;
     private String pincode;
     private String phone;
-
-    private java.time.LocalDateTime createdAt;
 
     @Embedded
     @AttributeOverrides({
@@ -117,6 +117,15 @@ public class Order {
 
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+
+    public String getCreatedAtDisplay() {
+        if (createdAt <= 0) {
+            return "-";
+        }
+        return Instant.ofEpochMilli(createdAt)
+            .atZone(ZoneId.systemDefault())
+            .format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
+    }
 
     public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
