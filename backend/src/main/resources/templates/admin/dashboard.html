@@ -39,6 +39,10 @@
           <h3>Total Revenue</h3>
           <div class="admin-card-value">₹<span th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 2, 'POINT')}">0.00</span></div>
         </div>
+        <div class="admin-card">
+          <h3>Total Users</h3>
+          <div class="admin-card-value" th:text="${totalUsers}">0</div>
+        </div>
       </section>
     </main>
   </div>

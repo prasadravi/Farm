@@ -11,6 +11,7 @@ import com.naturalmilk.model.AdminUser;
 import com.naturalmilk.service.AdminUserService;
 import com.naturalmilk.service.OrderService;
 import com.naturalmilk.service.ProductService;
+import com.naturalmilk.service.UserService;
 
 @Controller
 public class AdminController {
@@ -20,11 +21,14 @@ public class AdminController {
     private final ProductService productService;
     private final OrderService orderService;
     private final AdminUserService adminUserService;
+    private final UserService userService;
 
-    public AdminController(ProductService productService, OrderService orderService, AdminUserService adminUserService) {
+    public AdminController(ProductService productService, OrderService orderService, AdminUserService adminUserService,
+                           UserService userService) {
         this.productService = productService;
         this.orderService = orderService;
         this.adminUserService = adminUserService;
+        this.userService = userService;
     }
 
     @GetMapping("/admin/login")
@@ -46,6 +50,7 @@ public class AdminController {
         model.addAttribute("totalProducts", productService.getAll().size());
         model.addAttribute("totalOrders", orderService.getAllOrders().size());
         model.addAttribute("totalRevenue", orderService.getTotalRevenue());
+        model.addAttribute("totalUsers", userService.getTotalUsers());
         return "admin/dashboard";
     }
 

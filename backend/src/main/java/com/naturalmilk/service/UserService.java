@@ -35,6 +35,10 @@ public class UserService {
         return userRepository.findById(userId).orElse(null);
     }
 
+    public long getTotalUsers() {
+        return userRepository.count();
+    }
+
     public User updateUser(String email, User user) {
         user.setUpdatedAt(System.currentTimeMillis());
         return userRepository.save(user);
