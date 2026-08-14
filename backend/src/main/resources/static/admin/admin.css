@@ -102,6 +102,18 @@ body.admin-body {
   box-shadow: 0 10px 24px var(--shadow);
 }
 
+.admin-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-card-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px var(--shadow);
+}
+
 .admin-card h2 {
   margin-top: 0;
 }

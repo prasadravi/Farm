@@ -3,6 +3,7 @@ package com.naturalmilk.service;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,10 @@ public class UserService {
 
     public long getTotalUsers() {
         return userRepository.count();
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAllByOrderByCreatedAtDesc();
     }
 
     public User updateUser(String email, User user) {

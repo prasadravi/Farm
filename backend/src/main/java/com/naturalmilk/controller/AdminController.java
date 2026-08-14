@@ -54,6 +54,12 @@ public class AdminController {
         return "admin/dashboard";
     }
 
+    @GetMapping("/admin/users")
+    public String users(Model model) {
+        model.addAttribute("users", userService.getAllUsers());
+        return "admin/users";
+    }
+
     @GetMapping("/admin/settings")
     public String settings(Model model) {
         AdminUser admin = adminUserService.getPrimaryAdmin();

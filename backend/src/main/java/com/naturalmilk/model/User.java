@@ -2,6 +2,9 @@
 package com.naturalmilk.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,6 +19,8 @@ import jakarta.persistence.Table;
     @Index(name = "idx_users_email", columnList = "email")
 })
 public class User {
+    private static final ZoneId USER_TIME_ZONE = ZoneId.of("Asia/Kolkata");
+    private static final DateTimeFormatter USER_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -78,6 +83,15 @@ public class User {
 
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+
+    public String getCreatedAtDisplay() {
+        if (createdAt <= 0) {
+            return "-";
+        }
+        return Instant.ofEpochMilli(createdAt)
+            .atZone(USER_TIME_ZONE)
+            .format(USER_TIME_FORMAT);
+    }
 
     public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }

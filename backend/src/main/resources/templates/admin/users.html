@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Users - Natural Milk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/admin/admin.css}" />
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">Natural Milk</div>
+      <nav>
+        <a th:href="@{/admin/dashboard}">Dashboard</a>
+        <a class="active" th:href="@{/admin/users}">Users</a>
+        <a th:href="@{/admin/products}">Products</a>
+        <a th:href="@{/admin/orders}">Orders</a>
+        <a th:href="@{/admin/settings}">Settings</a>
+        <a class="logout" th:href="@{/admin/logout}">Logout</a>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Registered Users</h1>
+        <p>Users who registered on your website with registration time</p>
+      </header>
+
+      <section class="admin-card">
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Registered At</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="user : ${users}">
+                <td th:text="${user.name}">-</td>
+                <td th:text="${user.email}">-</td>
+                <td th:text="${user.phone != null && !user.phone.isEmpty() ? user.phone : '-'}">-</td>
+                <td th:text="${user.createdAtDisplay}">-</td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(users)}">
+                <td colspan="4" class="empty">No registered users found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
